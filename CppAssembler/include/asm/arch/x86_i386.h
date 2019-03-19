@@ -647,6 +647,39 @@ namespace CppAsm::X86
 			block.skipBytes(FwdLabel<SHORT>::offset_size);
 			return FwdLabel<SHORT>(offset);
 		}
+
+		template<AddressMode MODE>
+		static void template_LoadSegReg(Os::CodeBlock& block, common::Opcode opcode, Reg32 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode(block, opcode);
+			mem.write(block, reg);
+		}
+
+		template<AddressMode MODE>
+		static void template_LoadSegReg(Os::CodeBlock& block, common::Opcode opcode, Reg16 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, opcode);
+			mem.write(block, reg);
+		}
+
+
+		template<AddressMode MODE>
+		static void template_LoadSegRegEx(Os::CodeBlock& block, common::Opcode opcode, Reg32 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			mem.write(block, reg);
+		}
+
+		template<AddressMode MODE>
+		static void template_LoadSegRegEx(Os::CodeBlock& block, common::Opcode opcode, Reg16 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			mem.write(block, reg);
+		}
 	public:
 #pragma region Data transfer [DONE]
 		/* Convert byte to word */
@@ -2436,6 +2469,33 @@ namespace CppAsm::X86
 			common::write_Opcode_Rep<R>(block, 0xA7);
 		}
 
+#pragma endregion
+
+#pragma region Load segment registers
+		template<class REG, AddressMode MODE>
+		static void Lds(Os::CodeBlock& block, REG reg, const Mem32<MODE>& mem) {
+			template_LoadSegReg(block, 0xC5, reg, mem);
+		}
+
+		template<class REG, AddressMode MODE>
+		static void Les(Os::CodeBlock& block, REG reg, const Mem32<MODE>& mem) {
+			template_LoadSegReg(block, 0xC4, reg, mem);
+		}
+
+		template<class REG, AddressMode MODE>
+		static void Lfs(Os::CodeBlock& block, REG reg, const Mem32<MODE>& mem) {
+			template_LoadSegRegEx(block, 0xB4, reg, mem);
+		}
+
+		template<class REG, AddressMode MODE>
+		static void Lgs(Os::CodeBlock& block, REG reg, const Mem32<MODE>& mem) {
+			template_LoadSegRegEx(block, 0xB5, reg, mem);
+		}
+
+		template<class REG, AddressMode MODE>
+		static void Lss(Os::CodeBlock& block, REG reg, const Mem32<MODE>& mem) {
+			template_LoadSegRegEx(block, 0xB2, reg, mem);
+		}
 #pragma endregion
 
 #pragma region Other operations
