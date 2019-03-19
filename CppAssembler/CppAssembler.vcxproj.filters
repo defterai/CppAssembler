@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\asm">
+      <UniqueIdentifier>{dfa871d0-48f3-428c-ad75-f16c82590058}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\asm\arch">
+      <UniqueIdentifier>{cc2c2079-ac3e-4608-ad3e-498a0a7cf752}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\asm\os_win32.h">
+      <Filter>Header Files\asm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\os.h">
+      <Filter>Header Files\asm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\replaceable.h">
+      <Filter>Header Files\asm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\defs.h">
+      <Filter>Header Files\asm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_base.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_i386.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch.h">
+      <Filter>Header Files\asm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_i387.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_i486.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_i586.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_i686.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_CMOVcc.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\MMX.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x64_base.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x64_i386.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_64_base.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\os.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
