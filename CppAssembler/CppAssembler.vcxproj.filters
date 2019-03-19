@@ -66,6 +66,12 @@
     <ClInclude Include="include\asm\arch\x86_64_base.h">
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_SEP.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_MSR.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\os.cpp">

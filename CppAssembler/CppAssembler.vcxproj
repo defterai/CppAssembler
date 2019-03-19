@@ -184,6 +184,8 @@
     <ClInclude Include="include\asm\arch\x86_i486.h" />
     <ClInclude Include="include\asm\arch\x86_i586.h" />
     <ClInclude Include="include\asm\arch\x86_i686.h" />
+    <ClInclude Include="include\asm\arch\x86_MSR.h" />
+    <ClInclude Include="include\asm\arch\x86_SEP.h" />
     <ClInclude Include="include\asm\defs.h" />
     <ClInclude Include="include\asm\os.h" />
     <ClInclude Include="include\asm\os_win32.h" />
