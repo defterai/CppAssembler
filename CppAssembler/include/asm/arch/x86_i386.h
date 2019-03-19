@@ -570,8 +570,8 @@ namespace CppAsm::X86
 		static ReplaceableMem32<MODE> template_Setcc(Os::CodeBlock& block, common::Opcode opcode, const Mem32<MODE>& mem) {
 			static_assert(SIZE == BYTE_PTR, "Setcc: Invalid size of operand");
 			mem.writeSegmPrefix(block);
-			write_Operand_Extended_Prefix(block);
-			write_Opcode(block, opcode);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
 			return mem.write(block, 0);
 		}
 
@@ -1094,11 +1094,35 @@ namespace CppAsm::X86
 			return template_1mem_operand<SIZE>(block, detail::opcode_IMUL, mem);
 		}
 
-		/* TODO: IMUL reg,imm
-		 * TODO: IMUL reg,reg
-		 * TODO: IMUL reg,[mem]
-		 * TODO: IMUL reg,reg,imm
-		 * TODO: IMUL reg,[mem],imm */
+		/* Signed Multiply
+		 - IMUL reg,reg
+		*/
+		template<class REG>
+		static void Imul(Os::CodeBlock& block, REG reg1, REG reg2) {
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, 0xAF);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
+		}
+
+		/* Signed Multiply
+		- IMUL reg,reg,imm
+		*/
+		template<class REG, class T>
+		static void Imul(Os::CodeBlock& block, REG reg1, REG reg2, const Imm<T>& imm) {
+			write_Opcode_Imm_Optimized<TypeMemSize<REG>::value, TypeMemSize<Imm<T>>::value>(block, 0x69);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
+			common::write_Immediate(block, imm);
+		}
+
+		/* Signed Multiply
+		- IMUL reg,reg,imm
+		*/
+		template<class REG, AddressMode MODE, class T>
+		static void Imul(Os::CodeBlock& block, REG reg, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			mem.writeSegmPrefix(block);
+			write_Opcode_Imm_Optimized<TypeMemSize<REG>::value, TypeMemSize<Imm<T>>::value>(block, 0x69);
+			mem.write(block, reg);
+			common::write_Immediate(block, imm);
+		}
 
 		/* Divide unsigned numbers
 		 - DIV reg

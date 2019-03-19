@@ -15,8 +15,8 @@ namespace CppAsm::X86
 		static void CmpXchg8b(Os::CodeBlock& block, const Mem32<MODE>& mem) {
 			static_assert(SIZE == QWORD_PTR, "Invalid operand size");
 			mem.writeSegmPrefix(block);
-			write_Operand_Extended_Prefix(block);
-			write_Opcode(block, 0xC7);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, 0xC7);
 			mem.write(block, 0b001);
 		}
 

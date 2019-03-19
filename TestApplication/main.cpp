@@ -10,19 +10,31 @@
 
 using namespace CppAsm;
 
-
-typedef Arch::CodeGen<X64::i386> GArch;
-//typedef Arch::CodeGen<X86::i386> GArch;
+#ifdef WIN32
+	typedef Arch::CodeGen<X86::i686> GArch;
+#else // WIN32
+	typedef Arch::CodeGen<X64::i386> GArch;
+#endif 
 
 int main()
 {
 	Win32::CodeBlock block(1024);
 
 	{
-		/*GArch::Xchg(block, X86::Mem32<X86::OFFSET>(5000), X86::EDX);
-		//GArch::Xchg(block, X86::Mem32<X86::BASE>(X86::ECX), X86::EDX);*/
+#ifdef WIN32
+		GArch::Imul(block, X86::EDX, X86::EAX);
+		GArch::Imul(block, X86::DX, X86::AX);
+		GArch::Imul(block, X86::EDX, X86::EAX, U32(500000));
+		GArch::Imul(block, X86::EDX, X86::EAX, U8(5));
+		GArch::Imul(block, X86::DX, X86::AX, U8(50));
+
+		GArch::Imul(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX), U32(500000));
+		GArch::Imul(block, X86::EDX, X86::Mem32<X86::BASE_OFFSET>(X86::EDX, 100000), U32(500000));
+
+		GArch::Xchg(block, X86::Mem32<X86::OFFSET>(5000), X86::EDX);
+		//GArch::Xchg(block, X86::Mem32<X86::BASE>(X86::ECX), X86::EDX);
 		//GArch::Xchg(block, X86::Mem32<X86::BASE_OFFSET>(X86::ECX, 5000), X86::EDX);
-		/*GArch::Xchg(block, X86::Mem32<X86::INDEX_OFFSET>(X86::ECX, X86::SCALE_8, 5000), X86::EDX);
+		GArch::Xchg(block, X86::Mem32<X86::INDEX_OFFSET>(X86::ECX, X86::SCALE_8, 5000), X86::EDX);
 		GArch::Xchg(block, X86::Mem32<X86::BASE_INDEX>(X86::EAX, X86::ECX, X86::SCALE_8), X86::EDX);
 		GArch::Xchg(block, X86::Mem32<X86::BASE_INDEX_OFFSET>(X86::EAX, X86::ECX, X86::SCALE_8, 10), X86::EDX);
 		GArch::Xchg(block, X86::Mem32<X86::BASE_INDEX_OFFSET>(X86::EAX, X86::ECX, X86::SCALE_8, 1000), X86::EDX);
@@ -53,38 +65,8 @@ int main()
 		GArch::Rdtsc(block);
 		GArch::Rdmsr(block);
 		GArch::Wrmsr(block);
-		GArch::Rsm(block);*/
-
-		/*GArch::Mov(block, X64::RAX, X64::RCX);
-		GArch::Mov(block, X64::EAX, X64::ECX);
-		GArch::Mov(block, X64::AX, X64::CX);
-		GArch::Mov(block, X64::AL, X64::CL);
-
-		GArch::Mov(block, X64::RAX, X64::R9);
-		GArch::Mov(block, X64::EAX, X64::R9d);
-		GArch::Mov(block, X64::R9, X64::RAX);
-		GArch::Mov(block, X64::R9d, X64::EAX);
-		GArch::Mov(block, X64::R9, X64::R9);
-		GArch::Mov(block, X64::R9d, X64::R9d);
-
-		GArch::Mov(block, X64::R15, X64::R14);
-		GArch::Mov(block, X64::R15d, X64::R14d);*/
-
-		//GArch::Mov(block, X64::RDX, S32(500));
-		//GArch::Mov(block, X64::R14, S32(500));
-
-		/*GArch::Mov<X64::OFFSET>(block, X64::Mem64<>(5), X64::R14);
-		GArch::Mov<X64::OFFSET>(block, X64::Mem64<>(5), X64::RAX);
-		GArch::Mov<X64::OFFSET>(block, X64::Mem64<>(5), X64::EAX);
-		GArch::Mov<X64::OFFSET>(block, X64::Mem64<>(5), X64::AX);
-		GArch::Mov<X64::OFFSET>(block, X64::Mem64<>(5), X64::AL);
-
-		GArch::Mov<X64::OFFSET>(block, X64::R14, X64::Mem64<>(5));
-		GArch::Mov<X64::OFFSET>(block, X64::RAX, X64::Mem64<>(5));
-		GArch::Mov<X64::OFFSET>(block, X64::EAX, X64::Mem64<>(5));
-		GArch::Mov<X64::OFFSET>(block, X64::AX, X64::Mem64<>(5));
-		GArch::Mov<X64::OFFSET>(block, X64::AL, X64::Mem64<>(5));*/
-
+		GArch::Rsm(block);
+#else
 		GArch::Lea(block, X64::EDX, X64::Mem64<X64::OFFSET>(0xFFFFFFFF));
 		//GArch::Movsx(block, X64::DX, X64::Mem64<X64::BASE>(X64::RSP));
 
@@ -140,6 +122,7 @@ int main()
 		GArch::Cmp<X64::BASE_INDEX_OFFSET>(block, X64::Mem64<X64::BASE_INDEX_OFFSET>(X64::R14, X64::R14, X64::SCALE_8, 5000), X64::AX);
 		GArch::Cmp<X64::BASE_INDEX_OFFSET>(block, X64::Mem64<X64::BASE_INDEX_OFFSET>(X64::R14, X64::R14, X64::SCALE_8, 5000), X64::AL);
 
+#endif
 		block.invokeStdcall<int>();
 	}
 

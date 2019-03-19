@@ -39,9 +39,6 @@
     <ClInclude Include="include\asm\arch\x86_i386.h">
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>
-    <ClInclude Include="include\asm\arch.h">
-      <Filter>Header Files\asm</Filter>
-    </ClInclude>
     <ClInclude Include="include\asm\arch\x86_i387.h">
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>

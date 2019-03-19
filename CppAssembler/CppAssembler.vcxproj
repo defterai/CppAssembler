@@ -173,7 +173,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\asm\arch.h" />
     <ClInclude Include="include\asm\arch\x64_base.h" />
     <ClInclude Include="include\asm\arch\MMX.h" />
     <ClInclude Include="include\asm\arch\x64_i386.h" />
