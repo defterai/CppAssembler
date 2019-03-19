@@ -31,5 +31,12 @@ namespace CppAsm::X86
 		static void CmpXchg(Os::CodeBlock& block, const DST& dst, const SRC& src) {
 			template_2operands_xchange(block, 0xB0, dst, src);
 		}
+
+		/* Returns processor identification and feature information to the EAX, EBX, ECX, and EDX registers, 
+		 * according to the input value entered initially in the EAX register. */
+		static void Cpuid(Os::CodeBlock& block) {
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, 0xA2);
+		}
 	};
 }
