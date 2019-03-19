@@ -2444,6 +2444,21 @@ namespace CppAsm::X86
 			common::write_Opcode(block, 0xF0);
 		}
 
+		template<AddressMode MODE>
+		static void Bound(Os::CodeBlock& block, Reg16 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x62);
+			mem.write(block, reg);
+		}
+
+		template<AddressMode MODE>
+		static void Bound(Os::CodeBlock& block, Reg32 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode(block, 0x62);
+			mem.write(block, reg);
+		}
+
 		/* No operation */
 		static void Nop(Os::CodeBlock& block) {
 			common::write_Opcode(block, 0x90);
