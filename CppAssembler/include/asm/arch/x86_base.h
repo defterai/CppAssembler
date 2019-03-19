@@ -74,6 +74,15 @@ namespace CppAsm::X86
 		LONG
 	};
 
+	enum RepPrefix : uint8_t {
+		NONE = 0x00,
+		REP = 0xF3,
+		REPE = 0xF3,
+		REPZ = 0xF3,
+		REPNE = 0xF2,
+		REPNZ = 0xF2
+	};
+
 	enum AddressMode {
 		OFFSET,			// segment:[offset]
 		BASE,			// segment:[base_reg]

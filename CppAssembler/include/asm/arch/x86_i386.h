@@ -2323,44 +2323,119 @@ namespace CppAsm::X86
 #pragma endregion
 
 #pragma region String operations
-		/* TODO: Lodsb */
-		void Lodsb(Os::CodeBlock& block) {
-			common::write_Opcode(block, 0xAC);
+
+		template<RepPrefix R = NONE>
+		static void Insb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0x6C)
 		}
 
-		/* TODO: Lodsw */
-		void Lodsw(Os::CodeBlock& block) {
+		template<RepPrefix R = NONE>
+		static void Insw(Os::CodeBlock& block) {
 			common::write_Opcode_16bit_Prefix(block);
-			common::write_Opcode(block, 0xAD);
+			common::write_Opcode_Rep<R>(block, 0x6D);
 		}
 
-		/* TODO: Movsb */
-		void Movsb(Os::CodeBlock& block) {
-			common::write_Opcode(block, 0xA4);
+		template<RepPrefix R = NONE>
+		static void Insd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0x6D);
 		}
 
-		/* TODO: Movsw */
-		void Movsw(Os::CodeBlock& block) {
+		template<RepPrefix R = NONE>
+		static void Outb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0x6E);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Outw(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Rep<R>(block, 0x6F);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Outd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0x6F);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Lodsb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xAC);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Lodsw(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Rep<R>(block, 0xAD);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Lodsd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xAD);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Movsb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xA4);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Movsw(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode(block, 0xA5);
 		}
 
-		void Scasb(Os::CodeBlock& block) {
-			common::write_Opcode(block, 0xAE);
+		template<RepPrefix R = NONE>
+		static void Movsd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xA5);
 		}
 
-		void Scasw(Os::CodeBlock& block) {
+		template<RepPrefix R = NONE>
+		static void Scasb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xAE);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Scasw(Os::CodeBlock& block) {
 			common::write_Opcode_16bit_Prefix(block);
-			common::write_Opcode(block, 0xAF);
+			common::write_Opcode_Rep<R>(block, 0xAF);
 		}
 
-		void Stosb(Os::CodeBlock& block) {
-			common::write_Opcode(block, 0xAA);
+		template<RepPrefix R = NONE>
+		static void Scasd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xAF);
 		}
 
+		template<RepPrefix R = NONE>
+		static void Stosb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xAA);
+		}
+
+		template<RepPrefix R = NONE>
 		static void Stosw(Os::CodeBlock& block) {
 			common::write_Opcode_16bit_Prefix(block);
-			common::write_Opcode(block, 0xAB);
+			common::write_Opcode_Rep<R>(block, 0xAB);
 		}
+
+		template<RepPrefix R = NONE>
+		static void Stosd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xAB);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Cmpsb(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xA6);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Cmpsw(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Rep<R>(block, 0xA7);
+		}
+
+		template<RepPrefix R = NONE>
+		static void Cmpsd(Os::CodeBlock& block) {
+			common::write_Opcode_Rep<R>(block, 0xA7);
+		}
+
 #pragma endregion
 
 #pragma region Other operations

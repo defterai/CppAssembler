@@ -106,4 +106,12 @@ namespace CppAsm::X86_64::detail
 	static void write_Immediate(Os::CodeBlock& block, const IMM& imm) {
 		block.pushRaw<IMM::type>(imm);
 	}
+
+	template<uint8_t R>
+	static void write_Opcode_Rep(Os::CodeBlock& block, Opcode opcode) {
+		if (R) {
+			block.pushRaw<uint8_t>(R);
+		}
+		write_Opcode(block, opcode);
+	}
 }
