@@ -2539,5 +2539,19 @@ namespace CppAsm::X86
 			common::write_Opcode(block, 0xF4);
 		}
 #pragma endregion
+
+#pragma region Priviledged system instructions
+		/* Clears Task-Switched Flag in CR0. */
+		static void Clts(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x06);
+		}
+
+		/* Flush internal caches; initiate flushing of external caches. */
+		static void Invd(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x08);
+		}
+#pragma endregion
 	};
 }

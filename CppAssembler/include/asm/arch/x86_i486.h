@@ -38,5 +38,14 @@ namespace CppAsm::X86
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0xA2);
 		}
+
+		/* Invalidate TLB Entry for page that contains mem */
+		template<AddressMode MODE>
+		static void Invlpg(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, 0x01);
+			mem.write(block, 0b111);
+		}
 	};
 }
