@@ -19,11 +19,11 @@
     <Filter Include="Header Files\asm\arch">
       <UniqueIdentifier>{cc2c2079-ac3e-4608-ad3e-498a0a7cf752}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\asm\os">
+      <UniqueIdentifier>{5249a53f-14b9-44d1-888d-d23ef9e577b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\asm\os_win32.h">
-      <Filter>Header Files\asm</Filter>
-    </ClInclude>
     <ClInclude Include="include\asm\os.h">
       <Filter>Header Files\asm</Filter>
     </ClInclude>
@@ -89,6 +89,12 @@
     </ClInclude>
     <ClInclude Include="include\asm\arch\x86_PMC.h">
       <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch.h">
+      <Filter>Header Files\asm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\win32.h">
+      <Filter>Header Files\asm\os</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

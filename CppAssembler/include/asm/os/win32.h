@@ -1,6 +1,6 @@
 #pragma once
 
-#include "arch.h"
+#include "../arch.h"
 #include <Windows.h>
 
 namespace CppAsm::Win32
