@@ -10,12 +10,12 @@
 #include "asm\arch\x86_MSR.h"
 #include "asm\arch\x86_CLFSH.h"
 #include "asm\arch\x86_CX8.h"
-#include "asm\os_win32.h"
+#include "asm\os\win32.h"
 
 using namespace CppAsm;
 
 #ifdef WIN32
-	typedef Arch::CodeGen<X86::i686, X86::SEP, X86::CLFSH, X86::CX8> GArch;
+	typedef Arch::CodeGen<X86::i686, X86::SEP, X86::CLFSH> GArch;
 #else // WIN32
 	typedef Arch::CodeGen<X64::i386> GArch;
 #endif 
@@ -26,7 +26,9 @@ int main()
 
 	{
 #ifdef WIN32
-		GArch::CmpXchg8b(block, X86::Mem32<X86::OFFSET>(5000));
+		Size alignSize = block.getAlignSize<16>();
+		GArch::Nop(block.subBlock(alignSize), alignSize);
+		block.skipBytes(alignSize);
 
 		GArch::Lds(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
 		GArch::Les(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));

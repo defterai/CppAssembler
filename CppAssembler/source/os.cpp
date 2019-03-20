@@ -31,7 +31,15 @@ namespace CppAsm::Os
 		return mDataCurr - mDataStart;
 	}
 
+	Size CodeBlock::getSize() const {
+		return mSize;
+	}
+
 	void CodeBlock::skipBytes(Size size) {
 		mDataCurr += size;
+	}
+
+	CodeBlock CodeBlock::subBlock(Size size) {
+		return CodeBlock(mDataCurr, size);
 	}
 }

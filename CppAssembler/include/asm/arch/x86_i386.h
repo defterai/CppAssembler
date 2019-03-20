@@ -2588,6 +2588,13 @@ namespace CppAsm::X86
 			common::write_Opcode(block, 0x90);
 		}
 
+		/* No operation */
+		static void Nop(Os::CodeBlock& block, Size count) {
+			for (; count > 0; count--) {
+				common::write_Opcode(block, 0x90);
+			}
+		}
+
 		/* FPU wait */
 		static void Fwait(Os::CodeBlock& block) {
 			Wait(block);

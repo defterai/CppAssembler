@@ -12,5 +12,5 @@
 
 // Headers for CppAssembler
 #include "asm\arch\x86_i386.h"
-#include "asm\os_win32.h"
+#include "asm\os\win32.h"
 
