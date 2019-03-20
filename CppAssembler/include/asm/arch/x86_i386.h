@@ -149,6 +149,13 @@ namespace CppAsm::X86
 			return mem.write(block, opcode.getMode());
 		}
 
+		template<MemSize SIZE, AddressMode MODE>
+		static ReplaceableMem32<MODE> template_1mem_ext_operand(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode.getOpcode());
+			return mem.write(block, opcode.getMode());
+		}
+
 		template<class REG>
 		static ReplaceableReg<REG> template_1reg_operand(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, REG reg);
 
@@ -171,6 +178,33 @@ namespace CppAsm::X86
 		template<>
 		static ReplaceableReg<Reg32> template_1reg_operand<Reg32>(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, Reg32 reg) {
 			write_Opcode<DWORD_PTR>(block, opcode.getOpcode());
+			Offset offset = block.getOffset();
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
+			return ReplaceableReg<Reg32>(offset, common::MOD_REG_RM::RM_BIT_OFFSET);
+		}
+
+		template<class REG>
+		static ReplaceableReg<REG> template_1reg_ext_operand(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, REG reg);
+
+		template<>
+		static ReplaceableReg<Reg8> template_1reg_ext_operand<Reg8>(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, Reg8 reg) {
+			write_Opcode_Only_Extended_Prefixs<BYTE_PTR>(block, opcode.getOpcode());
+			Offset offset = block.getOffset();
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
+			return ReplaceableReg<Reg8>(offset, common::MOD_REG_RM::RM_BIT_OFFSET);
+		}
+
+		template<>
+		static ReplaceableReg<Reg16> template_1reg_ext_operand<Reg16>(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, Reg16 reg) {
+			write_Opcode_Only_Extended_Prefixs<WORD_PTR>(block, opcode.getOpcode());
+			Offset offset = block.getOffset();
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
+			return ReplaceableReg<Reg16>(offset, common::MOD_REG_RM::RM_BIT_OFFSET);
+		}
+
+		template<>
+		static ReplaceableReg<Reg32> template_1reg_ext_operand<Reg32>(Os::CodeBlock& block, const detail::OpcodeLarge& opcode, Reg32 reg) {
+			write_Opcode_Only_Extended_Prefixs<DWORD_PTR>(block, opcode.getOpcode());
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
 			return ReplaceableReg<Reg32>(offset, common::MOD_REG_RM::RM_BIT_OFFSET);
@@ -492,6 +526,36 @@ namespace CppAsm::X86
 			write_Opcode_Extended<TypeMemSize<REG>::value>(block, opcode);
 			auto replaceMem = mem.write(block, reg);
 			return std::make_pair(replaceMem.getOtherReg<REG>(), replaceMem);
+		}
+
+		static void template_2_operands_ext(Os::CodeBlock& block, common::Opcode opcode, Reg16 reg1, Reg16 reg2) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
+		}
+
+		template<AddressMode MODE>
+		static void template_2_operands_ext(Os::CodeBlock& block, common::Opcode opcode, Reg16 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			mem.write(block, reg);
+		}
+
+		static void template_2_operands_ext(Os::CodeBlock& block, common::Opcode opcode, Reg32 reg1, Reg32 reg2) {
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
+		}
+
+		template<AddressMode MODE>
+		static void template_2_operands_ext(Os::CodeBlock& block, common::Opcode opcode, Reg32 reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			mem.write(block, reg);
 		}
 
 		template<class REG>
@@ -2374,18 +2438,18 @@ namespace CppAsm::X86
 		}
 
 		template<RepPrefix R = NONE>
-		static void Outb(Os::CodeBlock& block) {
+		static void Outsb(Os::CodeBlock& block) {
 			common::write_Opcode_Rep<R>(block, 0x6E);
 		}
 
 		template<RepPrefix R = NONE>
-		static void Outw(Os::CodeBlock& block) {
+		static void Outsw(Os::CodeBlock& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0x6F);
 		}
 
 		template<RepPrefix R = NONE>
-		static void Outd(Os::CodeBlock& block) {
+		static void Outsd(Os::CodeBlock& block) {
 			common::write_Opcode_Rep<R>(block, 0x6F);
 		}
 
@@ -2541,16 +2605,181 @@ namespace CppAsm::X86
 #pragma endregion
 
 #pragma region Priviledged system instructions
+		/* Adjust RPL Field of Segment Selector
+		 - ARPL reg,reg 
+		*/
+		static void Arpl(Os::CodeBlock& block, Reg16 reg1, Reg16 reg2) {
+			common::write_Opcode(block, 0x63);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg2, reg1);
+		}
+
+		/* Adjust RPL Field of Segment Selector 
+		 - ARPL [mem],reg 
+		*/
+		template<AddressMode MODE>
+		static void Arpl(Os::CodeBlock& block, const Mem32<MODE>& mem, Reg16 reg) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode(block, 0x63);
+			mem.write(block, reg);
+		}
+
 		/* Clears Task-Switched Flag in CR0. */
 		static void Clts(Os::CodeBlock& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode(block, 0x06);
 		}
 
-		/* Flush internal caches; initiate flushing of external caches. */
-		static void Invd(Os::CodeBlock& block) {
-			common::write_Opcode_16bit_Prefix(block);
-			common::write_Opcode(block, 0x08);
+		static void Lar(Os::CodeBlock& block, Reg16 reg1, Reg16 reg2) {
+			template_2_operands_ext(block, 0x02, reg1, reg2);
+		}
+
+		template<AddressMode MODE>
+		static void Lar(Os::CodeBlock& block, Reg16 reg, const Mem32<MODE>& mem) {
+			template_2_operands_ext(block, 0x02, reg, mem);
+		}
+
+		static void Lar(Os::CodeBlock& block, Reg32 reg1, Reg32 reg2) {
+			template_2_operands_ext(block, 0x02, reg1, reg2);
+		}
+
+		template<AddressMode MODE>
+		static void Lar(Os::CodeBlock& block, Reg32 reg, const Mem32<MODE>& mem) {
+			template_2_operands_ext(block, 0x02, reg, mem);
+		}
+
+		/* Load mem into GDTR */
+		template<AddressMode MODE>
+		static void Lgdt(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_LGDT, mem);
+		}
+
+		/* Load mem into LIDT */
+		template<AddressMode MODE>
+		static void Lidt(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_LIDT, mem);
+		}
+
+		/* Load mem into LLDT */
+		template<AddressMode MODE>
+		static void Lldt(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_LLDT, mem);
+		}
+
+		/* Load register into LLDT */
+		static void Lldt(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_LLDT, (Reg32)reg);
+		}
+
+		/* Load mem in machine status word of CR0 */
+		template<AddressMode MODE>
+		static void Lmsw(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_LMSW, mem);
+		}
+
+		/* Load register in machine status word of CR0 */
+		static void Lmsw(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_LMSW, (Reg32)reg);
+		}
+
+		static void Lsl(Os::CodeBlock& block, Reg16 reg1, Reg16 reg2) {
+			template_2_operands_ext(block, 0x03, reg1, reg2);
+		}
+
+		template<AddressMode MODE>
+		static void Lsl(Os::CodeBlock& block, Reg16 reg, const Mem32<MODE>& mem) {
+			template_2_operands_ext(block, 0x03, reg, mem);
+		}
+
+		static void Lsl(Os::CodeBlock& block, Reg32 reg1, Reg32 reg2) {
+			template_2_operands_ext(block, 0x03, reg1, reg2);
+		}
+
+		template<AddressMode MODE>
+		static void Lsl(Os::CodeBlock& block, Reg32 reg, const Mem32<MODE>& mem) {
+			template_2_operands_ext(block, 0x03, reg, mem);
+		}
+
+		/* Load task register */
+		template<AddressMode MODE>
+		static void Ltr(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_LTR, mem);
+		}
+
+		/* Load task register */
+		static void Ltr(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_LTR, (Reg32)reg);
+		}
+
+		/* Store global descriptor table */
+		template<AddressMode MODE>
+		static void Sgdt(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_SGDT, mem);
+		}
+
+		/* Store interrupt descriptor table */
+		template<AddressMode MODE>
+		static void Sidt(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_SIDT, mem);
+		}
+
+		/* Store local descriptor table */
+		template<AddressMode MODE>
+		static void Sldt(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_SLDT, mem);
+		}
+
+		/* Store local descriptor table */
+		static void Sldt(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_SLDT, (Reg32)reg);
+		}
+
+		/* Store Machine Status Word */
+		template<AddressMode MODE>
+		static void Smsw(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_SMSW, mem);
+		}
+
+		/* Store Machine Status Word */
+		static void Smsw(Os::CodeBlock& block, Reg32 reg) {
+			template_1reg_ext_operand(block, detail::opcode_SMSW, reg);
+		}
+
+		/* Store Machine Status Word */
+		static void Smsw(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_SMSW, reg);
+		}
+
+		/* Store Task Register */
+		template<AddressMode MODE>
+		static void Str(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_STR, mem);
+		}
+
+		/* Store Task Register */
+		static void Str(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_STR, (Reg32)reg);
+		}
+
+		/* Verify a Segment for Reading */
+		template<AddressMode MODE>
+		static void Verr(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_VERR, mem);
+		}
+
+		/* Verify a Segment for Reading */
+		static void Verr(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_VERR, (Reg32)reg);
+		}
+
+		/* Verify a Segment for Writing */
+		template<AddressMode MODE>
+		static void Verw(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+			template_1mem_ext_operand<DWORD_PTR>(block, detail::opcode_VERW, mem);
+		}
+
+		/* Verify a Segment for Writing */
+		static void Verw(Os::CodeBlock& block, Reg16 reg) {
+			template_1reg_ext_operand(block, detail::opcode_VERW, (Reg32)reg);
 		}
 #pragma endregion
 	};

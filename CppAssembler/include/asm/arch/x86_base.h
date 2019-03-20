@@ -345,7 +345,6 @@ namespace CppAsm::X86
 		struct ImmSizeExtend<DWORD_PTR, uint16_t> {
 			typedef uint32_t type;
 		};
-
 		constexpr static OpcodeSet opcode_ADD(0x00, OpcodeLarge(0x80, 0b000));
 		constexpr static OpcodeSet opcode_OR(0x08, OpcodeLarge(0x80, 0b001));
 		constexpr static OpcodeSet opcode_ADC(0x10, OpcodeLarge(0x80, 0b010));
@@ -362,6 +361,19 @@ namespace CppAsm::X86
 		constexpr static OpcodeSet opcode_BTS(0xAB, OpcodeLarge(0xBA, 0b101));
 		constexpr static OpcodeSet opcode_BTR(0xB3, OpcodeLarge(0xBA, 0b110));
 		constexpr static OpcodeSet opcode_BTC(0xBB, OpcodeLarge(0xBA, 0b111));
+
+		constexpr static OpcodeLarge opcode_SLDT(0x00, 0b000);
+		constexpr static OpcodeLarge opcode_STR(0x00, 0b001);
+		constexpr static OpcodeLarge opcode_LLDT(0x00, 0b010);
+		constexpr static OpcodeLarge opcode_LTR(0x00, 0b011);
+		constexpr static OpcodeLarge opcode_VERR(0x00, 0b100);
+		constexpr static OpcodeLarge opcode_VERW(0x00, 0b101);
+		constexpr static OpcodeLarge opcode_SGDT(0x01, 0b000);
+		constexpr static OpcodeLarge opcode_SIDT(0x01, 0b001);
+		constexpr static OpcodeLarge opcode_LGDT(0x01, 0b010);
+		constexpr static OpcodeLarge opcode_LIDT(0x01, 0b011);
+		constexpr static OpcodeLarge opcode_SMSW(0x01, 0b100);
+		constexpr static OpcodeLarge opcode_LMSW(0x01, 0b110);
 
 		constexpr static OpcodeLarge opcode_POP(0x8F, 0b000);
 

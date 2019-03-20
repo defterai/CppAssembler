@@ -3,16 +3,14 @@
 #include "x86_i486.h"
 #include "x86_MSR.h"
 #include "x86_TSC.h"
+#include "x86_CX8.h"
 
 namespace CppAsm::X86
 {
-	class i586 : public i486, public MSR, public TSC {
+	/* Also known as Pentium */
+	class i586 : public i486, public MSR, public TSC, public CX8 {
 	public:
-		static void Cpuid(Os::CodeBlock& block) {
-			common::write_Opcode_Extended_Prefix(block);
-			common::write_Opcode(block, 0xA2);
-		}
-
+		/* Resume from System Management Mode  */
 		static void Rsm(Os::CodeBlock& block) {
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0xAA);

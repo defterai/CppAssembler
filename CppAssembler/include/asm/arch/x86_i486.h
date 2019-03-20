@@ -39,6 +39,12 @@ namespace CppAsm::X86
 			common::write_Opcode(block, 0xA2);
 		}
 
+		/* Flush internal caches; initiate flushing of external caches. */
+		static void Invd(Os::CodeBlock& block) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x08);
+		}
+
 		/* Invalidate TLB Entry for page that contains mem */
 		template<AddressMode MODE>
 		static void Invlpg(Os::CodeBlock& block, const Mem32<MODE>& mem) {
@@ -46,6 +52,12 @@ namespace CppAsm::X86
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0x01);
 			mem.write(block, 0b111);
+		}
+
+		/* Write Back and Invalidate Cache */
+		static void Wbinvd(Os::CodeBlock& block) {
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, 0x09);
 		}
 	};
 }
