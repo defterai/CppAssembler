@@ -51,9 +51,6 @@
     <ClInclude Include="include\asm\arch\x86_i686.h">
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>
-    <ClInclude Include="include\asm\arch\x86_CMOVcc.h">
-      <Filter>Header Files\asm\arch</Filter>
-    </ClInclude>
     <ClInclude Include="include\asm\arch\MMX.h">
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>
@@ -73,6 +70,21 @@
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>
     <ClInclude Include="include\asm\arch\x86_CLFSH.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_CLFLUSHOPT.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_CLDEMOTE.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_CMOV.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_CX8.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_TSC.h">
       <Filter>Header Files\asm\arch</Filter>
     </ClInclude>
   </ItemGroup>

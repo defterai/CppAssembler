@@ -6,12 +6,16 @@
 #include "asm\arch\x86_i387.h"
 #include "asm\arch\x86_i686.h"
 #include "asm\arch\x64_i386.h"
+#include "asm\arch\x86_SEP.h"
+#include "asm\arch\x86_MSR.h"
+#include "asm\arch\x86_CLFSH.h"
+#include "asm\arch\x86_CX8.h"
 #include "asm\os_win32.h"
 
 using namespace CppAsm;
 
 #ifdef WIN32
-	typedef Arch::CodeGen<X86::i686> GArch;
+	typedef Arch::CodeGen<X86::i686, X86::SEP, X86::CLFSH, X86::CX8> GArch;
 #else // WIN32
 	typedef Arch::CodeGen<X64::i386> GArch;
 #endif 
@@ -22,6 +26,34 @@ int main()
 
 	{
 #ifdef WIN32
+		GArch::CmpXchg8b(block, X86::Mem32<X86::OFFSET>(5000));
+
+		GArch::Lds(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Les(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lgs(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lfs(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lss(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lds(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Les(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lgs(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lfs(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lss(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+
+		GArch::Bound(block, X86::EAX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Bound(block, X86::AX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Stosb<>(block);
+		GArch::Stosw<>(block);
+		GArch::Stosd<>(block);
+		GArch::Stosb<X86::REPE>(block);
+		GArch::Stosw<X86::REPE>(block);
+		GArch::Stosd<X86::REPE>(block);
+		GArch::Stosb<X86::REPNE>(block);
+		GArch::Stosw<X86::REPNE>(block);
+		GArch::Stosd<X86::REPNE>(block);
+
+		GArch::Sysenter(block);
+		GArch::Sysexit(block);
+
 		GArch::Imul(block, X86::EDX, X86::EAX);
 		GArch::Imul(block, X86::DX, X86::AX);
 		GArch::Imul(block, X86::EDX, X86::EAX, U32(500000));
