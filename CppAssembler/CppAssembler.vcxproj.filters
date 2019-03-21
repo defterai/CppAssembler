@@ -93,7 +93,7 @@
     <ClInclude Include="include\asm\arch.h">
       <Filter>Header Files\asm</Filter>
     </ClInclude>
-    <ClInclude Include="include\asm\win32.h">
+    <ClInclude Include="include\asm\os\win32.h">
       <Filter>Header Files\asm\os</Filter>
     </ClInclude>
   </ItemGroup>
