@@ -2,52 +2,48 @@
 
 namespace CppAsm::Os
 {
-	MeasureBlock::MeasureBlock(void* data, Size size) :
+	BaseBlock::BaseBlock(void* data, Size size) :
 		mDataStart(static_cast<uint8_t*>(data)),
 		mDataCurr(static_cast<uint8_t*>(data)), mSize(size)
 	{}
-
-	void MeasureBlock::clear() {
-		mDataCurr = mDataStart;
+	
+	Addr BaseBlock::getStartPtr() const {
+		return mDataStart;
 	}
 	
-	bool MeasureBlock::clearAfter(Addr ptr) {
+	Addr BaseBlock::getCurrentPtr() const {
+		return mDataCurr;
+	}
+	
+	Offset BaseBlock::getOffset() const {
+		return mDataCurr - mDataStart;
+	}
+
+	Size BaseBlock::getTotalSize() const {
+		return mSize;
+	}
+
+	Size BaseBlock::getSize() const {
+		return mDataCurr - mDataStart;
+	}
+
+	Size BaseBlock::getRemainingSize() const {
+		return getTotalSize() - getSize();
+	}
+
+	void BaseBlock::reset() {
+		mDataCurr = mDataStart;
+	}
+
+	bool BaseBlock::reset(Addr ptr) {
 		if ((ptr >= mDataStart) && (ptr < mDataStart + mSize)) {
 			mDataCurr = const_cast<uint8_t*>(ptr);
 			return true;
 		}
 		return false;
 	}
-	
-	Addr MeasureBlock::getStartPtr() const {
-		return mDataStart;
-	}
-	
-	Addr MeasureBlock::getCurrentPtr() const {
-		return mDataCurr;
-	}
-	
-	Offset MeasureBlock::getOffset() const {
-		return mDataCurr - mDataStart;
-	}
 
-	Size MeasureBlock::getTotalSize() const {
-		return mSize;
-	}
-
-	Size MeasureBlock::getSize() const {
-		return mDataCurr - mDataStart;
-	}
-
-	void MeasureBlock::skipBytes(Size size) {
+	void BaseBlock::skipBytes(Size size) {
 		mDataCurr += size;
-	}
-
-	MeasureBlock MeasureBlock::subBlock(Size size) const {
-		return MeasureBlock(mDataCurr, size);
-	}
-
-	CodeBlock CodeBlock::subBlock(Size size) const {
-		return CodeBlock(mDataCurr, size);
 	}
 }
