@@ -12,6 +12,7 @@ x86 and x64 assembly code generation library for C++11
 1. Compile time check for instructions syntax
 2. Support replace some instruction operands after first pass
 3. Available instruction set can be configured to find not available instruction in compile time
+4. Fast measure of instructions size before write them
 
 * No external dependencies
 1. Use only C++ standart libraries for core functionality
