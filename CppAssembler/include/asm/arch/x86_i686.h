@@ -8,23 +8,28 @@ namespace CppAsm::X86
 {
 	class i686 : public i586, public PMC, public i387 {
 	public:
-		static void Fcomi(Os::CodeBlock& block, TopRegFPU, RegFPU reg) {
+		template<class BLOCK>
+		static void Fcomi(BLOCK& block, TopRegFPU, RegFPU reg) {
 			template_1operand_float(block, detail::OpcodeLarge(0xDB, 0b110), reg);
 		}
 
-		static void Fcomip(Os::CodeBlock& block, TopRegFPU, RegFPU reg) {
+		template<class BLOCK>
+		static void Fcomip(BLOCK& block, TopRegFPU, RegFPU reg) {
 			template_1operand_float(block, detail::OpcodeLarge(0xDF, 0b110), reg);
 		}
 
-		static void Fucomi(Os::CodeBlock& block, TopRegFPU, RegFPU reg) {
+		template<class BLOCK>
+		static void Fucomi(BLOCK& block, TopRegFPU, RegFPU reg) {
 			template_1operand_float(block, detail::OpcodeLarge(0xDB, 0b101), reg);
 		}
 
-		static void Fucomip(Os::CodeBlock& block, TopRegFPU, RegFPU reg) {
+		template<class BLOCK>
+		static void Fucomip(BLOCK& block, TopRegFPU, RegFPU reg) {
 			template_1operand_float(block, detail::OpcodeLarge(0xDF, 0b101), reg);
 		}
 
-		static void Ud2(Os::CodeBlock& block) {
+		template<class BLOCK>
+		static void Ud2(BLOCK& block) {
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0x0B);
 		}

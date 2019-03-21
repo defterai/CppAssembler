@@ -1,6 +1,6 @@
 #pragma once
 
-#include "os.h"
+#include "defs.h"
 
 namespace CppAsm
 {
@@ -20,11 +20,13 @@ namespace CppAsm
 	public:
 		using Replaceable::Replaceable;
 
-		void replace(Os::CodeBlock& block, const T& value) const {
+		template<class BLOCK>
+		void replace(BLOCK& block, const T& value) const {
 			block.writeRaw(value, getCbOffset());
 		}
 
-		T read(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		T read(BLOCK& block) const {
 			T readValue;
 			block.readRaw(readValue, getCbOffset());
 			return readValue;
@@ -42,7 +44,8 @@ namespace CppAsm
 	public:
 		constexpr ReplaceableBits(Offset cbOffset, uint8_t bitOffset) : Replaceable(cbOffset), mBitOffset(bitOffset) {}
 
-		void replace(Os::CodeBlock& block, const T& value) const {
+		template<class BLOCK>
+		void replace(BLOCK& block, const T& value) const {
 			uint8_t replaceByte;
 			block.readRaw(replaceByte, getCbOffset());
 			replaceByte &= ~(MASK << mBitOffset);
@@ -50,7 +53,8 @@ namespace CppAsm
 			block.writeRaw(replaceByte, getCbOffset());
 		}
 
-		T read(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		T read(BLOCK& block) const {
 			uint8_t readValue;
 			block.readRaw(readValue, getCbOffset());
 			return (readValue >> mBitOffset) & MASK;

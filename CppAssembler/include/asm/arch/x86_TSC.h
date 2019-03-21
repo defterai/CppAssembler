@@ -6,7 +6,8 @@ namespace CppAsm::X86
 {
 	class TSC : public i386 {
 	public:
-		static void Rdtsc(Os::CodeBlock& block) {
+		template<class BLOCK>
+		static void Rdtsc(BLOCK& block) {
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0x31);
 		}

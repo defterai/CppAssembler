@@ -43,10 +43,13 @@ namespace CppAsm::X86_64::detail
 		constexpr MOD_REG_RM(Mod mod, uint8_t rm) : mValue(generate(mod, 0, rm)) {}
 		constexpr MOD_REG_RM(Mod mod, uint8_t reg, uint8_t rm) : mValue(generate(mod, reg, rm)) {}
 
-		void writeMOD_REG_RM(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		void writeMOD_REG_RM(BLOCK& block) const {
 			block.pushRaw(mValue);
 		}
-		void writeMOD_REG_RM(Os::CodeBlock& block, uint8_t reg) const {
+
+		template<class BLOCK>
+		void writeMOD_REG_RM(BLOCK& block, uint8_t reg) const {
 			block.pushRaw(addReg(mValue, reg));
 		}
 	};
@@ -81,34 +84,40 @@ namespace CppAsm::X86_64::detail
 		constexpr Type getSIB() const {
 			return mValue;
 		}
-		void writeSIB(Os::CodeBlock& block) const {
+
+		template<class BLOCK>
+		void writeSIB(BLOCK& block) const {
 			block.pushRaw(mValue);
 		}
 	};
 
-	static void write_Opcode(Os::CodeBlock& block, Opcode opcode) {
+	template<class BLOCK>
+	static void write_Opcode(BLOCK& block, Opcode opcode) {
 		block.pushRaw(opcode);
 	}
 
-	static void write_Opcode_16bit_Prefix(Os::CodeBlock& block) {
+	template<class BLOCK>
+	static void write_Opcode_16bit_Prefix(BLOCK& block) {
 		block.pushRaw<uint8_t>(0x66);
 	}
 
-	static void write_Opcode_Extended_Prefix(Os::CodeBlock& block) {
+	template<class BLOCK>
+	static void write_Opcode_Extended_Prefix(BLOCK& block) {
 		block.pushRaw<uint8_t>(0x0F);
 	}
 
-	static void write_MOD_REG_RM(Os::CodeBlock& block, MOD_REG_RM::Mod mod, uint8_t reg, uint8_t rm) {
+	template<class BLOCK>
+	static void write_MOD_REG_RM(BLOCK& block, MOD_REG_RM::Mod mod, uint8_t reg, uint8_t rm) {
 		block.pushRaw(MOD_REG_RM::generate(mod, reg, rm));
 	}
 
-	template<class IMM>
-	static void write_Immediate(Os::CodeBlock& block, const IMM& imm) {
+	template<class IMM, class BLOCK>
+	static void write_Immediate(BLOCK& block, const IMM& imm) {
 		block.pushRaw<IMM::type>(imm);
 	}
 
-	template<uint8_t R>
-	static void write_Opcode_Rep(Os::CodeBlock& block, Opcode opcode) {
+	template<uint8_t R, class BLOCK>
+	static void write_Opcode_Rep(BLOCK& block, Opcode opcode) {
 		if (R) {
 			block.pushRaw<uint8_t>(R);
 		}

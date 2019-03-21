@@ -7,8 +7,8 @@ namespace CppAsm::X86
 	class CX8 : private i386 {
 	public:
 		/* Compare and Exchange 8 Bytes */
-		template<MemSize SIZE = QWORD_PTR, AddressMode MODE>
-		static void CmpXchg8b(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+		template<MemSize SIZE = QWORD_PTR, AddressMode MODE, class BLOCK>
+		static void CmpXchg8b(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(SIZE == QWORD_PTR, "Invalid operand size");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode_Extended_Prefix(block);

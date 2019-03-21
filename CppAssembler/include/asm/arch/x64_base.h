@@ -247,7 +247,9 @@ namespace CppAsm::X64
 			constexpr bool hasCustomSegReg() const {
 				return mCustomSegReg;
 			}
-			void writeSegmPrefix(Os::CodeBlock& block) const {
+			
+			template<class BLOCK>
+			void writeSegmPrefix(BLOCK& block) const {
 				block.writeRaw(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
@@ -278,7 +280,8 @@ namespace CppAsm::X64
 			constexpr bool hasCustomSegReg() const {
 				return mCustomSegReg;
 			}
-			void writeSegmPrefix(Os::CodeBlock& block) const {
+			template<class BLOCK>
+			void writeSegmPrefix(BLOCK& block) const {
 				block.writeRaw(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
@@ -314,11 +317,15 @@ namespace CppAsm::X64
 			constexpr const int32_t& getDWordOffset() const {
 				return mOffset;
 			}
-			void writeSmallestOffset(Os::CodeBlock& block) const {
+
+			template<class BLOCK>
+			void writeSmallestOffset(BLOCK& block) const {
 				block.writeRaw(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
-			void writeOffset(Os::CodeBlock& block) const {
+			
+			template<class BLOCK>
+			void writeOffset(BLOCK& block) const {
 				block.pushRaw(mOffset);
 			}
 		};
@@ -340,7 +347,9 @@ namespace CppAsm::X64
 			constexpr Reg32 getBaseReg() const {
 				return mBaseReg;
 			}
-			void writeEspPostfix(Os::CodeBlock& block) const {
+
+			template<class BLOCK>
+			void writeEspPostfix(BLOCK& block) const {
 				block.writeRaw<uint8_t>(0x24);
 				block.skipBytes(mRspBase ? sizeof(uint8_t) : 0);
 			}
@@ -363,7 +372,9 @@ namespace CppAsm::X64
 			constexpr Reg64 getBaseReg() const {
 				return mBaseReg;
 			}
-			void writeEspPostfix(Os::CodeBlock& block) const {
+
+			template<class BLOCK>
+			void writeEspPostfix(BLOCK& block) const {
 				block.writeRaw<uint8_t>(0x24);
 				block.skipBytes(mRspBase ? sizeof(uint8_t) : 0);
 			}
@@ -468,7 +479,8 @@ namespace CppAsm::X64
 			return 0;
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			block.pushRaw<uint8_t>(0x25);
 			writeOffset(block);
@@ -487,7 +499,8 @@ namespace CppAsm::X64
 			return detail::getExtRegMask(getBaseReg(), detail::ExtSizePrefix::BASE_REG_BIT_OFFSET);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
 		}
@@ -505,11 +518,13 @@ namespace CppAsm::X64
 			return detail::getExtRegMask(getBaseReg(), detail::ExtSizePrefix::BASE_REG_BIT_OFFSET);
 		}
 
-		void writePrefix(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		void writePrefix(BLOCK& block) const {
 			block.pushRaw<uint8_t>(0x67);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
 		}
@@ -527,7 +542,8 @@ namespace CppAsm::X64
 			return detail::getExtRegMask(getBaseReg(), detail::ExtSizePrefix::BASE_REG_BIT_OFFSET);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
 			writeSmallestOffset(block);
@@ -546,11 +562,13 @@ namespace CppAsm::X64
 			return detail::getExtRegMask(getBaseReg(), detail::ExtSizePrefix::BASE_REG_BIT_OFFSET);
 		}
 
-		void writePrefix(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		void writePrefix(BLOCK& block) const {
 			block.pushRaw<uint8_t>(0x67);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
 			writeSmallestOffset(block);
@@ -573,7 +591,8 @@ namespace CppAsm::X64
 			return detail::getExtRegMask(getIndexReg(), detail::ExtSizePrefix::INDEX_REG_BIT_OFFSET);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 			writeOffset(block);
@@ -596,11 +615,13 @@ namespace CppAsm::X64
 			return detail::getExtRegMask(getIndexReg(), detail::ExtSizePrefix::INDEX_REG_BIT_OFFSET);
 		}
 
-		void writePrefix(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		void writePrefix(BLOCK& block) const {
 			block.pushRaw<uint8_t>(0x67);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 			writeOffset(block);
@@ -620,7 +641,8 @@ namespace CppAsm::X64
 				detail::getExtRegMask(getIndexReg(), detail::ExtSizePrefix::INDEX_REG_BIT_OFFSET);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 		}
@@ -639,11 +661,13 @@ namespace CppAsm::X64
 				detail::getExtRegMask(getIndexReg(), detail::ExtSizePrefix::INDEX_REG_BIT_OFFSET);
 		}
 
-		void writePrefix(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		void writePrefix(BLOCK& block) const {
 			block.pushRaw<uint8_t>(0x67);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 		}
@@ -662,7 +686,8 @@ namespace CppAsm::X64
 				detail::getExtRegMask(getIndexReg(), detail::ExtSizePrefix::INDEX_REG_BIT_OFFSET);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 			writeSmallestOffset(block);
@@ -682,11 +707,13 @@ namespace CppAsm::X64
 				detail::getExtRegMask(getIndexReg(), detail::ExtSizePrefix::INDEX_REG_BIT_OFFSET);
 		}
 
-		void writePrefix(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		void writePrefix(BLOCK& block) const {
 			block.pushRaw<uint8_t>(0x67);
 		}
 
-		void write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 			writeSmallestOffset(block);

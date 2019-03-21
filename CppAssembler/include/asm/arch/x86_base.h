@@ -187,7 +187,8 @@ namespace CppAsm::X86
 			constexpr bool hasCustomSegReg() const {
 				return mCustomSegReg;
 			}
-			void writeSegmPrefix(Os::CodeBlock& block) const {
+			template<class BLOCK>
+			void writeSegmPrefix(BLOCK& block) const {
 				block.writeRaw(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
@@ -223,11 +224,15 @@ namespace CppAsm::X86
 			constexpr const int32_t& getDWordOffset() const {
 				return mOffset;
 			}
-			void writeSmallestOffset(Os::CodeBlock& block) const {
+
+			template<class BLOCK>
+			void writeSmallestOffset(BLOCK& block) const {
 				block.writeRaw(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
-			void writeOffset(Os::CodeBlock& block) const {
+
+			template<class BLOCK>
+			void writeOffset(BLOCK& block) const {
 				block.pushRaw(mOffset);
 			}
 		};
@@ -249,7 +254,9 @@ namespace CppAsm::X86
 			constexpr Reg32 getBaseReg() const {
 				return mBaseReg;
 			}
-			void writeEspPostfix(Os::CodeBlock& block) const {
+
+			template<class BLOCK>
+			void writeEspPostfix(BLOCK& block) const {
 				block.writeRaw<uint8_t>(0x24);
 				block.skipBytes(mEspBase ? sizeof(uint8_t) : 0);
 			}
@@ -459,7 +466,8 @@ namespace CppAsm::X86
 		explicit constexpr Mem32(int32_t offset) : MOD_REG_OFFSET(REG_IND_ADDR), Mem32_Offset(offset), Mem32_Seg() {}
 		constexpr Mem32(RegSeg segReg, int32_t offset) : MOD_REG_OFFSET(REG_IND_ADDR), Mem32_Offset(offset), Mem32_Seg(segReg) {}
 
-		ReplaceableMem32<OFFSET> write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		ReplaceableMem32<OFFSET> write(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			writeMOD_REG_RM(block, reg);
 			writeOffset(block);
@@ -495,7 +503,8 @@ namespace CppAsm::X86
 		explicit constexpr Mem32(Reg32 baseReg) : MOD_REG_RM(REG_IND_ADDR, baseReg), Mem32_Base(baseReg), Mem32_Seg() {}
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg) : MOD_REG_RM(REG_IND_ADDR, baseReg), Mem32_Base(baseReg), Mem32_Seg(segReg, baseReg) {}
 
-		ReplaceableMem32<BASE> write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		ReplaceableMem32<BASE> write(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
@@ -544,7 +553,8 @@ namespace CppAsm::X86
 		constexpr Mem32(Reg32 baseReg, int32_t offset) : Mem32_Base(baseReg), Mem32_Offset(offset), MOD_REG_RM(getDispMod(), baseReg), Mem32_Seg() {}
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, int32_t offset) : Mem32_Base(baseReg), Mem32_Offset(offset), MOD_REG_RM(getDispMod(), baseReg), Mem32_Seg(segReg, baseReg) {}
 
-		ReplaceableMem32<BASE_OFFSET> write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		ReplaceableMem32<BASE_OFFSET> write(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
@@ -592,7 +602,8 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 indexReg, int32_t offset) : MOD_REG_INDEX(SIB_NO_DISP), Mem32_SIB(indexReg), Mem32_Offset(offset), Mem32_Seg(segReg) {}
 		constexpr Mem32(RegSeg segReg, Reg32 indexReg, IndexScale indexScale, int32_t offset) : MOD_REG_INDEX(SIB_NO_DISP), Mem32_SIB(indexScale, indexReg), Mem32_Offset(offset), Mem32_Seg(segReg) {}
 
-		ReplaceableMem32<INDEX_OFFSET> write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		ReplaceableMem32<INDEX_OFFSET> write(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
@@ -637,7 +648,8 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, Reg32 indexReg) : MOD_REG_INDEX(SIB_NO_DISP), Mem32_SIB(indexReg, baseReg), Mem32_Seg(segReg, baseReg) {}
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, Reg32 indexReg, IndexScale indexScale) : MOD_REG_INDEX(SIB_NO_DISP), Mem32_SIB(indexScale, indexReg, baseReg), Mem32_Seg(segReg, baseReg) {}
 
-		ReplaceableMem32<BASE_INDEX> write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		ReplaceableMem32<BASE_INDEX> write(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
@@ -697,7 +709,8 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, Reg32 indexReg, int32_t offset) : Mem32_SIB(indexReg, baseReg), Mem32_Offset(offset), MOD_REG_INDEX(getDispMod()), Mem32_Seg(segReg, baseReg) {}
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, Reg32 indexReg, IndexScale indexScale, int32_t offset) : Mem32_SIB(indexScale, indexReg, baseReg), Mem32_Offset(offset), MOD_REG_INDEX(getDispMod()), Mem32_Seg(segReg, baseReg) {}
 
-		ReplaceableMem32<BASE_INDEX_OFFSET> write(Os::CodeBlock& block, uint8_t reg) const {
+		template<class BLOCK>
+		ReplaceableMem32<BASE_INDEX_OFFSET> write(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
@@ -733,7 +746,8 @@ namespace CppAsm::X86
 		typedef Addr offset_type;
 		static const int offset_size = sizeof(offset_type);
 
-		bool bind(Os::CodeBlock& block, Addr newAddr) const {
+		template<class BLOCK>
+		bool bind(BLOCK& block, Addr newAddr) const {
 			Offset labelOffset = getCbOffset();
 			auto jumpOffset = common::calc_Jump_Offset(block.getStartPtr() + labelOffset,
 				newAddr, offset_size);
@@ -741,7 +755,8 @@ namespace CppAsm::X86
 			return true;
 		}
 
-		bool bind(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		bool bind(BLOCK& block) const {
 			return bind(block, block.getCurrentPtr());
 		}
 	};
@@ -754,7 +769,8 @@ namespace CppAsm::X86
 		typedef int8_t offset_type;
 		static const int offset_size = sizeof(offset_type);
 
-		bool bind(Os::CodeBlock& block, Addr newAddr) const {
+		template<class BLOCK>
+		bool bind(BLOCK& block, Addr newAddr) const {
 			Offset labelOffset = getCbOffset();
 			auto jumpOffset = common::calc_Jump_Offset(block.getStartPtr() + labelOffset,
 				newAddr, offset_size);
@@ -765,7 +781,8 @@ namespace CppAsm::X86
 			return false;
 		}
 
-		bool bind(Os::CodeBlock& block) const {
+		template<class BLOCK>
+		bool bind(BLOCK& block) const {
 			return bind(block, block.getCurrentPtr());
 		}
 	};

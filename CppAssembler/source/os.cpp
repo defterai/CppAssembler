@@ -1,17 +1,17 @@
-#include "asm\arch.h"
+#include "asm\os.h"
 
 namespace CppAsm::Os
 {
-	CodeBlock::CodeBlock(void* data, Size size) :
+	MeasureBlock::MeasureBlock(void* data, Size size) :
 		mDataStart(static_cast<uint8_t*>(data)),
 		mDataCurr(static_cast<uint8_t*>(data)), mSize(size)
 	{}
 
-	void CodeBlock::clear() {
+	void MeasureBlock::clear() {
 		mDataCurr = mDataStart;
 	}
 	
-	bool CodeBlock::clearAfter(Addr ptr) {
+	bool MeasureBlock::clearAfter(Addr ptr) {
 		if ((ptr >= mDataStart) && (ptr < mDataStart + mSize)) {
 			mDataCurr = const_cast<uint8_t*>(ptr);
 			return true;
@@ -19,27 +19,35 @@ namespace CppAsm::Os
 		return false;
 	}
 	
-	Addr CodeBlock::getStartPtr() const {
+	Addr MeasureBlock::getStartPtr() const {
 		return mDataStart;
 	}
 	
-	Addr CodeBlock::getCurrentPtr() const {
+	Addr MeasureBlock::getCurrentPtr() const {
 		return mDataCurr;
 	}
 	
-	Offset CodeBlock::getOffset() const {
+	Offset MeasureBlock::getOffset() const {
 		return mDataCurr - mDataStart;
 	}
 
-	Size CodeBlock::getSize() const {
+	Size MeasureBlock::getTotalSize() const {
 		return mSize;
 	}
 
-	void CodeBlock::skipBytes(Size size) {
+	Size MeasureBlock::getSize() const {
+		return mDataCurr - mDataStart;
+	}
+
+	void MeasureBlock::skipBytes(Size size) {
 		mDataCurr += size;
 	}
 
-	CodeBlock CodeBlock::subBlock(Size size) {
+	MeasureBlock MeasureBlock::subBlock(Size size) const {
+		return MeasureBlock(mDataCurr, size);
+	}
+
+	CodeBlock CodeBlock::subBlock(Size size) const {
 		return CodeBlock(mDataCurr, size);
 	}
 }

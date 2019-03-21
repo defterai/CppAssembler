@@ -8,27 +8,27 @@
 
 namespace CppAsm::Os
 {
-	class CodeBlock {
-	private:
+	class MeasureBlock {
+	protected:
 		uint8_t* mDataCurr;
 		uint8_t* mDataStart;
 		Size mSize;
-
 	public:
-		CodeBlock(void* data, Size size);
-		CodeBlock(const CodeBlock&) = delete;
-		CodeBlock(CodeBlock&&) = default;
-		CodeBlock& operator=(const CodeBlock&) = delete;
-		CodeBlock& operator=(CodeBlock&&) = default;
+		MeasureBlock(void* data, Size size);
+		MeasureBlock(const MeasureBlock&) = delete;
+		MeasureBlock(MeasureBlock&&) = default;
+		MeasureBlock& operator=(const MeasureBlock&) = delete;
+		MeasureBlock& operator=(MeasureBlock&&) = default;
 
 		void clear();
 		bool clearAfter(Addr ptr);
 		Addr getStartPtr() const;
 		Addr getCurrentPtr() const;
 		Offset getOffset() const;
+		Size getTotalSize() const;
 		Size getSize() const;
 		void skipBytes(Size size);
-		CodeBlock subBlock(Size size);
+		MeasureBlock subBlock(Size size) const;
 
 		template<uint8_t ALIGN>
 		Size getAlignSize() const {
@@ -36,6 +36,43 @@ namespace CppAsm::Os
 			Size alignRemainder = reinterpret_cast<Size>(const_cast<uint8_t*>(mDataCurr)) % ALIGN;
 			return (ALIGN - alignRemainder) % ALIGN;
 		}
+
+		template<class T>
+		void readRaw(T& val) {
+			// do nothing
+		}
+
+		template<class T>
+		void readRaw(T& val, Offset offset) {
+			// do nothing
+		}
+
+		template<class T>
+		void writeRaw(const T& val) {
+			// do nothing
+		}
+
+		template<class T>
+		void writeRaw(const T& val, Offset offset) {
+			// do nothing
+		}
+
+		template<class T>
+		void pushRaw(const T& val) {
+			mDataCurr += sizeof(val);
+		}
+	};
+
+	class CodeBlock : public MeasureBlock {
+	public:
+		using MeasureBlock::MeasureBlock;
+		/*CodeBlock(void* data, Size size);
+		CodeBlock(const CodeBlock&) = delete;
+		CodeBlock(CodeBlock&&) = default;
+		CodeBlock& operator=(const CodeBlock&) = delete;
+		CodeBlock& operator=(CodeBlock&&) = default;*/
+
+		CodeBlock subBlock(Size size) const;
 
 		template<class T>
 		void readRaw(T& val) {

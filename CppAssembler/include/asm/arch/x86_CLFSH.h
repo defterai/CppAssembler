@@ -7,8 +7,8 @@ namespace CppAsm::X86
 	class CLFSH : private i386 {
 	public:
 		/* Flush Cache Line containing mem */
-		template<AddressMode MODE>
-		static void Clflush(Os::CodeBlock& block, const Mem32<MODE>& mem) {
+		template<AddressMode MODE, class BLOCK>
+		static void Clflush(BLOCK& block, const Mem32<MODE>& mem) {
 			mem.writeSegmPrefix(block);
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0xAE);

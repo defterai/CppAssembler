@@ -11,7 +11,8 @@ namespace CppAsm::X86
 	class i586 : public i486, public MSR, public TSC, public CX8 {
 	public:
 		/* Resume from System Management Mode  */
-		static void Rsm(Os::CodeBlock& block) {
+		template<class BLOCK>
+		static void Rsm(BLOCK& block) {
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0xAA);
 		}
