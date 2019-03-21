@@ -1,7 +1,8 @@
 #pragma once
 
 
-#include "../arch.h"
+#include "../defs.h"
+#include "../replaceable.h"
 
 namespace CppAsm::X86_64::detail
 {

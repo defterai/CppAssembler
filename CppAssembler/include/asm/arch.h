@@ -1,17 +1,12 @@
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
-
-#include "replaceable.h"
-
 namespace CppAsm::Arch
 {
-	template<class... Feature>
-	class CodeGen : public Feature... {
+	template<class... Archs>
+	class CustomArch : public Archs... {
 	private:
-		CodeGen() = delete;
-		CodeGen(const CodeGen&) = delete;
-		void operator=(const CodeGen&) = delete;
+		CustomArch() = delete;
+		CustomArch(const CustomArch&) = delete;
+		void operator=(const CustomArch&) = delete;
 	};
 }
