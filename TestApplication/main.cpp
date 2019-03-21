@@ -15,9 +15,9 @@
 using namespace CppAsm;
 
 #ifdef WIN32
-	typedef Arch::CodeGen<X86::i686, X86::SEP, X86::CLFSH> GArch;
+	typedef Arch::CustomArch<X86::i686, X86::SEP, X86::CLFSH> GArch;
 #else // WIN32
-	typedef Arch::CodeGen<X64::i386> GArch;
+	typedef Arch::CustomArch<X64::i386> GArch;
 #endif 
 
 int main()
@@ -26,20 +26,27 @@ int main()
 
 	{
 #ifdef WIN32
-		Size alignSize = block.getAlignSize<16>();
-		GArch::Nop(block.subBlock(alignSize), alignSize);
-		block.skipBytes(alignSize);
+		
+		Os::MeasureBlock measureBlock = block.subBlock<Os::MeasureBlock>(1024);
+		GArch::Nop(measureBlock);
+		GArch::Lds(measureBlock, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Les(measureBlock, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lgs(measureBlock, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lfs(measureBlock, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lss(measureBlock, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lds(measureBlock, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Les(measureBlock, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lgs(measureBlock, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lfs(measureBlock, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Lss(measureBlock, X86::DX, X86::Mem32<X86::OFFSET>(5000));
 
-		GArch::Lds(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Les(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lgs(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lfs(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lss(block, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lds(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Les(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lgs(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lfs(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
-		GArch::Lss(block, X86::DX, X86::Mem32<X86::OFFSET>(5000));
+		GArch::Nop(block, measureBlock.getSize());
+
+		/*Size alignSize = block.getAlignSize<16>();
+		GArch::Nop(block.subBlock(alignSize), alignSize);
+		block.skipBytes(alignSize);*/
+
+		
 
 		GArch::Bound(block, X86::EAX, X86::Mem32<X86::OFFSET>(5000));
 		GArch::Bound(block, X86::AX, X86::Mem32<X86::OFFSET>(5000));

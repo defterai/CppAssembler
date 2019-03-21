@@ -1,7 +1,37 @@
 #include "asm\os.h"
+#include <cstring>
+#include <cassert>
 
 namespace CppAsm::Os
 {
+	void BaseBlock::verifyCurrent(Size size) {
+		assert(mDataCurr + size <= mDataStart + mSize);
+	}
+
+	void BaseBlock::verifyOffset(Size offset, Size size) {
+		assert(mDataCurr + size <= mDataStart + mSize);
+	}
+
+	void BaseBlock::write(const void* data, Size size) {
+		verifyCurrent(size);
+		std::memcpy(mDataCurr, data, size);
+	}
+
+	void BaseBlock::writeOffset(Size offset, const void* data, Size size) {
+		verifyOffset(offset, size);
+		std::memcpy(mDataStart + offset, data, size);
+	}
+
+	void BaseBlock::read(void* data, Size size) {
+		verifyCurrent(size);
+		std::memcpy(data, mDataCurr, size);
+	}
+
+	void BaseBlock::readOffset(Size offset, void* data, Size size) {
+		verifyOffset(offset, size);
+		std::memcpy(data, mDataStart + offset, size);
+	}
+
 	BaseBlock::BaseBlock(void* data, Size size) :
 		mDataStart(static_cast<uint8_t*>(data)),
 		mDataCurr(static_cast<uint8_t*>(data)), mSize(size)

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cstring>
-#include <cassert>
 
 #include "defs.h"
 
@@ -14,33 +12,13 @@ namespace CppAsm::Os
 		uint8_t* mDataStart;
 		Size mSize;
 
-		void verifyCurrent(Size size) {
-			assert(mDataCurr + size <= mDataStart + mSize);
-		}
-
-		void verifyOffset(Size offset, Size size) {
-			assert(mDataCurr + size <= mDataStart + mSize);
-		}
 	protected:
-		void write(const void* data, Size size) {
-			verifyCurrent(size);
-			memcpy(mDataCurr, data, size);
-		}
-
-		void writeOffset(Size offset, const void* data, Size size) {
-			verifyOffset(offset, size);
-			memcpy(mDataStart + offset, data, size);
-		}
-
-		void read(void* data, Size size) {
-			verifyCurrent(size);
-			memcpy(data, mDataCurr, size);
-		}
-
-		void readOffset(Size offset, void* data, Size size) {
-			verifyOffset(offset, size);
-			memcpy(data, mDataStart + offset, size);
-		}
+		void verifyCurrent(Size size);
+		void verifyOffset(Size offset, Size size);
+		void write(const void* data, Size size);
+		void writeOffset(Size offset, const void* data, Size size);
+		void read(void* data, Size size);
+		void readOffset(Size offset, void* data, Size size);
 	public:
 		BaseBlock(void* data, Size size);
 
