@@ -1676,7 +1676,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_ROL, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Rol(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_ROL, reg);
 		}
@@ -1706,7 +1706,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_ROR, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Ror(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_ROR, reg);
 		}
@@ -1736,7 +1736,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_RCL, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Rcl(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_RCL, reg);
 		}
@@ -1766,7 +1766,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_RCR, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Rcr(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_RCR, reg);
 		}
@@ -1796,7 +1796,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_SAL, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Sal(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SAL, reg);
 		}
@@ -1826,7 +1826,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_SHL, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Shl(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SHL, reg);
 		}
@@ -1856,7 +1856,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_SHR, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Shr(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SHR, reg);
 		}
@@ -1886,7 +1886,7 @@ namespace CppAsm::X86
 			return template_shift_operands<REG>(block, detail::opcode_SAR, reg);
 		}
 
-		template<class REG, Reg8 SH_REG, class BLOCK>
+		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Sar(BLOCK& block, const REG& reg) {
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SAR, reg);
 		}

@@ -101,5 +101,36 @@ namespace UnitTest
 			testArch::Bsf(block, X86::EDX, X86::ECX);
 			testArch::Bsf(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
 		}
+
+		TEST_METHOD(TestRor) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// ROR r/m8, 1
+			testArch::Ror(block, X86::DL);
+			testArch::Ror<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROR r/m8, CL
+			testArch::Ror<X86::CL>(block, X86::DL);
+			testArch::Ror<X86::BYTE_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROR r/m8, imm8
+			testArch::Ror(block, X86::DL, U8(5));
+			testArch::Ror<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+			// ROR r/m16, 1
+			testArch::Ror(block, X86::DX);
+			testArch::Ror<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROR r/m16, CL
+			testArch::Ror<X86::CL>(block, X86::DX);
+			testArch::Ror<X86::WORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROR r/m16, imm8
+			testArch::Ror(block, X86::DX, U8(5));
+			testArch::Ror<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+			// ROR r/m32, 1
+			testArch::Ror(block, X86::EDX);
+			testArch::Ror<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROR r/m32, CL
+			testArch::Ror<X86::CL>(block, X86::EDX);
+			testArch::Ror<X86::DWORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROR r/m32, imm8
+			testArch::Ror(block, X86::EDX, U8(5));
+			testArch::Ror<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+		}
 	};
 }
