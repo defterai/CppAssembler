@@ -2957,7 +2957,7 @@ namespace CppAsm::X86
 
 		template<RepPrefix R = NONE, class BLOCK>
 		static void Insb(BLOCK& block) {
-			common::write_Opcode_Rep<R>(block, 0x6C)
+			common::write_Opcode_Rep<R>(block, 0x6C);
 		}
 
 		template<RepPrefix R = NONE, class BLOCK>

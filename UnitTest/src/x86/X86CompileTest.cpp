@@ -18,12 +18,53 @@ namespace UnitTest
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			testArch::Aaa(block);
 			testArch::Aad(block);
-			testArch::Aam(block);
 			testArch::Aas(block);
-			testArch::Adc(block, X86::EAX, X86::EDX);
-			testArch::Adc(block, X86::EAX, X86::Mem32<X86::BASE>(X86::EDX));
-			testArch::Adc(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EAX);
-			testArch::Adc(block, X86::EAX, S8(1));
+			testArch::Aam(block);
+			testArch::Cbw(block);
+			testArch::Cwde(block);
+			testArch::Clc(block);
+			testArch::Cld(block);
+			testArch::Cli(block);
+			testArch::Clts(block);
+			testArch::Cmc(block);
+			testArch::Cpuid(block);
+			testArch::Cwd(block);
+			testArch::Cdq(block);
+			testArch::Daa(block);
+			testArch::Das(block);
+			testArch::Hlt(block);
+			testArch::Insb(block);
+			testArch::Insw(block);
+			testArch::Insd(block);
+			testArch::Int3(block);
+			testArch::IntO(block);
+			testArch::Iret(block);
+			testArch::Lahf(block);
+			testArch::Leave(block);
+			testArch::Lodsb(block);
+			testArch::Lodsw(block);
+			testArch::Lodsd(block);
+			testArch::Nop(block);
+			testArch::Outsb(block);
+			testArch::Outsw(block);
+			testArch::Outsd(block);
+			testArch::Pusha(block);
+			testArch::Pushad(block);
+			testArch::Pushf(block);
+			testArch::Pushfd(block);
+			testArch::Ret(block);
+			testArch::Retf(block);
+			testArch::Retn(block);
+			testArch::Sahf(block);
+			testArch::Stc(block);
+			testArch::Std(block);
+			testArch::Sti(block);
+			testArch::Stosb(block);
+			testArch::Stosw(block);
+			testArch::Stosd(block);
+			testArch::Wait(block);
+			testArch::Fwait(block);
+			testArch::Xlat(block);
 		}
 
 		TEST_METHOD(TestNot) {
@@ -37,6 +78,19 @@ namespace UnitTest
 			// NOT r/m32
 			testArch::Not(block, X86::EDX);
 			testArch::Not<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestInc) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// INC r/m8
+			testArch::Inc(block, X86::DL);
+			testArch::Inc<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// INC r/m16
+			testArch::Inc(block, X86::DX);
+			testArch::Inc<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// INC r/m32
+			testArch::Inc(block, X86::EDX);
+			testArch::Inc<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
 		TEST_METHOD(TestXchg) {
@@ -395,6 +449,126 @@ namespace UnitTest
 			testArch::Sbb(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
+		TEST_METHOD(TestAnd) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// AND AL, imm8
+			testArch::And(block, X86::AL, S8(50));
+			// AND AX, imm16
+			testArch::And(block, X86::AX, S16(5000));
+			// AND EAX, imm32
+			testArch::And(block, X86::EAX, S32(5000000));
+			// AND r/m8, imm8
+			testArch::And(block, X86::DL, S8(50));
+			testArch::And(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// AND r/m16, imm16
+			testArch::And(block, X86::DX, S16(5000));
+			testArch::And(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// AND r/m32, imm32
+			testArch::And(block, X86::EDX, S32(5000000));
+			testArch::And(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			// AND r/m16, imm8
+			testArch::And(block, X86::DX, S8(50));
+			testArch::And<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// AND r/m32, imm8
+			testArch::And(block, X86::EDX, S8(50));
+			testArch::And<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// AND r/m8, r8
+			testArch::And(block, X86::DL, X86::CL);
+			testArch::And(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			// AND r/m16, r16
+			testArch::And(block, X86::DX, X86::CX);
+			testArch::And(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// AND r/m32, r32
+			testArch::And(block, X86::EDX, X86::ECX);
+			testArch::And(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// AND r8, r/m8
+			testArch::And(block, X86::CL, X86::Mem32<X86::BASE>(X86::EDX));
+			// AND r16, r/m16
+			testArch::And(block, X86::CX, X86::Mem32<X86::BASE>(X86::EDX));
+			// AND r32, r/m32
+			testArch::And(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestOr) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// OR AL, imm8
+			testArch::Or(block, X86::AL, S8(50));
+			// OR AX, imm16
+			testArch::Or(block, X86::AX, S16(5000));
+			// OR EAX, imm32
+			testArch::Or(block, X86::EAX, S32(5000000));
+			// OR r/m8, imm8
+			testArch::Or(block, X86::DL, S8(50));
+			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// OR r/m16, imm16
+			testArch::Or(block, X86::DX, S16(5000));
+			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// OR r/m32, imm32
+			testArch::Or(block, X86::EDX, S32(5000000));
+			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			// OR r/m16, imm8
+			testArch::Or(block, X86::DX, S8(50));
+			testArch::Or<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// OR r/m32, imm8
+			testArch::Or(block, X86::EDX, S8(50));
+			testArch::Or<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// OR r/m8, r8
+			testArch::Or(block, X86::DL, X86::CL);
+			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			// OR r/m16, r16
+			testArch::Or(block, X86::DX, X86::CX);
+			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// OR r/m32, r32
+			testArch::Or(block, X86::EDX, X86::ECX);
+			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// OR r8, r/m8
+			testArch::Or(block, X86::CL, X86::Mem32<X86::BASE>(X86::EDX));
+			// OR r16, r/m16
+			testArch::Or(block, X86::CX, X86::Mem32<X86::BASE>(X86::EDX));
+			// OR r32, r/m32
+			testArch::Or(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestXor) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// XOR AL, imm8
+			testArch::Xor(block, X86::AL, S8(50));
+			// XOR AX, imm16
+			testArch::Xor(block, X86::AX, S16(5000));
+			// XOR EAX, imm32
+			testArch::Xor(block, X86::EAX, S32(5000000));
+			// XOR r/m8, imm8
+			testArch::Xor(block, X86::DL, S8(50));
+			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// XOR r/m16, imm16
+			testArch::Xor(block, X86::DX, S16(5000));
+			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// XOR r/m32, imm32
+			testArch::Xor(block, X86::EDX, S32(5000000));
+			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			// XOR r/m16, imm8
+			testArch::Xor(block, X86::DX, S8(50));
+			testArch::Xor<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// XOR r/m32, imm8
+			testArch::Xor(block, X86::EDX, S8(50));
+			testArch::Xor<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// XOR r/m8, r8
+			testArch::Xor(block, X86::DL, X86::CL);
+			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			// XOR r/m16, r16
+			testArch::Xor(block, X86::DX, X86::CX);
+			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// XOR r/m32, r32
+			testArch::Xor(block, X86::EDX, X86::ECX);
+			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// XOR r8, r/m8
+			testArch::Xor(block, X86::CL, X86::Mem32<X86::BASE>(X86::EDX));
+			// XOR r16, r/m16
+			testArch::Xor(block, X86::CX, X86::Mem32<X86::BASE>(X86::EDX));
+			// XOR r32, r/m32
+			testArch::Xor(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
 		TEST_METHOD(TestPush) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// PUSH r/m16
@@ -622,6 +796,134 @@ namespace UnitTest
 			// ROR r/m32, imm8
 			testArch::Ror(block, X86::EDX, U8(5));
 			testArch::Ror<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+		}
+
+		TEST_METHOD(TestJcc) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// JA rel8
+			testArch::Ja<X86::SHORT>(block).bind(block);
+			// JAE rel8
+			testArch::Jae<X86::SHORT>(block).bind(block);
+			// JB rel8
+			testArch::Jb<X86::SHORT>(block).bind(block);
+			// JBE rel8
+			testArch::Jbe<X86::SHORT>(block).bind(block);
+			// JC rel8
+			testArch::Jc<X86::SHORT>(block).bind(block);
+			// JCXZ rel8
+			testArch::Jcxz(block).bind(block);
+			// JECXZ rel8
+			testArch::Jecxz(block).bind(block);
+			// JE rel8
+			testArch::Je<X86::SHORT>(block).bind(block);
+			// JG rel8
+			testArch::Jg<X86::SHORT>(block).bind(block);
+			// JGE rel8
+			testArch::Jge<X86::SHORT>(block).bind(block);
+			// JL rel8
+			testArch::Jl<X86::SHORT>(block).bind(block);
+			// JLE rel8
+			testArch::Jle<X86::SHORT>(block).bind(block);
+			// JNA rel8
+			testArch::Jna<X86::SHORT>(block).bind(block);
+			// JNAE rel8
+			testArch::Jnae<X86::SHORT>(block).bind(block);
+			// JNB rel8
+			testArch::Jnb<X86::SHORT>(block).bind(block);
+			// JNBE rel8
+			testArch::Jnbe<X86::SHORT>(block).bind(block);
+			// JNC rel8
+			testArch::Jnc<X86::SHORT>(block).bind(block);
+			// JNE rel8
+			testArch::Jne<X86::SHORT>(block).bind(block);
+			// JNG rel8
+			testArch::Jng<X86::SHORT>(block).bind(block);
+			// JNGE rel8
+			testArch::Jnge<X86::SHORT>(block).bind(block);
+			// JNL rel8
+			testArch::Jnl<X86::SHORT>(block).bind(block);
+			// JNLE rel8
+			testArch::Jnle<X86::SHORT>(block).bind(block);
+			// JNO rel8
+			testArch::Jno<X86::SHORT>(block).bind(block);
+			// JNP rel8
+			testArch::Jnp<X86::SHORT>(block).bind(block);
+			// JNS rel8
+			testArch::Jns<X86::SHORT>(block).bind(block);
+			// JNZ rel8
+			testArch::Jnz<X86::SHORT>(block).bind(block);
+			// JO rel8
+			testArch::Jo<X86::SHORT>(block).bind(block);
+			// JP rel8
+			testArch::Jp<X86::SHORT>(block).bind(block);
+			// JPE rel8
+			testArch::Jpe<X86::SHORT>(block).bind(block);
+			// JPO rel8
+			testArch::Jpo<X86::SHORT>(block).bind(block);
+			// JS rel8
+			testArch::Js<X86::SHORT>(block).bind(block);
+			// JZ rel8
+			testArch::Jz<X86::SHORT>(block).bind(block);
+			// JA rel32
+			testArch::Ja<X86::LONG>(block).bind(block);
+			// JAE rel32
+			testArch::Jae<X86::LONG>(block).bind(block);
+			// JB rel32
+			testArch::Jb<X86::LONG>(block).bind(block);
+			// JBE rel32
+			testArch::Jbe<X86::LONG>(block).bind(block);
+			// JC rel32
+			testArch::Jc<X86::LONG>(block).bind(block);
+			// JE rel32
+			testArch::Je<X86::LONG>(block).bind(block);
+			// JG rel32
+			testArch::Jg<X86::LONG>(block).bind(block);
+			// JGE rel32
+			testArch::Jge<X86::LONG>(block).bind(block);
+			// JL rel32
+			testArch::Jl<X86::LONG>(block).bind(block);
+			// JLE rel32
+			testArch::Jle<X86::LONG>(block).bind(block);
+			// JNA rel32
+			testArch::Jna<X86::LONG>(block).bind(block);
+			// JNAE rel32
+			testArch::Jnae<X86::LONG>(block).bind(block);
+			// JNB rel32
+			testArch::Jnb<X86::LONG>(block).bind(block);
+			// JNBE rel32
+			testArch::Jnbe<X86::LONG>(block).bind(block);
+			// JNC rel32
+			testArch::Jnc<X86::LONG>(block).bind(block);
+			// JNE rel32
+			testArch::Jne<X86::LONG>(block).bind(block);
+			// JNG rel32
+			testArch::Jng<X86::LONG>(block).bind(block);
+			// JNGE rel32
+			testArch::Jnge<X86::LONG>(block).bind(block);
+			// JNL rel32
+			testArch::Jnl<X86::LONG>(block).bind(block);
+			// JNLE rel32
+			testArch::Jnle<X86::LONG>(block).bind(block);
+			// JNO rel32
+			testArch::Jno<X86::LONG>(block).bind(block);
+			// JNP rel32
+			testArch::Jnp<X86::LONG>(block).bind(block);
+			// JNS rel32
+			testArch::Jns<X86::LONG>(block).bind(block);
+			// JNZ rel32
+			testArch::Jnz<X86::LONG>(block).bind(block);
+			// JO rel32
+			testArch::Jo<X86::LONG>(block).bind(block);
+			// JP rel32
+			testArch::Jp<X86::LONG>(block).bind(block);
+			// JPE rel32
+			testArch::Jpe<X86::LONG>(block).bind(block);
+			// JPO rel32
+			testArch::Jpo<X86::LONG>(block).bind(block);
+			// JS rel32
+			testArch::Js<X86::LONG>(block).bind(block);
+			// JZ rel32
+			testArch::Jz<X86::LONG>(block).bind(block);
 		}
 
 		TEST_METHOD(TestSetcc) {
