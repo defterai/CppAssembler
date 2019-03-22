@@ -102,6 +102,11 @@ namespace CppAsm::X86
 			OpcodeWriter<SIZE, BLOCK>::write(block, opcode, rmMode);
 		}
 
+		template<class BLOCK>
+		static void write_Opcode_Only_RM_Mode(BLOCK& block, common::Opcode opcode, OpMode rmMode) {
+			common::write_Opcode(block, opcode | (rmMode << 1));
+		}
+
 		template<MemSize SIZE, class BLOCK>
 		static void write_Opcode_Only_Extended_Prefixs(BLOCK& block, common::Opcode opcode) {
 			OpcodeWriter<SIZE, BLOCK>::writeOnlyExtendedPrefixs(block, opcode);
@@ -469,6 +474,51 @@ namespace CppAsm::X86
 			write_Opcode<DWORD_PTR>(block, opcode, MODE_MR);
 			auto replaceMem = dst.write(block, src);
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg32>());
+		}
+
+		static uint8_t getSegmentRegIndex(RegSeg sreg) {
+			switch (sreg) {
+			case ES:
+				return 0;
+			case CS:
+				return 1;
+			case SS:
+				return 2;
+			case DS:
+				return 3;
+			case FS:
+				return 4;
+			case GS:
+				return 5;
+			}
+			return 0;
+		}
+
+		template<class BLOCK>
+		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const Reg16& dst, const RegSeg& src) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, opcode);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, getSegmentRegIndex(src), dst);
+		}
+
+		template<class BLOCK>
+		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const RegSeg& dst, const Reg16& src) {
+			write_Opcode_Only_RM_Mode(block, opcode, MODE_RR);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, getSegmentRegIndex(dst), src);
+		}
+
+		template<AddressMode MODE, class BLOCK>
+		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& dst, const RegSeg& src) {
+			dst.writeSegmPrefix(block);
+			write_Opcode_Only_RM_Mode(block, opcode, MODE_MR);
+			dst.write(block, getSegmentRegIndex(src));
+		}
+
+		template<AddressMode MODE, class BLOCK>
+		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const RegSeg& dst, const Mem32<MODE>& src) {
+			src.writeSegmPrefix(block);
+			write_Opcode_Only_RM_Mode(block, opcode, MODE_RM);
+			src.write(block, getSegmentRegIndex(dst));
 		}
 
 		template<class DST, class SRC, class BLOCK>
@@ -881,6 +931,24 @@ namespace CppAsm::X86
 			return template_reg_imm_operands(block, detail::opcode_MOV, reg, imm);
 		}
 		
+		/* Moving data
+		 - MOV reg,sreg
+		 - MOV [mem],sreg
+		*/
+		template<class DST, class BLOCK>
+		static auto Mov(BLOCK& block, const DST& dst, RegSeg sreg) {
+			return template_2operands_segm(block, 0x8c, dst, sreg);
+		}
+
+		/* Moving data
+		 - MOV sreg,reg
+		 - MOV sreg,[mem]
+		*/
+		template<class SRC, class BLOCK>
+		static auto Mov(BLOCK& block, RegSeg sreg, const SRC& src) {
+			return template_2operands_segm(block, 0x8c, sreg, src);
+		}
+
 		/* Mov with sign extend
 		 - MOVSX reg,reg
 		 - MOVSX reg,[mem]

@@ -108,8 +108,12 @@ namespace UnitTest
 			// MOV r32, r/m32
 			testArch::Mov(block, X86::EDX, X86::EAX);
 			testArch::Mov(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
-			/// TODO: MOV r/m16, Sreg
-			/// TODO: MOV Sreg, r/m16
+			// MOV r/m16, Sreg
+			testArch::Mov(block, X86::AX, X86::DS);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DS);
+			// MOV Sreg, r/m16
+			testArch::Mov(block, X86::DS, X86::AX);
+			testArch::Mov(block, X86::DS, X86::Mem32<X86::BASE>(X86::EDX));
 			/// TODO: short variants
 			// MOV r/m88, imm8
 			testArch::Mov(block, X86::DL, S8(50));
