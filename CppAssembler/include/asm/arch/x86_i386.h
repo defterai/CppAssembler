@@ -920,7 +920,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto Mov(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
-			return template_mem_imm_operands<TypeMemSize<Imm<T>>::value>(block, detail::opcode_MOV, mem, imm);
+			return Mov<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 
 		/* Moving data
@@ -1260,6 +1260,14 @@ namespace CppAsm::X86
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_ADC, mem, imm);
 		}
 
+		/* Addition with carry flag (CF)
+		 - ADC [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Adc(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Adc<TypeMemSize<Imm<T>>::value>(block, mem, imm);
+		}
+
 		/* Addition
 		 - ADD reg,reg
 		 - ADD reg,[mem]
@@ -1287,6 +1295,14 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Add(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_ADD, mem, imm);
+		}
+
+		/* Addition
+		 - ADD [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Add(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Add<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 
 		/* Compare Two Operands
@@ -1318,12 +1334,28 @@ namespace CppAsm::X86
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_CMP, mem, imm);
 		}
 
+		/* Compare Two Operands
+		 - CMP [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Cmp(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Cmp<TypeMemSize<Imm<T>::value>(block, mem, imm);
+		}
+
 		/* Compare and set flags
 		 - CMP imm,[mem]
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Imm<T>& imm, const Mem32<MODE>& mem) {
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_CMP, mem, imm);
+		}
+
+		/* Compare and set flags
+		 - CMP imm,[mem] (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Cmp(BLOCK& block, const Imm<T>& imm, const Mem32<MODE>& mem) {
+			return Cmp<TypeMemSize<Imm<T>::value>(block, mem, imm);
 		}
 
 		/* Increment
@@ -1539,6 +1571,14 @@ namespace CppAsm::X86
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_SBB, mem, imm);
 		}
 
+		/* Integer Subtraction with Borrow
+		 - SBB [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Sbb(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Sbb<TypeMemSize<Imm<T>>::value>(block, mem, imm);
+		}
+
 		/* Subtract
 		 - SUB reg,reg
 		 - SUB reg,[mem]
@@ -1566,6 +1606,14 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Sub(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_SUB, mem, imm);
+		}
+
+		/* Subtract
+		 - SUB [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Sub(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Sub<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 #pragma endregion
 
@@ -1647,6 +1695,14 @@ namespace CppAsm::X86
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_AND, mem, imm);
 		}
 
+		/* Logical AND
+		 - AND [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto And(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return And<TypeMemSize<Imm<T>::value>(block, mem, imm);
+		}
+
 		/* Logical NOT operation
 		 - NOT reg
 		*/
@@ -1690,6 +1746,14 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Or(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_OR, mem, imm);
+		}
+
+		/* Logical OR operation
+		 - OR [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Or(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Or<TypeMemSize<Imm<T>::value>(block, mem, imm);
 		}
 
 		/* Xchange
@@ -1750,7 +1814,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto Test(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
-			return template_mem_imm_operands<TypeMemSize<Imm<T>>::value>(block, detail::opcode_TEST, mem, imm);
+			return Test<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 #ifdef X86_SIZE_OPTIMIZED
 		/* Logical Compare
@@ -1790,6 +1854,14 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Xor(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_XOR, mem, imm);
+		}
+
+		/* Logical Exclusive OR
+		 - XOR [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Xor(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return Xor<TypeMemSize<Imm<T>::value>(block, mem, imm);
 		}
 #pragma endregion
 		
