@@ -1350,7 +1350,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
-			return Cmp<TypeMemSize<Imm<T>::value>(block, mem, imm);
+			return Cmp<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 
 		/* Compare and set flags
@@ -1366,7 +1366,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Imm<T>& imm, const Mem32<MODE>& mem) {
-			return Cmp<TypeMemSize<Imm<T>::value>(block, mem, imm);
+			return Cmp<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 
 		/* Increment
@@ -1711,7 +1711,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto And(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
-			return And<TypeMemSize<Imm<T>::value>(block, mem, imm);
+			return And<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 
 		/* Logical NOT operation
@@ -1764,7 +1764,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto Or(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
-			return Or<TypeMemSize<Imm<T>::value>(block, mem, imm);
+			return Or<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 
 		/* Xchange
@@ -1872,7 +1872,7 @@ namespace CppAsm::X86
 		*/
 		template<AddressMode MODE, class T, class BLOCK>
 		static auto Xor(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
-			return Xor<TypeMemSize<Imm<T>::value>(block, mem, imm);
+			return Xor<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
 #pragma endregion
 		

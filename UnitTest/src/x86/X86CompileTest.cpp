@@ -28,21 +28,79 @@ namespace UnitTest
 
 		TEST_METHOD(TestXchg) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
-			testArch::Xchg(block, X86::EAX, X86::EDX);
-			testArch::Xchg(block, X86::EDX, X86::EAX);
-			testArch::Xchg(block, X86::EDX, X86::ESI);
+			// XCHG AX, r16
 			testArch::Xchg(block, X86::AX, X86::DX);
+			// XCHG r16, AX
 			testArch::Xchg(block, X86::DX, X86::AX);
-			testArch::Xchg(block, X86::SI, X86::DX);
-			testArch::Xchg(block, X86::AL, X86::AH);
-			testArch::Xchg(block, X86::AH, X86::BH);
+			// XCHG EAX, r32
+			testArch::Xchg(block, X86::EAX, X86::EDX);
+			// XCHG r32, EAX
+			testArch::Xchg(block, X86::EDX, X86::EAX);
+			// XCHG r/m8, r8
 			testArch::Xchg(block, X86::DH, X86::CH);
-			testArch::Xchg(block, X86::EAX, X86::Mem32<X86::BASE>(X86::EDX));
-			testArch::Xchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EAX);
-			testArch::Xchg(block, X86::AX, X86::Mem32<X86::BASE>(X86::EDX));
-			testArch::Xchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AX);
-			testArch::Xchg(block, X86::AL, X86::Mem32<X86::BASE>(X86::EDX));
 			testArch::Xchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AL);
+			// XCHG r8, r/m8
+			testArch::Xchg(block, X86::AX, X86::Mem32<X86::BASE>(X86::EDX));
+			// XCHG r/m16, r16
+			testArch::Xchg(block, X86::SI, X86::DX);
+			testArch::Xchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AX);
+			// XCHG r16, r/m16
+			testArch::Xchg(block, X86::AX, X86::Mem32<X86::BASE>(X86::EDX));
+			// XCHG r/m32, r32
+			testArch::Xchg(block, X86::EDX, X86::ESI);
+			testArch::Xchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EAX);
+			// XCHG r32, r/m32
+			testArch::Xchg(block, X86::EAX, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestCmpXchg) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// CMPXCHG r/m8, r8
+			testArch::CmpXchg(block, X86::DL, X86::DH);
+			testArch::CmpXchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			// CMPXCHG r/m16, r16
+			testArch::CmpXchg(block, X86::DX, X86::CX);
+			testArch::CmpXchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// CMPXCHG r/m32, r32
+			testArch::CmpXchg(block, X86::EDX, X86::ECX);
+			testArch::CmpXchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+		}
+
+		TEST_METHOD(TestCmp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// CMP AL, imm8
+			testArch::Cmp(block, X86::AL, S8(50));
+			// CMP AX, imm16
+			testArch::Cmp(block, X86::AX, S16(5000));
+			// CMP EAX, imm32
+			testArch::Cmp(block, X86::EAX, S32(5000000));
+			// CMP r/m8, imm8
+			testArch::Cmp(block, X86::DL, S8(50));
+			testArch::Cmp(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// CMP r/m16, imm16
+			testArch::Cmp(block, X86::DX, S16(5000));
+			testArch::Cmp<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Cmp(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// CMP r/m32, imm32
+			testArch::Cmp(block, X86::EDX, S32(5000000));
+			testArch::Cmp<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Cmp<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Cmp(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			// CMP r/m8, r8
+			testArch::Cmp(block, X86::DL, X86::DH);
+			testArch::Cmp(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DH);
+			// CMP r/m16, r16
+			testArch::Cmp(block, X86::DX, X86::CX);
+			testArch::Cmp(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// CMP r/m32, r32
+			testArch::Cmp(block, X86::EDX, X86::ECX);
+			testArch::Cmp(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// CMP r8, r/m8
+			testArch::Cmp(block, X86::DH, X86::Mem32<X86::BASE>(X86::EDX));
+			// CMP r16,r/m16
+			testArch::Cmp(block, X86::CX, X86::Mem32<X86::BASE>(X86::EDX));
+			// CMP r32,r/m32
+			testArch::Cmp(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
 		TEST_METHOD(TestTest) {
@@ -344,6 +402,50 @@ namespace UnitTest
 			testArch::Jmp<X86::FWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
+		TEST_METHOD(TestRet) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// RET (near)
+			testArch::Retn(block);
+			// RET (far)
+			testArch::Retf(block);
+			// RET imm16 (near)
+			testArch::Retn(block, U16(4));
+			// RET imm16 (far)
+			testArch::Retf(block, U16(4));
+		}
+
+		TEST_METHOD(TestIn) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// IN AL, imm8
+			testArch::In<X86::BYTE_PTR>(block, U8(50));
+			// IN AX, imm8
+			testArch::In<X86::WORD_PTR>(block, U8(50));
+			// IN EAX, imm8
+			testArch::In<X86::DWORD_PTR>(block, U8(50));
+			// IN AL, DX
+			testArch::In<X86::BYTE_PTR, X86::DX>(block);
+			// IN AX, DX
+			testArch::In<X86::WORD_PTR, X86::DX>(block);
+			// IN EAX, DX
+			testArch::In<X86::DWORD_PTR, X86::DX>(block);
+		}
+
+		TEST_METHOD(TestOut) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// OUT imm8, AL
+			testArch::Out<X86::BYTE_PTR>(block, U8(50));
+			// OUT imm8, AX
+			testArch::Out<X86::WORD_PTR>(block, U8(50));
+			// OUT imm8, EAX
+			testArch::Out<X86::DWORD_PTR>(block, U8(50));
+			// OUT DX, AL
+			testArch::Out<X86::BYTE_PTR, X86::DX>(block);
+			// OUT DX, AX
+			testArch::Out<X86::WORD_PTR, X86::DX>(block);
+			// OUT DX, EAX 
+			testArch::Out<X86::DWORD_PTR, X86::DX>(block);
+		}
+
 		TEST_METHOD(TestXadd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XADD r/m8, r8
@@ -355,6 +457,22 @@ namespace UnitTest
 			// XADD r/m32, r32
 			testArch::Xadd(block, X86::EAX, X86::ECX);
 			testArch::Xadd(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+		}
+
+		TEST_METHOD(TestBt) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// BT r/m16, r16
+			testArch::Bt(block, X86::AX, X86::CX);
+			testArch::Bt(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// BT r/m32, r32
+			testArch::Bt(block, X86::EAX, X86::ECX);
+			testArch::Bt(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// BT r/m16, imm8
+			testArch::Bt(block, X86::AX, U8(50));
+			testArch::Bt<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			// BT r/m32, imm8
+			testArch::Bt(block, X86::EAX, U8(50));
+			testArch::Bt<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
 		}
 
 		TEST_METHOD(TestBsf) {
