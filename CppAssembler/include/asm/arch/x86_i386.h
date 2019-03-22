@@ -2168,7 +2168,7 @@ namespace CppAsm::X86
 
 		/* Set byte if signed greater (ZF == 0 && SF == OF) */
 		template<class T, class BLOCK>
-		static auto Setg(BLOCK& block) {
+		static auto Setg(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x9F, val);
 		}
 

@@ -132,5 +132,99 @@ namespace UnitTest
 			testArch::Ror(block, X86::EDX, U8(5));
 			testArch::Ror<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
 		}
+
+		TEST_METHOD(TestSetcc) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// SETA r/m8
+			testArch::Seta(block, X86::AL);
+			testArch::Seta(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETAE r/m8
+			testArch::Setae(block, X86::AL);
+			testArch::Setae(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETB r/m8
+			testArch::Setb(block, X86::AL);
+			testArch::Setb(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETBE r/m8
+			testArch::Setbe(block, X86::AL);
+			testArch::Setbe(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETC r/m8
+			testArch::Setc(block, X86::AL);
+			testArch::Setc(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETE r/m8
+			testArch::Sete(block, X86::AL);
+			testArch::Sete(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETG r/m8
+			testArch::Setg(block, X86::AL);
+			testArch::Setg(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETGE r/m8
+			testArch::Setge(block, X86::AL);
+			testArch::Setge(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETL r/m8
+			testArch::Setl(block, X86::AL);
+			testArch::Setl(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETLE r/m8
+			testArch::Setle(block, X86::AL);
+			testArch::Setle(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNA r/m8
+			testArch::Setna(block, X86::AL);
+			testArch::Setna(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNAE r/m8
+			testArch::Setnae(block, X86::AL);
+			testArch::Setnae(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNB r/m8
+			testArch::Setnb(block, X86::AL);
+			testArch::Setnb(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNBE r/m8
+			testArch::Setnbe(block, X86::AL);
+			testArch::Setnbe(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNC r/m8
+			testArch::Setnc(block, X86::AL);
+			testArch::Setnc(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNE r/m8
+			testArch::Setne(block, X86::AL);
+			testArch::Setne(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNG r/m8
+			testArch::Setng(block, X86::AL);
+			testArch::Setng(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNGE r/m8
+			testArch::Setnge(block, X86::AL);
+			testArch::Setnge(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNL r/m8
+			testArch::Setnl(block, X86::AL);
+			testArch::Setnl(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNLE r/m8
+			testArch::Setnle(block, X86::AL);
+			testArch::Setnle(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNO r/m8
+			testArch::Setno(block, X86::AL);
+			testArch::Setno(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNP r/m8
+			testArch::Setnp(block, X86::AL);
+			testArch::Setnp(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNS r/m8
+			testArch::Setns(block, X86::AL);
+			testArch::Setns(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETNZ r/m8
+			testArch::Setnz(block, X86::AL);
+			testArch::Setnz(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETO r/m8
+			testArch::Seto(block, X86::AL);
+			testArch::Seto(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETP r/m8
+			testArch::Setp(block, X86::AL);
+			testArch::Setp(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETPE r/m8
+			testArch::Setpe(block, X86::AL);
+			testArch::Setpe(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETPO r/m8
+			testArch::Setpo(block, X86::AL);
+			testArch::Setpo(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETS r/m8
+			testArch::Sets(block, X86::AL);
+			testArch::Sets(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// SETZ r/m8
+			testArch::Setz(block, X86::AL);
+			testArch::Setz(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
 	};
 }
