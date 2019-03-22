@@ -65,6 +65,7 @@ namespace CppAsm::X86
 		BYTE_PTR,
 		WORD_PTR,
 		DWORD_PTR,
+		FWORD_PTR,
 		QWORD_PTR,
 		TBYTE_PTR
 	};
@@ -394,7 +395,8 @@ namespace CppAsm::X86
 		constexpr static OpcodeLarge opcode_INC(0xFE, 0b000);
 		constexpr static OpcodeLarge opcode_DEC(0xFE, 0b001);
 
-		constexpr static OpcodeLarge opcode_CALL(0xFF, 0b010);
+		constexpr static OpcodeLarge opcode_CALL_NEAR(0xFF, 0b010);
+		constexpr static OpcodeLarge opcode_CALL_FAR(0xFF, 0b011);
 		constexpr static OpcodeLarge opcode_JMP(0xFF, 0b100);
 		constexpr static OpcodeLarge opcode_PUSH(0xFF, 0b110);
 

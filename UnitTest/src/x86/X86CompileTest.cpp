@@ -316,6 +316,19 @@ namespace UnitTest
 			testArch::Pop(block, X86::GS);
 		}
 
+		TEST_METHOD(TestCall) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// CALL rel32 (near)
+			testArch::Call(block).bind(block);
+			// CALL r/m32 (near)
+			testArch::Call(block, X86::EDX);
+			testArch::Call(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// CALL ptr16:32 (far)
+			testArch::Call(block, S16(5000), S32(5000000));
+			// CALL m16:32 (far)
+			testArch::Call<X86::FWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
 		TEST_METHOD(TestXadd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XADD r/m8, r8

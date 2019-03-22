@@ -797,20 +797,25 @@ namespace CppAsm::X86
 			return template_1reg_operand(block, detail::opcode_JMP, reg);
 		}
 
-		template<class BLOCK>
+		template<MemSize SIZE, class BLOCK>
 		static void template_Call(BLOCK& block, const Addr& jumpAddress) {
+			static_assert(SIZE == DWORD_PTR, "Call: size not supported");
 			common::write_Opcode(block, 0xE8);
 			block.pushRaw(common::calc_Jump_Offset(block.getCurrentPtr(), jumpAddress, sizeof(Addr)));
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Call(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL, mem);
+			if (SIZE == DWORD_PTR) {
+				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL_NEAR, mem);
+			}
+			return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL_FAR, mem);
 		}
 
-		template<class BLOCK>
+		template<MemSize SIZE, class BLOCK>
 		static ReplaceableReg<Reg32> template_Call(BLOCK& block, const Reg32& reg) {
-			return template_1reg_operand(block, detail::opcode_CALL, reg);
+			static_assert(SIZE == DWORD_PTR, "Call: size not supported");
+			return template_1reg_operand(block, detail::opcode_CALL_NEAR, reg);
 		}
 
 		template<JmpSize SIZE, class BLOCK>
@@ -2391,15 +2396,15 @@ namespace CppAsm::X86
 
 #pragma region Flow control
 		/* Call procedure
-		 - CALL reg
-		 - CALL [mem]
+		 - CALL reg (near only)
+		 - CALL [mem] (near/far)
 		*/
-		template<class T, class BLOCK>
+		template<MemSize SIZE = DWORD_PTR, class T, class BLOCK>
 		static auto Call(BLOCK& block, const T& addr) {
-			return template_Call(block, addr);
+			return template_Call<SIZE>(block, addr);
 		}
 
-		/* Call procedure
+		/* Call Near procedure
 		 - CALL imm_addr
 		 - CALL label
 		*/
@@ -2409,6 +2414,16 @@ namespace CppAsm::X86
 			Offset offset = block.getOffset();
 			block.skipBytes(FwdLabel<LONG>::offset_size);
 			return FwdLabel<LONG>(offset);
+		}
+
+		/* Call Far procedure
+		 - CALL imm16:32
+		*/
+		template<class BLOCK>
+		static void Call(BLOCK& block, S16 sel, S32 addr) {
+			common::write_Opcode(block, 0x9A);
+			block.pushRaw<S32::type>(addr);
+			block.pushRaw<S16::type>(sel);
 		}
 
 		/* Jump always
