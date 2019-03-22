@@ -1185,15 +1185,15 @@ namespace CppAsm::X86
 		static void Xchg(BLOCK& block, Reg32 dst, Reg32 src) {
 #ifdef X86_SIZE_OPTIMIZED
 			if (dst == X86::EAX) {
-				block.pushRaw<uint8_t>(0x90 | src);
+				common::write_Opcode(block, 0x90 | src);
 				return;
 			}
 			if (src == X86::EAX) {
-				block.pushRaw<uint8_t>(0x90 | dst);
+				common::write_Opcode(block, 0x90 | dst);
 				return;
 			}
 #endif
-			block.pushRaw<uint8_t>(0x87);
+			common::write_Opcode(block, 0x87);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
@@ -1205,15 +1205,15 @@ namespace CppAsm::X86
 			common::write_Opcode_16bit_Prefix(block);
 #ifdef X86_SIZE_OPTIMIZED
 			if (dst == X86::EAX) {
-				block.pushRaw<uint8_t>(0x90 | src);
+				common::write_Opcode(block, 0x90 | src);
 				return;
 			}
 			if (src == X86::EAX) {
-				block.pushRaw<uint8_t>(0x90 | dst);
+				common::write_Opcode(block, 0x90 | dst);
 				return;
 			}
 #endif
-			block.pushRaw<uint8_t>(0x87);
+			common::write_Opcode(block, 0x87);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
@@ -1222,7 +1222,7 @@ namespace CppAsm::X86
 		*/
 		template<class BLOCK>
 		static void Xchg(BLOCK& block, Reg8 dst, Reg8 src) {
-			block.pushRaw<uint8_t>(0x86);
+			common::write_Opcode(block, 0x86);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
@@ -1540,7 +1540,59 @@ namespace CppAsm::X86
 		}
 
 		/* Signed Multiply
-		- IMUL reg,reg,imm
+		 - IMUL reg,[mem]
+		*/
+		template<class REG, AddressMode MODE, class BLOCK>
+		static void Imul(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, 0xAF);
+			mem.write(block, reg);
+		}
+
+		/* Signed Multiply
+		 - IMUL reg16,imm8
+		*/
+		template<class BLOCK>
+		static void Imul(BLOCK& block, Reg16 reg, S8 imm) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x6B);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg, 0);
+			common::write_Immediate(block, imm);
+		}
+
+		/* Signed Multiply
+		 - IMUL reg32,imm8
+		*/
+		template<class BLOCK>
+		static void Imul(BLOCK& block, Reg32 reg, S8 imm) {
+			common::write_Opcode(block, 0x6B);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg, 0);
+			common::write_Immediate(block, imm);
+		}
+
+		/* Signed Multiply
+		 - IMUL reg16,imm16
+		*/
+		template<class BLOCK>
+		static void Imul(BLOCK& block, Reg16 reg, S16 imm) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x69);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg, 0);
+			common::write_Immediate(block, imm);
+		}
+
+		/* Signed Multiply
+		 - IMUL reg32,imm32
+		*/
+		template<class BLOCK>
+		static void Imul(BLOCK& block, Reg32 reg, S32 imm) {
+			common::write_Opcode(block, 0x69);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg, 0);
+			common::write_Immediate(block, imm);
+		}
+
+		/* Signed Multiply
+		 - IMUL reg,reg,imm
 		*/
 		template<class REG, class T, class BLOCK>
 		static void Imul(BLOCK& block, REG reg1, REG reg2, const Imm<T>& imm) {
@@ -1550,7 +1602,7 @@ namespace CppAsm::X86
 		}
 
 		/* Signed Multiply
-		- IMUL reg,reg,imm
+		 - IMUL reg,reg,imm
 		*/
 		template<class REG, AddressMode MODE, class T, class BLOCK>
 		static void Imul(BLOCK& block, REG reg, const Mem32<MODE>& mem, const Imm<T>& imm) {
@@ -1811,7 +1863,7 @@ namespace CppAsm::X86
 		*/
 		template<class BLOCK>
 		static void Test(BLOCK& block, Reg32 dst, Reg32 src) {
-			block.pushRaw<uint8_t>(detail::opcode_TEST.getMain() | 1);
+			common::write_Opcode(block, detail::opcode_TEST.getMain() | 1);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
@@ -1821,7 +1873,7 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Test(BLOCK& block, Reg16 dst, Reg16 src) {
 			common::write_Opcode_16bit_Prefix(block);
-			block.pushRaw<uint8_t>(detail::opcode_TEST.getMain() | 1);
+			common::write_Opcode(block, detail::opcode_TEST.getMain() | 1);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
@@ -1830,7 +1882,7 @@ namespace CppAsm::X86
 		*/
 		template<class BLOCK>
 		static void Test(BLOCK& block, Reg8 dst, Reg8 src) {
-			block.pushRaw<uint8_t>(detail::opcode_TEST.getMain());
+			common::write_Opcode(block, detail::opcode_TEST.getMain());
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
@@ -2467,8 +2519,8 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Call(BLOCK& block, S16 sel, S32 addr) {
 			common::write_Opcode(block, 0x9A);
-			block.pushRaw<S32::type>(addr);
-			block.pushRaw<S16::type>(sel);
+			common::write_Immediate(block, addr);
+			common::write_Immediate(block, sel);
 		}
 
 		/* Jump always
@@ -2495,8 +2547,8 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Jmp(BLOCK& block, S16 sel, S32 addr) {
 			common::write_Opcode(block, 0xEA);
-			block.pushRaw<S32::type>(addr);
-			block.pushRaw<S16::type>(sel);
+			common::write_Immediate(block, addr);
+			common::write_Immediate(block, sel);
 		}
 
 		/* Jump in overflow (OF == 1) */
