@@ -354,7 +354,7 @@ namespace CppAsm::X86
 			static_assert(COUNT_REG == CL, "Invalid register for precision shift operation");
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Invalid precision shift size prefix");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Only_Extended_Prefixs<SIZE>(opcode | 0x01);
+			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode | 0x01);
 			auto replaceMem = mem.write(block, reg);
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<REG>());
 		}
@@ -364,7 +364,7 @@ namespace CppAsm::X86
 			static_assert(IsRegType<REG>::value, "Param must be register");
 			static_assert(COUNT_REG == CL, "Invalid register for precision shift operation");
 			static_assert(TypeMemSize<REG>::value == WORD_PTR || TypeMemSize<REG>::value == DWORD_PTR, "Invalid precision shift size prefix");
-			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(opcode | 0x01);
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode | 0x01);
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg2, reg1);
 			return std::make_pair(ReplaceableReg<REG>(offset, common::MOD_REG_RM::RM_BIT_OFFSET),
@@ -376,7 +376,7 @@ namespace CppAsm::X86
 			static_assert(IsRegType<REG>::value, "Param must be register");
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Invalid precision shift size prefix");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Only_Extended_Prefixs<SIZE>(opcode);
+			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode);
 			auto replaceMem = mem.write(block, reg);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
