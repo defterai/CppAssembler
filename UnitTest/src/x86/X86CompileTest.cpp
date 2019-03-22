@@ -91,5 +91,15 @@ namespace UnitTest
 			testArch::Xadd(block, X86::EAX, X86::ECX);
 			testArch::Xadd(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
 		}
+
+		TEST_METHOD(TestBsf) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// BSF r16, r/m16
+			testArch::Bsf(block, X86::DX, X86::CX);
+			testArch::Bsf(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
+			// BSF r32, r/m32
+			testArch::Bsf(block, X86::EDX, X86::ECX);
+			testArch::Bsf(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+		}
 	};
 }

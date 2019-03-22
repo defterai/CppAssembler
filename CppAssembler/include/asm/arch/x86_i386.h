@@ -1742,7 +1742,7 @@ namespace CppAsm::X86
 		}
 
 		template<class REG, class BLOCK>
-		auto Rcl(BLOCK& block, const REG& reg, const U8& imm) {
+		static auto Rcl(BLOCK& block, const REG& reg, const U8& imm) {
 			return template_shift_operands<REG>(block, detail::opcode_RCL, reg, imm);
 		}
 
@@ -1939,242 +1939,242 @@ namespace CppAsm::X86
 
 #pragma region Bit manipulations [DONE]
 		template<class REG, class BLOCK>
-		auto Bsf(BLOCK& block, REG reg1, REG reg2) {
+		static auto Bsf(BLOCK& block, REG reg1, REG reg2) {
 			return template_bit_scan(block, 0xBC, reg1, reg2);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
-		auto Bsf(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+		static auto Bsf(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
 			return template_bit_scan(block, 0xBC, reg, mem);
 		}
 
 		template<class REG, class BLOCK>
-		auto Bsr(BLOCK& block, REG reg1, REG reg2) {
+		static auto Bsr(BLOCK& block, REG reg1, REG reg2) {
 			return template_bit_scan(block, 0xBD, reg1, reg2);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
-		auto Bsr(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+		static auto Bsr(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
 			return template_bit_scan(block, 0xBD, reg, mem);
 		}
 
 		template<class T1, class T2, class BLOCK>
-		auto Bt(BLOCK& block, T1 val1, T2 val2) {
+		static auto Bt(BLOCK& block, T1 val1, T2 val2) {
 			return template_bit_operation(block, detail::opcode_BT, val1, val2);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		auto Bt(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		static auto Bt(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
 			return template_bit_operation<SIZE>(block, detail::opcode_BT, mem, imm);
 		}
 
 		template<class T1, class T2, class BLOCK>
-		auto Btc(BLOCK& block, T1 val1, T2 val2) {
+		static auto Btc(BLOCK& block, T1 val1, T2 val2) {
 			return template_bit_operation(block, detail::opcode_BTC, val1, val2);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		auto Btc(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		static auto Btc(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
 			return template_bit_operation<SIZE>(block, detail::opcode_BTC, mem, imm);
 		}
 
 		template<class T1, class T2, class BLOCK>
-		auto Btr(BLOCK& block, T1 val1, T2 val2) {
+		static auto Btr(BLOCK& block, T1 val1, T2 val2) {
 			return template_bit_operation(block, detail::opcode_BTR, val1, val2);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		auto Btr(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		static auto Btr(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
 			return template_bit_operation<SIZE>(block, detail::opcode_BTR, mem, imm);
 		}
 
 		template<class T1, class T2, class BLOCK>
-		auto Bts(BLOCK& block, T1 val1, T2 val2) {
+		static auto Bts(BLOCK& block, T1 val1, T2 val2) {
 			return template_bit_operation(block, detail::opcode_BTS, val1, val2);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		auto Bts(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		static auto Bts(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
 			return template_bit_operation<SIZE>(block, detail::opcode_BTS, mem, imm);
 		}
 
 		/* Set byte if overflow (OF == 1) */
 		template<class T, class BLOCK>
-		auto Seto(BLOCK& block, const T& val) {
+		static auto Seto(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x90, val);
 		}
 
 		/* Set byte if no overflow (OF == 0) */
 		template<class T, class BLOCK>
-		auto Setno(BLOCK& block, const T& val) {
+		static auto Setno(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x91, val);
 		}
 
 		/* Set byte if unsigned lower (CF == 1) */
 		template<class T, class BLOCK>
-		auto Setb(BLOCK& block, const T& val) {
+		static auto Setb(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x92, val);
 		}
 
 		/* Set byte if carry (CF == 1) */
 		template<class T, class BLOCK>
-		auto Setc(BLOCK& block, const T& val) {
+		static auto Setc(BLOCK& block, const T& val) {
 			return Setb(block, val);
 		}
 
 		/* Set byte if unsigned not greater-equal (CF == 1) */
 		template<class T, class BLOCK>
-		auto Setnae(BLOCK& block, const T& val) {
+		static auto Setnae(BLOCK& block, const T& val) {
 			return Setb(block, val);
 		}
 
 		/* Set byte if unsigned greater-equal (CF == 0) */
 		template<class T, class BLOCK>
-		auto Setae(BLOCK& block, const T& val) {
+		static auto Setae(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x93, val);
 		}
 
 		/* Set byte if no carry (CF == 0) */
 		template<class T, class BLOCK>
-		auto Setnc(BLOCK& block, const T& val) {
+		static auto Setnc(BLOCK& block, const T& val) {
 			return Setae(block, val);
 		}
 
 		/* Set byte if unsigned not lower (CF == 0) */
 		template<class T, class BLOCK>
-		auto Setnb(BLOCK& block, const T& val) {
+		static auto Setnb(BLOCK& block, const T& val) {
 			return Setae(block, val);
 		}
 
 		/* Set byte if equal (ZF == 1) */
 		template<class T, class BLOCK>
-		auto Sete(BLOCK& block, const T& val) {
+		static auto Sete(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x94, val);
 		}
 
 		/* Set byte if zero (ZF == 1) */
 		template<class T, class BLOCK>
-		auto Setz(BLOCK& block, const T& val) {
+		static auto Setz(BLOCK& block, const T& val) {
 			return Sete(block, val);
 		}
 
 		/* Set byte if not equal (ZF == 0) */
 		template<class T, class BLOCK>
-		auto Setne(BLOCK& block, const T& val) {
+		static auto Setne(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x95, val);
 		}
 
 		/* Set byte if not zero (ZF == 0) */
 		template<class T, class BLOCK>
-		auto Setnz(BLOCK& block, const T& val) {
+		static auto Setnz(BLOCK& block, const T& val) {
 			return Setne(block, val);
 		}
 
 		/* Set byte if unsigned lower-equal (CF == 1 || ZF == 1) */
 		template<class T, class BLOCK>
-		auto Setbe(BLOCK& block, const T& val) {
+		static auto Setbe(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x96, val);
 		}
 
 		/* Set byte if unsigned not greater (CF == 1 || ZF == 1) */
 		template<class T, class BLOCK>
-		auto Setna(BLOCK& block, const T& val) {
+		static auto Setna(BLOCK& block, const T& val) {
 			return Setbe(block, val);
 		}
 
 		/* Set byte if unsigned greater (CF == 0 && ZF == 0) */
 		template<class T, class BLOCK>
-		auto Seta(BLOCK& block, const T& val) {
+		static auto Seta(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x97, val);
 		}
 
 		/* Set byte if unsigned not lower-equal (CF == 0 && ZF == 0) */
 		template<class T, class BLOCK>
-		auto Setnbe(BLOCK& block, const T& val) {
+		static auto Setnbe(BLOCK& block, const T& val) {
 			return Seta(block, val);
 		}
 
 		/* Set byte if sign (SF == 1) */
 		template<class T, class BLOCK>
-		auto Sets(BLOCK& block, const T& val) {
+		static auto Sets(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x98, val);
 		}
 
 		/* Set byte if no sign (SF == 0) */
 		template<class T, class BLOCK>
-		auto Setns(BLOCK& block, const T& val) {
+		static auto Setns(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x99, val);
 		}
 
 		/* Set byte if parity (PF == 1) */
 		template<class T, class BLOCK>
-		auto Setp(BLOCK& block, const T& val) {
+		static auto Setp(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x9A, val);
 		}
 
 		/* Set byte if parity (PF == 1) */
 		template<class T, class BLOCK>
-		auto Setpe(BLOCK& block, const T& val) {
+		static auto Setpe(BLOCK& block, const T& val) {
 			return Setp(block, val);
 		}
 
 		/* Set byte if no parity (PF == 0) */
 		template<class T, class BLOCK>
-		auto Setnp(BLOCK& block, const T& val) {
+		static auto Setnp(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x9B, val);
 		}
 
 		/* Set byte if no parity (PF == 0) */
 		template<class T, class BLOCK>
-		auto Setpo(BLOCK& block, const T& val) {
+		static auto Setpo(BLOCK& block, const T& val) {
 			return Setnp(block, val);
 		}
 
 		/* Set byte if signed lower (SF != OF) */
 		template<class T, class BLOCK>
-		auto Setl(BLOCK& block, const T& val) {
+		static auto Setl(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x9C, val);
 		}
 
 		/* Set byte if signed not greater-equal (SF != OF) */
 		template<class T, class BLOCK>
-		auto Setnge(BLOCK& block, const T& val) {
+		static auto Setnge(BLOCK& block, const T& val) {
 			return Setl(block, val);
 		}
 
 		/* Set byte if signed greater-equal (ZF == 0 && SF == OF) */
 		template<class T, class BLOCK>
-		auto Setge(BLOCK& block, const T& val) {
+		static auto Setge(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x9D, val);
 		}
 
 		/* Set byte if signed not lower (ZF == 0 && SF == OF) */
 		template<class T, class BLOCK>
-		auto Setnl(BLOCK& block, const T& val) {
+		static auto Setnl(BLOCK& block, const T& val) {
 			return Setge(block, val);
 		}
 
 		/* Set byte if signed lower-equal (ZF == 1 && SF != OF) */
 		template<class T, class BLOCK>
-		auto Setle(BLOCK& block, const T& val) {
+		static auto Setle(BLOCK& block, const T& val) {
 			return template_Setcc(block, 0x9E, val);
 		}
 
 		/* Set byte if signed not greater (ZF == 1 && SF != OF) */
 		template<class T, class BLOCK>
-		auto Setng(BLOCK& block, const T& val) {
+		static auto Setng(BLOCK& block, const T& val) {
 			return Setle(block, val);
 		}
 
 		/* Set byte if signed greater (ZF == 0 && SF == OF) */
 		template<class T, class BLOCK>
-		auto Setg(BLOCK& block) {
+		static auto Setg(BLOCK& block) {
 			return template_Setcc(block, 0x9F, val);
 		}
 
 		/* Set byte if signed not lower-equal (ZF == 0 && SF == OF) */
 		template<class T, class BLOCK>
-		auto Setnle(BLOCK& block, const T& val) {
+		static auto Setnle(BLOCK& block, const T& val) {
 			return Setg(block, val);
 		}
 #pragma endregion
@@ -2185,7 +2185,7 @@ namespace CppAsm::X86
 		 - CALL [mem]
 		*/
 		template<class T, class BLOCK>
-		auto Call(BLOCK& block, const T& addr) {
+		static auto Call(BLOCK& block, const T& addr) {
 			return template_Call(block, addr);
 		}
 
@@ -2194,7 +2194,7 @@ namespace CppAsm::X86
 		 - CALL label
 		*/
 		template<class BLOCK>
-		FwdLabel<LONG> Call(BLOCK& block) {
+		static FwdLabel<LONG> Call(BLOCK& block) {
 			common::write_Opcode(block, 0xE8);
 			Offset offset = block.getOffset();
 			block.skipBytes(FwdLabel<LONG>::offset_size);
@@ -2206,7 +2206,7 @@ namespace CppAsm::X86
 		 - JMP [mem]
 		*/
 		template<class T, class BLOCK>
-		auto Jmp(BLOCK& block, const T& addr) {
+		static auto Jmp(BLOCK& block, const T& addr) {
 			return template_Jmp(block, addr);
 		}
 
