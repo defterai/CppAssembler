@@ -866,6 +866,14 @@ namespace CppAsm::X86
 		}
 
 		/* Moving data
+		 - MOV [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Mov(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return template_mem_imm_operands<TypeMemSize<Imm<T>>::value>(block, detail::opcode_MOV, mem, imm);
+		}
+
+		/* Moving data
 		 - MOV reg,imm
 		*/
 		template<class REG, class T, class BLOCK>
@@ -1613,6 +1621,14 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Test(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			return template_mem_imm_operands<SIZE>(block, detail::opcode_TEST, mem, imm);
+		}
+
+		/* Logical Compare
+		 - TEST [mem],imm (auto mem size)
+		*/
+		template<AddressMode MODE, class T, class BLOCK>
+		static auto Test(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			return template_mem_imm_operands<TypeMemSize<Imm<T>>::value>(block, detail::opcode_TEST, mem, imm);
 		}
 #ifdef X86_SIZE_OPTIMIZED
 		/* Logical Compare

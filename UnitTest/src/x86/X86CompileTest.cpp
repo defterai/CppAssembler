@@ -47,24 +47,33 @@ namespace UnitTest
 
 		TEST_METHOD(TestTest) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
-			testArch::Test(block, X86::EAX, X86::EDX);
-			testArch::Test(block, X86::EDX, X86::EAX);
-			testArch::Test(block, X86::EDX, X86::ESI);
-			testArch::Test(block, X86::AX, X86::DX);
-			testArch::Test(block, X86::DX, X86::AX);
-			testArch::Test(block, X86::SI, X86::DX);
-			testArch::Test(block, X86::AL, X86::AH);
-			testArch::Test(block, X86::AH, X86::BH);
-			testArch::Test(block, X86::DH, X86::CH);
-			testArch::Test(block, X86::EDX, S32(50));
-			testArch::Test(block, X86::DX, S16(50));
+			// TEST AL, imm8
+			testArch::Test(block, X86::AL, S8(50));
+			// TEST AX, imm16
+			testArch::Test(block, X86::AX, S16(5000));
+			// TEST EAX, imm32
+			testArch::Test(block, X86::EAX, S32(5000000));
+			// TEST r/m8, imm8
 			testArch::Test(block, X86::DL, S8(50));
-			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EAX);
-			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AX);
-			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AL);
-			testArch::Test<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(50));
-			testArch::Test<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(50));
-			testArch::Test<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// TEST r/m16, imm16
+			testArch::Test(block, X86::DX, S16(5000));
+			testArch::Test<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// TEST r/m32, imm32
+			testArch::Test(block, X86::EDX, S32(5000000));
+			testArch::Test<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Test<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			// TEST r/m8, r8
+			testArch::Test(block, X86::DL, X86::DH);
+			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DH);
+			// TEST r/m16, r16
+			testArch::Test(block, X86::DX, X86::CX);
+			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// TEST r/m32, r32
+			testArch::Test(block, X86::EDX, X86::ECX);
+			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
 		}
 
 		TEST_METHOD(TestShrd) {
@@ -77,6 +86,46 @@ namespace UnitTest
 			testArch::Shrd<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX, U8(5));
 			testArch::Shrd<X86::CL>(block, X86::EAX, X86::EDX);
 			testArch::Shrd<X86::DWORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+		}
+
+		TEST_METHOD(TestMov) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// MOV r/m8, r8
+			testArch::Mov(block, X86::AL, X86::DL);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DL);
+			// MOV r/m16, r16
+			testArch::Mov(block, X86::AX, X86::DX);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			// MOV r/m32, r32
+			testArch::Mov(block, X86::EAX, X86::EDX);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+			// MOV r8, r/m8
+			testArch::Mov(block, X86::DL, X86::AL);
+			testArch::Mov(block, X86::DL, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOV r16, r/m16
+			testArch::Mov(block, X86::DX, X86::AX);
+			testArch::Mov(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOV r32, r/m32
+			testArch::Mov(block, X86::EDX, X86::EAX);
+			testArch::Mov(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+			/// TODO: MOV r/m16, Sreg
+			/// TODO: MOV Sreg, r/m16
+			/// TODO: short variants
+			// MOV r/m88, imm8
+			testArch::Mov(block, X86::DL, S8(50));
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// MOV r/m16, imm16
+			testArch::Mov(block, X86::DX, S8(50));
+			testArch::Mov(block, X86::DX, S16(5000));
+			testArch::Mov<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// MOV r/m32, imm32
+			testArch::Mov(block, X86::EDX, S8(50));
+			testArch::Mov(block, X86::EDX, S16(5000));
+			testArch::Mov(block, X86::EDX, S32(50000000));
+			testArch::Mov<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Mov<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S32(50000000));
 		}
 
 		TEST_METHOD(TestXadd) {
