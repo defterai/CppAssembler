@@ -27,6 +27,9 @@ namespace UnitTest
 			testArch::Cli(block);
 			testArch::Clts(block);
 			testArch::Cmc(block);
+			testArch::Cmpsb(block);
+			testArch::Cmpsw(block);
+			testArch::Cmpsd(block);
 			testArch::Cpuid(block);
 			testArch::Cwd(block);
 			testArch::Cdq(block);
@@ -44,6 +47,9 @@ namespace UnitTest
 			testArch::Lodsb(block);
 			testArch::Lodsw(block);
 			testArch::Lodsd(block);
+			testArch::Movsb(block);
+			testArch::Movsw(block);
+			testArch::Movsd(block);
 			testArch::Nop(block);
 			testArch::Outsb(block);
 			testArch::Outsw(block);
@@ -52,10 +58,15 @@ namespace UnitTest
 			testArch::Pushad(block);
 			testArch::Pushf(block);
 			testArch::Pushfd(block);
+			testArch::Popa(block);
+			testArch::Popad(block);
 			testArch::Ret(block);
 			testArch::Retf(block);
 			testArch::Retn(block);
 			testArch::Sahf(block);
+			testArch::Scasb(block);
+			testArch::Scasw(block);
+			testArch::Scasd(block);
 			testArch::Stc(block);
 			testArch::Std(block);
 			testArch::Sti(block);
@@ -65,6 +76,44 @@ namespace UnitTest
 			testArch::Wait(block);
 			testArch::Fwait(block);
 			testArch::Xlat(block);
+		}
+
+		TEST_METHOD(TestWithRepPrefix) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			testArch::Cmpsb<X86::REPE>(block);
+			testArch::Cmpsw<X86::REPE>(block);
+			testArch::Cmpsd<X86::REPE>(block);
+			testArch::Insb<X86::REPE>(block);
+			testArch::Insw<X86::REPE>(block);
+			testArch::Insd<X86::REPE>(block);
+			testArch::Lodsb<X86::REPE>(block);
+			testArch::Lodsw<X86::REPE>(block);
+			testArch::Lodsd<X86::REPE>(block);
+			testArch::Movsb<X86::REPE>(block);
+			testArch::Movsw<X86::REPE>(block);
+			testArch::Movsd<X86::REPE>(block);
+			testArch::Outsb<X86::REPE>(block);
+			testArch::Outsw<X86::REPE>(block);
+			testArch::Outsd<X86::REPE>(block);
+			testArch::Scasb<X86::REPE>(block);
+			testArch::Scasw<X86::REPE>(block);
+			testArch::Scasd<X86::REPE>(block);
+			testArch::Stosb<X86::REPE>(block);
+			testArch::Stosw<X86::REPE>(block);
+			testArch::Stosd<X86::REPE>(block);
+		}
+
+		TEST_METHOD(TestNeg) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// NEG r/m8
+			testArch::Neg(block, X86::DL);
+			testArch::Neg<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// NEG r/m16
+			testArch::Neg(block, X86::DX);
+			testArch::Neg<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// NEG r/m32
+			testArch::Neg(block, X86::EDX);
+			testArch::Neg<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
 		TEST_METHOD(TestNot) {
@@ -91,6 +140,58 @@ namespace UnitTest
 			// INC r/m32
 			testArch::Inc(block, X86::EDX);
 			testArch::Inc<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestDec) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// DEC r/m8
+			testArch::Dec(block, X86::DL);
+			testArch::Dec<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// DEC r/m16
+			testArch::Dec(block, X86::DX);
+			testArch::Dec<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// DEC r/m32
+			testArch::Dec(block, X86::EDX);
+			testArch::Dec<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestMul) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// MUL r/m8
+			testArch::Mul(block, X86::DL);
+			testArch::Mul<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// MUL r/m16
+			testArch::Mul(block, X86::DX);
+			testArch::Mul<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// MUL r/m32
+			testArch::Mul(block, X86::EDX);
+			testArch::Mul<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestDiv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// DIV r/m8
+			testArch::Div(block, X86::DL);
+			testArch::Div<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// DIV r/m16
+			testArch::Div(block, X86::DX);
+			testArch::Div<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// DIV r/m32
+			testArch::Div(block, X86::EDX);
+			testArch::Div<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestIdiv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// IDIV r/m8
+			testArch::Idiv(block, X86::DL);
+			testArch::Idiv<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// IDIV r/m16
+			testArch::Idiv(block, X86::DX);
+			testArch::Idiv<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// IDIV r/m32
+			testArch::Idiv(block, X86::EDX);
+			testArch::Idiv<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
 		TEST_METHOD(TestXchg) {
@@ -203,14 +304,34 @@ namespace UnitTest
 
 		TEST_METHOD(TestShrd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// SHRD r/m16, r16, imm8
 			testArch::Shrd(block, X86::AX, X86::DX, U8(5));
 			testArch::Shrd<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX, U8(5));
+			// SHRD r/m16, r16, CL
 			testArch::Shrd<X86::CL>(block, X86::AX, X86::DX);
 			testArch::Shrd<X86::WORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			// SHRD r/m32, r32, imm8
 			testArch::Shrd(block, X86::EAX, X86::EDX, U8(5));
 			testArch::Shrd<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX, U8(5));
+			// SHRD r/m32, r32, CL
 			testArch::Shrd<X86::CL>(block, X86::EAX, X86::EDX);
 			testArch::Shrd<X86::DWORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+		}
+
+		TEST_METHOD(TestShld) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// SHLD r/m16, r16, imm8
+			testArch::Shld(block, X86::AX, X86::DX, U8(5));
+			testArch::Shld<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX, U8(5));
+			// SHLD r/m16, r16, CL
+			testArch::Shld<X86::CL>(block, X86::AX, X86::DX);
+			testArch::Shld<X86::WORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			// SHLD r/m32, r32, imm8
+			testArch::Shld(block, X86::EAX, X86::EDX, U8(5));
+			testArch::Shld<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX, U8(5));
+			// SHLD r/m32, r32, CL
+			testArch::Shld<X86::CL>(block, X86::EAX, X86::EDX);
+			testArch::Shld<X86::DWORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
 		}
 
 		TEST_METHOD(TestLea) {
@@ -645,6 +766,14 @@ namespace UnitTest
 			testArch::Jmp<X86::FWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
+		TEST_METHOD(TestInt) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// INT imm8
+			testArch::Int(block, U8(1));
+			testArch::Int(block, U8(15));
+			testArch::Int(block, U8(127));
+		}
+
 		TEST_METHOD(TestRet) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// RET (near)
@@ -796,6 +925,36 @@ namespace UnitTest
 			// ROR r/m32, imm8
 			testArch::Ror(block, X86::EDX, U8(5));
 			testArch::Ror<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+		}
+
+		TEST_METHOD(TestMovsx) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// MOVSX r16, r/m8
+			testArch::Movsx(block, X86::DX, X86::CL);
+			testArch::Movsx<X86::BYTE_PTR>(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOVSX r32, r/m8
+			testArch::Movsx(block, X86::EDX, X86::CL);
+			testArch::Movsx<X86::BYTE_PTR>(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOVSX r32, r/m16
+			testArch::Movsx(block, X86::EDX, X86::CX);
+			testArch::Movsx<X86::WORD_PTR>(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOVSX r16, m16 (undocumented)
+			testArch::Movsx<X86::WORD_PTR>(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestMovzx) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// MOVZX r16, r/m8
+			testArch::Movzx(block, X86::DX, X86::CL);
+			testArch::Movzx<X86::BYTE_PTR>(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOVZX r32, r/m8
+			testArch::Movzx(block, X86::EDX, X86::CL);
+			testArch::Movzx<X86::BYTE_PTR>(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOVZX r32, r/m16
+			testArch::Movzx(block, X86::EDX, X86::CX);
+			testArch::Movzx<X86::WORD_PTR>(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOVZX r16, m16 (undocumented)
+			testArch::Movzx<X86::WORD_PTR>(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
 		TEST_METHOD(TestJcc) {

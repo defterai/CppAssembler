@@ -599,7 +599,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		static std::pair<ReplaceableReg<Reg32>, ReplaceableReg<Reg16>> template_2operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Reg16& src) {
+		static std::pair<ReplaceableReg<Reg32>, ReplaceableReg<Reg16>> template_2reg_operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Reg16& src) {
 			write_Opcode_Extended<TypeMemSize<Reg32>::value>(block, opcode);
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
@@ -608,21 +608,51 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		static std::pair<ReplaceableReg<Reg16>, ReplaceableReg<Reg8>> template_2operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg16& dst, const Reg8& src) {
-			write_Opcode_Extended<TypeMemSize<Reg16>::value>(block, opcode);
+		static std::pair<ReplaceableReg<Reg32>, ReplaceableReg<Reg8>> template_2reg_operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Reg8& src) {
+			write_Opcode_Extended<TypeMemSize<Reg8>::value>(block, opcode);
+			Offset offset = block.getOffset();
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			return std::make_pair(ReplaceableReg<Reg32>(offset, common::MOD_REG_RM::REG_BIT_OFFSET),
+				ReplaceableReg<Reg8>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
+		}
+
+		template<class BLOCK>
+		static std::pair<ReplaceableReg<Reg16>, ReplaceableReg<Reg8>> template_2reg_operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg16& dst, const Reg8& src) {
+			common::write_Opcode_16bit_Prefix(block);
+			write_Opcode_Extended<TypeMemSize<Reg8>::value>(block, opcode);
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 			return std::make_pair(ReplaceableReg<Reg16>(offset, common::MOD_REG_RM::REG_BIT_OFFSET),
 				ReplaceableReg<Reg8>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}
 
-		template<class REG, AddressMode MODE, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableMem32<MODE>> template_2operands_extend_val(BLOCK& block, common::Opcode opcode, const REG& reg, const Mem32<MODE>& mem) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static std::pair<ReplaceableReg<Reg32>, ReplaceableMem32<MODE>> template_2operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg32& reg, const Mem32<MODE>& mem) {
+			static_assert(SIZE == BYTE_PTR || SIZE == WORD_PTR, "Invalid extend mem source size");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Extended<TypeMemSize<REG>::value>(block, opcode);
+			common::write_Opcode_Extended_Prefix(block);
+			if (SIZE == WORD_PTR) {
+				common::write_Opcode(block, opcode | 1);
+			} else {
+				common::write_Opcode(block, opcode);
+			}
 			auto replaceMem = mem.write(block, reg);
-			return std::make_pair(replaceMem.getOtherReg<REG>(), replaceMem);
+			return std::make_pair(replaceMem.getOtherReg<Reg32>(), replaceMem);
+		}
+
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static std::pair<ReplaceableReg<Reg16>, ReplaceableMem32<MODE>> template_2operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg16& reg, const Mem32<MODE>& mem) {
+			static_assert(SIZE == BYTE_PTR || SIZE == WORD_PTR, "Invalid extend mem source size");
+			mem.writeSegmPrefix(block);
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode_Extended_Prefix(block);
+			if (SIZE == WORD_PTR) {
+				common::write_Opcode(block, opcode | 1);
+			} else {
+				common::write_Opcode(block, opcode);
+			}
+			auto replaceMem = mem.write(block, reg);
+			return std::make_pair(replaceMem.getOtherReg<Reg16>(), replaceMem);
 		}
 
 		template<class BLOCK>
@@ -1001,20 +1031,34 @@ namespace CppAsm::X86
 
 		/* Mov with sign extend
 		 - MOVSX reg,reg
-		 - MOVSX reg,[mem]
 		*/
 		template<class DST, class SRC, class BLOCK>
 		static auto Movsx(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_extend_val(block, 0xBE, dst, src);
+			return template_2reg_operands_extend_val(block, 0xBE, dst, src);
+		}
+
+		/* Mov with sign extend
+		 - MOVSX reg,[mem]
+		*/
+		template<MemSize SIZE, class REG, AddressMode MODE, class BLOCK>
+		static auto Movsx(BLOCK& block, const REG& dst, const Mem32<MODE>& src) {
+			return template_2operands_extend_val<SIZE>(block, 0xBE, dst, src);
 		}
 
 		/* Mov with zero extend
 		 - MOVZX reg,reg
-		 - MOVZX reg,[mem]
 		*/
 		template<class DST, class SRC, class BLOCK>
 		static auto Movzx(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_extend_val(block, 0xB6, dst, src);
+			return template_2reg_operands_extend_val(block, 0xB6, dst, src);
+		}
+
+		/* Mov with zero extend
+		 - MOVZX reg,[mem]
+		*/
+		template<MemSize SIZE, class REG, AddressMode MODE, class BLOCK>
+		static auto Movzx(BLOCK& block, const REG& dst, const Mem32<MODE>& src) {
+			return template_2operands_extend_val<SIZE>(block, 0xB6, dst, src);
 		}
 
 		/* Push value to the stack
