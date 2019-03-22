@@ -397,7 +397,8 @@ namespace CppAsm::X86
 
 		constexpr static OpcodeLarge opcode_CALL_NEAR(0xFF, 0b010);
 		constexpr static OpcodeLarge opcode_CALL_FAR(0xFF, 0b011);
-		constexpr static OpcodeLarge opcode_JMP(0xFF, 0b100);
+		constexpr static OpcodeLarge opcode_JMP_NEAR(0xFF, 0b100);
+		constexpr static OpcodeLarge opcode_JMP_FAR(0xFF, 0b101);
 		constexpr static OpcodeLarge opcode_PUSH(0xFF, 0b110);
 
 		constexpr static OpcodeLarge opcode_ROL(0xC0, 0b000);

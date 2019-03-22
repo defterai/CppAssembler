@@ -779,7 +779,7 @@ namespace CppAsm::X86
 
 		template<JmpSize SIZE, class BLOCK>
 		static FwdLabel<SIZE> template_Jmp(BLOCK& block) {
-			return JumpWriter<SIZE, BLOCK>::write(block, opcode);
+			return JumpWriter<SIZE, BLOCK>::write(block);
 		}
 
 		template<JmpSize SIZE, class BLOCK>
@@ -787,14 +787,19 @@ namespace CppAsm::X86
 			return JumpWriter<SIZE, BLOCK>::writeConditional(block, opcode);
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Jmp(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_1mem_operand<DWORD_PTR>(block, detail::opcode_JMP, mem);
+			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Jmp: size not supported");
+			if (SIZE == DWORD_PTR) {
+				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_JMP_NEAR, mem);
+			}
+			return template_1mem_operand<DWORD_PTR>(block, detail::opcode_JMP_FAR, mem);
 		}
 
-		template<class BLOCK>
+		template<MemSize SIZE, class BLOCK>
 		static ReplaceableReg<Reg32> template_Jmp(BLOCK& block, const Reg32& reg) {
-			return template_1reg_operand(block, detail::opcode_JMP, reg);
+			static_assert(SIZE == DWORD_PTR, "Jmp: size not supported");
+			return template_1reg_operand(block, detail::opcode_JMP_NEAR, reg);
 		}
 
 		template<MemSize SIZE, class BLOCK>
@@ -806,6 +811,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Call(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Call: size not supported");
 			if (SIZE == DWORD_PTR) {
 				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL_NEAR, mem);
 			}
@@ -2430,9 +2436,9 @@ namespace CppAsm::X86
 		 - JMP reg
 		 - JMP [mem]
 		*/
-		template<class T, class BLOCK>
+		template<MemSize SIZE = DWORD_PTR, class T, class BLOCK>
 		static auto Jmp(BLOCK& block, const T& addr) {
-			return template_Jmp(block, addr);
+			return template_Jmp<SIZE>(block, addr);
 		}
 
 		/* Jump always
@@ -2442,6 +2448,16 @@ namespace CppAsm::X86
 		template<JmpSize SIZE = SHORT, class BLOCK>
 		static FwdLabel<SIZE> Jmp(BLOCK& block) {
 			return template_Jmp<SIZE>(block);
+		}
+
+		/* Jump Far procedure
+		 - JMP imm16:32
+		*/
+		template<class BLOCK>
+		static void Jmp(BLOCK& block, S16 sel, S32 addr) {
+			common::write_Opcode(block, 0xEA);
+			block.pushRaw<S32::type>(addr);
+			block.pushRaw<S16::type>(sel);
 		}
 
 		/* Jump in overflow (OF == 1) */

@@ -329,6 +329,21 @@ namespace UnitTest
 			testArch::Call<X86::FWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
 		}
 
+		TEST_METHOD(TestJmp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// JMP rel8 (short)
+			testArch::Jmp<X86::SHORT>(block).bind(block);
+			// JMP rel32 (near)
+			testArch::Jmp<X86::LONG>(block).bind(block);
+			// JMP r/m32
+			testArch::Jmp(block, X86::EDX);
+			testArch::Jmp(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// JMP ptr16:32 (far)
+			testArch::Jmp(block, S16(5000), S32(5000000));
+			// JMP m16:32 (far)
+			testArch::Jmp<X86::FWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
 		TEST_METHOD(TestXadd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XADD r/m8, r8
