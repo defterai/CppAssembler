@@ -999,7 +999,54 @@ namespace CppAsm::X86
 		}
 
 		/* Xchange
-		 - XCHG reg,reg
+		 - XCHG reg32,reg32
+		*/
+		template<class BLOCK>
+		static void Xchg(BLOCK& block, Reg32 dst, Reg32 src) {
+#ifdef X86_SIZE_OPTIMIZED
+			if (dst == X86::EAX) {
+				block.pushRaw<uint8_t>(0x90 | src);
+				return;
+			}
+			if (src == X86::EAX) {
+				block.pushRaw<uint8_t>(0x90 | dst);
+				return;
+			}
+#endif
+			block.pushRaw<uint8_t>(0x87);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
+		/* Xchange
+		 - XCHG reg16,reg16
+		*/
+		template<class BLOCK>
+		static void Xchg(BLOCK& block, Reg16 dst, Reg16 src) {
+			common::write_Opcode_16bit_Prefix(block);
+#ifdef X86_SIZE_OPTIMIZED
+			if (dst == X86::EAX) {
+				block.pushRaw<uint8_t>(0x90 | src);
+				return;
+			}
+			if (src == X86::EAX) {
+				block.pushRaw<uint8_t>(0x90 | dst);
+				return;
+			}
+#endif
+			block.pushRaw<uint8_t>(0x87);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
+		/* Xchange
+		 - XCHG reg8,reg8
+		*/
+		template<class BLOCK>
+		static void Xchg(BLOCK& block, Reg8 dst, Reg8 src) {
+			block.pushRaw<uint8_t>(0x86);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
+		/* Xchange
 		 - XCHG reg,[mem]
 		 - XCHG [mem],reg
 		*/
