@@ -287,7 +287,7 @@ namespace CppAsm::X86
 		template<class REG, class T, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableExtendedImm<TypeMemSize<REG>::value, T>> template_reg_imm_operands(BLOCK& block, const detail::OpcodeSet& opcodeSet, const REG& reg, const Imm<T>& imm) {
 			static_assert(IsRegType<REG>::value, "First param must be register");
-			write_Opcode<TypeMemSize<REG>::value>(block, opcodeSet.opcodeSet.getSecond().getOpcode());
+			write_Opcode<TypeMemSize<REG>::value>(block, opcodeSet.getSecond().getOpcode());
 			Offset regOffset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcodeSet.getSecond().getMode(), reg);
 			Offset offset = block.getOffset();
@@ -1562,8 +1562,43 @@ namespace CppAsm::X86
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_OR, mem, imm);
 		}
 
+		/* Xchange
+		 - TEST reg32,reg32
+		*/
+		template<class BLOCK>
+		static void Test(BLOCK& block, Reg32 dst, Reg32 src) {
+			block.pushRaw<uint8_t>(detail::opcode_TEST.getMain() | 1);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
 		/* Logical Compare
-		 - TEST reg,reg
+		 - TEST reg16,reg16
+		*/
+		template<class BLOCK>
+		static void Test(BLOCK& block, Reg16 dst, Reg16 src) {
+			common::write_Opcode_16bit_Prefix(block);
+			block.pushRaw<uint8_t>(detail::opcode_TEST.getMain() | 1);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
+		/* Logical Compare
+		 - TEST reg8,reg8
+		*/
+		template<class BLOCK>
+		static void Test(BLOCK& block, Reg8 dst, Reg8 src) {
+			block.pushRaw<uint8_t>(detail::opcode_TEST.getMain());
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
+		/* Logical Compare
+		 - TEST reg,imm
+		*/
+		template<class REG, class T, class BLOCK>
+		static auto Test(BLOCK& block, REG reg, const Imm<T>& imm) {
+			return template_reg_imm_operands(block, detail::opcode_TEST, reg, imm);
+		}
+
+		/* Logical Compare
 		 - TEST reg,[mem]
 		 - TEST [mem],reg
 		*/
