@@ -12,7 +12,7 @@ namespace UnitTest
 	private:
 		constexpr static Size CODE_BLOCK_SIZE = 1024 * 1024;
 		typedef Win32::CodeBlock testCodeBlock;
-		typedef X86::i386 testArch;
+		typedef X86::i486 testArch;
 	public:
 		TEST_METHOD(TestNoParams) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
@@ -77,6 +77,19 @@ namespace UnitTest
 			testArch::Shrd<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX, U8(5));
 			testArch::Shrd<X86::CL>(block, X86::EAX, X86::EDX);
 			testArch::Shrd<X86::DWORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+		}
+
+		TEST_METHOD(TestXadd) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// XADD r/m8, r8
+			testArch::Xadd(block, X86::AL, X86::AH);
+			testArch::Xadd(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AH);
+			// XADD r/m16, r16
+			testArch::Xadd(block, X86::AX, X86::CX);
+			testArch::Xadd(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// XADD r/m32, r32
+			testArch::Xadd(block, X86::EAX, X86::ECX);
+			testArch::Xadd(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
 		}
 	};
 }

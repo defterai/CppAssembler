@@ -536,7 +536,7 @@ namespace CppAsm::X86
 		template<class DST, class SRC, class BLOCK>
 		static void template_2operands_xchange(BLOCK& block, common::Opcode opcode, const DST& dst, const SRC& src) {
 			static_assert(TypeMemSize<DST>::value == TypeMemSize<SRC>::value, "Xchange operand size mismatch");
-			write_Opcode_Extended<TypeMemSize<REG>::value>(opcode);
+			write_Opcode_Extended<TypeMemSize<DST>::value>(block, opcode);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 		}
 
@@ -544,7 +544,7 @@ namespace CppAsm::X86
 		static void template_2operands_xchange(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem, const REG& reg) {
 			static_assert(IsRegType<REG>::value, "Param must be register");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Extended<TypeMemSize<REG>::value>(opcode);
+			write_Opcode_Extended<TypeMemSize<REG>::value>(block, opcode);
 			mem.write(block, reg);
 		}
 
