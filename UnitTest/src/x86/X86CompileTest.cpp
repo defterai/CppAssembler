@@ -188,6 +188,30 @@ namespace UnitTest
 			testArch::Mov<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
 			testArch::Mov<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
 			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S32(50000000));
+			// MOV CR0, r32
+			testArch::Mov(block, X86::CR0, X86::EDX);
+			// MOV CR2, r32
+			testArch::Mov(block, X86::CR2, X86::EDX);
+			// MOV CR3, r32
+			testArch::Mov(block, X86::CR3, X86::EDX);
+			// MOV CR4, r32
+			testArch::Mov(block, X86::CR4, X86::EDX);
+			// MOV r32, CR0
+			testArch::Mov(block, X86::EDX, X86::CR0);
+			// MOV r32, CR2
+			testArch::Mov(block, X86::EDX, X86::CR2);
+			// MOV r32, CR3
+			testArch::Mov(block, X86::EDX, X86::CR3);
+			// MOV r32, CR4
+			testArch::Mov(block, X86::EDX, X86::CR4);
+			// MOV r32, DR0-DR7
+			testArch::Mov(block, X86::EDX, X86::DR0);
+			testArch::Mov(block, X86::EDX, X86::DR5);
+			testArch::Mov(block, X86::EDX, X86::DR7);
+			// MOV DR0-DR7, r32 
+			testArch::Mov(block, X86::DR0, X86::EDX);
+			testArch::Mov(block, X86::DR5, X86::EDX);
+			testArch::Mov(block, X86::DR7, X86::EDX);
 		}
 
 		TEST_METHOD(TestAdd) {

@@ -864,6 +864,13 @@ namespace CppAsm::X86
 			common::write_Opcode(block, opcode);
 			mem.write(block, reg);
 		}
+
+		template<class BLOCK>
+		static void template_MovSpecReg(BLOCK& block, common::Opcode opcode, uint8_t specReg, Reg32 reg) {
+			common::write_Opcode_Extended_Prefix(block);
+			common::write_Opcode(block, opcode);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, specReg, reg);
+		}
 	public:
 #pragma region Data transfer [DONE]
 		/* Convert byte to word */
@@ -958,6 +965,38 @@ namespace CppAsm::X86
 		template<class SRC, class BLOCK>
 		static auto Mov(BLOCK& block, RegSeg sreg, const SRC& src) {
 			return template_2operands_segm(block, 0x8c, sreg, src);
+		}
+
+		/* Move data to Control Registers 
+		 - MOV creg,reg
+		*/
+		template<class BLOCK>
+		static void Mov(BLOCK& block, RegControl dst, Reg32 src) {
+			template_MovSpecReg(block, 0x22, dst, src);
+		}
+
+		/* Move data from Control Registers
+		 - MOV reg,creg
+		*/
+		template<class BLOCK>
+		static void Mov(BLOCK& block, Reg32 dst, RegControl src) {
+			template_MovSpecReg(block, 0x20, src, dst);
+		}
+
+		/* Move data to Control Registers
+		 - MOV dreg,reg
+		*/
+		template<class BLOCK>
+		static void Mov(BLOCK& block, RegDebug dst, Reg32 src) {
+			template_MovSpecReg(block, 0x23, dst, src);
+		}
+
+		/* Move data to Control Registers
+		 - MOV reg,dreg
+		*/
+		template<class BLOCK>
+		static void Mov(BLOCK& block, Reg32 dst, RegDebug src) {
+			template_MovSpecReg(block, 0x21, src, dst);
 		}
 
 		/* Mov with sign extend

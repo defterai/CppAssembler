@@ -54,6 +54,25 @@ namespace CppAsm::X86
 		GS = 0x65
 	};
 
+	enum RegDebug : uint8_t {
+		DR0 = 0,
+		DR1,
+		DR2,
+		DR3,
+		DR4,
+		DR5,
+		DR6,
+		DR7
+	};
+
+	enum RegControl : uint8_t {
+		CR0 = 0,
+		CR1, // reversed
+		CR2,
+		CR3,
+		CR4
+	};
+
 	enum IndexScale : uint8_t {
 		SCALE_1 = 0b00,
 		SCALE_2 = 0b01,
