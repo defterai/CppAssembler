@@ -989,7 +989,7 @@ namespace CppAsm::X86
 		}
 
 		/* Push value to the stack
-		- PUSH imm8
+		 - PUSH imm8
 		*/
 		template<class BLOCK>
 		static ReplaceableValue<S8> Push(BLOCK& block, S8 number) {
@@ -1000,7 +1000,19 @@ namespace CppAsm::X86
 		}
 
 		/* Push value to the stack
-		- PUSH imm32
+		 - PUSH imm16
+		*/
+		template<class BLOCK>
+		static ReplaceableValue<S16> Push(BLOCK& block, S16 number) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x68);
+			Offset offset = block.getOffset();
+			common::write_Immediate(block, number);
+			return ReplaceableValue<S16>(offset);
+		}
+
+		/* Push value to the stack
+		 - PUSH imm32
 		*/
 		template<class BLOCK>
 		static ReplaceableValue<S32> Push(BLOCK& block, S32 number) {
@@ -1011,11 +1023,33 @@ namespace CppAsm::X86
 		}
 
 		/* Push value to the stack
-		- PUSH [mem]
+		 - PUSH [mem]
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Push(BLOCK& block, const Mem32<MODE>& mem) {
 			return template_1mem_operand<SIZE>(block, detail::opcode_PUSH, mem);
+		}
+
+		/* Push value to the stack
+		 - PUSH sreg
+		*/
+		template<class BLOCK>
+		static void Push(BLOCK& block, RegSeg sreg) {
+			if (sreg == ES) {
+				common::write_Opcode(block, 0x06);
+			} else if (sreg == CS) {
+				common::write_Opcode(block, 0x0E);
+			} else if (sreg == SS) {
+				common::write_Opcode(block, 0x16);
+			} else if (sreg == DS) {
+				common::write_Opcode(block, 0x1E);
+			} else if (sreg == FS) {
+				common::write_Opcode_Extended_Prefix(block);
+				common::write_Opcode(block, 0xA0);
+			} else if (sreg == GS) {
+				common::write_Opcode_Extended_Prefix(block);
+				common::write_Opcode(block, 0xA8);
+			}
 		}
 
 		/* Store all 16 bit general registers to stack */

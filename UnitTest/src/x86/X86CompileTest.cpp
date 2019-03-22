@@ -132,6 +132,34 @@ namespace UnitTest
 			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S32(50000000));
 		}
 
+		TEST_METHOD(TestPush) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// PUSH r/m16
+			testArch::Push(block, X86::AX);
+			testArch::Push<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// PUSH r/m32
+			testArch::Push(block, X86::EAX);
+			testArch::Push<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// PUSH imm8
+			testArch::Push(block, S8(50));
+			// PUSH imm16
+			testArch::Push(block, S16(5000));
+			// PUSH imm32
+			testArch::Push(block, S32(5000000));
+			// PUSH CS
+			testArch::Push(block, X86::CS);
+			// PUSH SS
+			testArch::Push(block, X86::SS);
+			// PUSH DS
+			testArch::Push(block, X86::DS);
+			// PUSH ES
+			testArch::Push(block, X86::ES);
+			// PUSH FS
+			testArch::Push(block, X86::FS);
+			// PUSH GS
+			testArch::Push(block, X86::GS);
+		}
+
 		TEST_METHOD(TestXadd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XADD r/m8, r8
