@@ -340,7 +340,7 @@ namespace CppAsm::X86
 
 		template<class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg, const U8& imm) {
-			write_Opcode<TypeMemSize<REG>::value>(opcode.getOpcode());
+			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode());
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
 			common::write_Immediate(block, imm);
