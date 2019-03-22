@@ -160,6 +160,26 @@ namespace UnitTest
 			testArch::Push(block, X86::GS);
 		}
 
+		TEST_METHOD(TestPop) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// POP r/m16
+			testArch::Pop(block, X86::AX);
+			testArch::Pop<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// POP r/m32
+			testArch::Pop(block, X86::EAX);
+			testArch::Pop<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// POP DS
+			testArch::Pop(block, X86::DS);
+			// POP ES
+			testArch::Pop(block, X86::ES);
+			// POP SS
+			testArch::Pop(block, X86::SS);
+			// POP FS
+			testArch::Pop(block, X86::FS);
+			// POP GS
+			testArch::Pop(block, X86::GS);
+		}
+
 		TEST_METHOD(TestXadd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XADD r/m8, r8

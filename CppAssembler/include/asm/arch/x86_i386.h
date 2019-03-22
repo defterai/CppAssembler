@@ -1066,7 +1066,7 @@ namespace CppAsm::X86
 		}
 
 		/* Pop value from the stack
-		- POP reg16
+		 - POP reg16
 		*/
 		template<class BLOCK>
 		static ReplaceableReg<Reg16> Pop(BLOCK& block, Reg16 reg) {
@@ -1077,7 +1077,7 @@ namespace CppAsm::X86
 		}
 
 		/* Pop value from the stack
-		- POP reg32
+		 - POP reg32
 		*/
 		template<class BLOCK>
 		static ReplaceableReg<Reg32> Pop(BLOCK& block, Reg32 reg) {
@@ -1087,7 +1087,7 @@ namespace CppAsm::X86
 		}
 
 		/* Pop value from the stack
-		- POP [mem]
+		 - POP [mem]
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Pop(BLOCK& block, const Mem32<MODE>& mem) {
@@ -1095,6 +1095,26 @@ namespace CppAsm::X86
 			return template_1mem_operand<SIZE>(block, detail::opcode_POP, mem);
 		}
 		
+		/* Push value to the stack
+		 - POP sreg
+		*/
+		template<class BLOCK>
+		static void Pop(BLOCK& block, RegSeg sreg) {
+			if (sreg == ES) {
+				common::write_Opcode(block, 0x07);
+			} else if (sreg == SS) {
+				common::write_Opcode(block, 0x17);
+			} else if (sreg == DS) {
+				common::write_Opcode(block, 0x1F);
+			} else if (sreg == FS) {
+				common::write_Opcode_Extended_Prefix(block);
+				common::write_Opcode(block, 0xA1);
+			} else if (sreg == GS) {
+				common::write_Opcode_Extended_Prefix(block);
+				common::write_Opcode(block, 0xA9);
+			}
+		}
+
 		/* Load all 16 bit general registers from stack */
 		template<class BLOCK>
 		static void Popa(BLOCK& block) {
