@@ -119,7 +119,7 @@ namespace CppAsm::X86_64::detail
 
 	template<uint8_t R, class BLOCK>
 	static void write_Opcode_Rep(BLOCK& block, Opcode opcode) {
-		if (R) {
+		/*constexpr*/ if (R) {
 			block.pushRaw<uint8_t>(R);
 		}
 		write_Opcode(block, opcode);

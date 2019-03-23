@@ -615,7 +615,7 @@ namespace CppAsm::X86
 			static_assert(SIZE == BYTE_PTR || SIZE == WORD_PTR, "Invalid extend mem source size");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode_Extended_Prefix(block);
-			if (SIZE == WORD_PTR) {
+			/*constexpr*/ if (SIZE == WORD_PTR) {
 				common::write_Opcode(block, opcode | 1);
 			} else {
 				common::write_Opcode(block, opcode);
@@ -630,7 +630,7 @@ namespace CppAsm::X86
 			mem.writeSegmPrefix(block);
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Extended_Prefix(block);
-			if (SIZE == WORD_PTR) {
+			/*constexpr*/ if (SIZE == WORD_PTR) {
 				common::write_Opcode(block, opcode | 1);
 			} else {
 				common::write_Opcode(block, opcode);
@@ -805,7 +805,7 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Jmp(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Jmp: Invalid size modifier");
-			if (SIZE == DWORD_PTR) {
+			/*constexpr*/ if (SIZE == DWORD_PTR) {
 				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_JMP_NEAR, mem);
 			}
 			return template_1mem_operand<DWORD_PTR>(block, detail::opcode_JMP_FAR, mem);
@@ -827,7 +827,7 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Call(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Call: Invalid size modifier");
-			if (SIZE == DWORD_PTR) {
+			/*constexpr*/ if (SIZE == DWORD_PTR) {
 				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL_NEAR, mem);
 			}
 			return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL_FAR, mem);

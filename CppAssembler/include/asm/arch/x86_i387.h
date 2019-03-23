@@ -42,7 +42,7 @@ namespace CppAsm::X86
 		static void template_1operand_float80(BLOCK& block, const detail::OpcodeLarge& opcode, const detail::OpcodeLarge& opcode80, const Mem32<MODE>& mem) {
 			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR) || (SIZE == TBYTE_PTR), "i387: Invalid size modifier");
 			mem.writeSegmPrefix(block);
-			if (SIZE == TBYTE_PTR) {
+			/*constexpr*/ if (SIZE == TBYTE_PTR) {
 				common::write_Opcode(block, opcode80.getOpcode());
 				mem.write(block, opcode80.getMode());
 			} else {
@@ -76,7 +76,7 @@ namespace CppAsm::X86
 		static void template_1operand_int64(BLOCK& block, const detail::OpcodeLarge& opcode, const detail::OpcodeLarge& opcode64, const Mem32<MODE>& mem) {
 			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "i387: Invalid size modifier");
 			mem.writeSegmPrefix(block);
-			if (SIZE == QWORD_PTR) {
+			/*constexpr*/ if (SIZE == QWORD_PTR) {
 				common::write_Opcode(block, opcode64.getOpcode());
 				mem.write(block, opcode64.getMode());
 			} else {
