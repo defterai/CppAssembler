@@ -545,18 +545,13 @@ namespace CppAsm::X86
 			return template_reg_imm_opt_operands(block, opcodeSet, dst, src);
 		}
 
-#ifdef X86_SIZE_OPTIMIZED
-		template<class REG, class T, class BLOCK>
-		static bool template_2operands_first_reg_imm(BLOCK& block, common::Opcode opcode, const REG& reg, const Imm<T>& imm) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
-			if ((reg == 0) && (TypeMemSize<REG>::value == TypeMemSize<Imm<T>>::value)) {
-				write_Opcode<TypeMemSize<REG>::value>(block, opcode);
-				write_Imm_Size_Extend<TypeMemSize<REG>::value>(block, imm);
-				return true;
-			}
-			return false;
+		template<MemSize SIZE, class T, class BLOCK>
+		static void template_2operands_first_reg_imm(BLOCK& block, common::Opcode opcode, const Imm<T>& imm) {
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "i386: Immediate size not equal output register size");
+			write_Opcode<SIZE>(block, opcode);
+			write_Imm_Size_Extend<SIZE>(block, imm);
 		}
-#endif
+
 		template<AddressMode MODE, class BLOCK>
 		static auto template_2operands_symetric(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& dst, const Reg8& src) {
 			return template_2operands(block, opcode, dst, src);
@@ -1218,22 +1213,29 @@ namespace CppAsm::X86
 		}
 
 		/* Xchange
+		 - XCHG EAX,reg32
+		*/
+		template<class BLOCK>
+		static void Xchg(BLOCK& block, Reg32 reg) {
+			common::write_Opcode(block, 0x90 | reg);
+		}
+
+		/* Xchange
 		 - XCHG reg32,reg32
 		*/
 		template<class BLOCK>
 		static void Xchg(BLOCK& block, Reg32 dst, Reg32 src) {
-#ifdef X86_SIZE_OPTIMIZED
-			if (dst == X86::EAX) {
-				common::write_Opcode(block, 0x90 | src);
-				return;
-			}
-			if (src == X86::EAX) {
-				common::write_Opcode(block, 0x90 | dst);
-				return;
-			}
-#endif
 			common::write_Opcode(block, 0x87);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+		}
+
+		/* Xchange
+		 - XCHG AX,reg16
+		*/
+		template<class BLOCK>
+		static void Xchg(BLOCK& block, Reg16 reg) {
+			common::write_Opcode_16bit_Prefix(block);
+			common::write_Opcode(block, 0x90 | reg);
 		}
 
 		/* Xchange
@@ -1242,16 +1244,6 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Xchg(BLOCK& block, Reg16 dst, Reg16 src) {
 			common::write_Opcode_16bit_Prefix(block);
-#ifdef X86_SIZE_OPTIMIZED
-			if (dst == X86::EAX) {
-				common::write_Opcode(block, 0x90 | src);
-				return;
-			}
-			if (src == X86::EAX) {
-				common::write_Opcode(block, 0x90 | dst);
-				return;
-			}
-#endif
 			common::write_Opcode(block, 0x87);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
@@ -1334,17 +1326,17 @@ namespace CppAsm::X86
 		static auto Adc(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_ADC, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Addition with carry flag (CF)
-		 - ADC reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - ADC EAX/AX/AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Adc(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x14, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_ADC, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Adc(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Adc: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Adc: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x14, imm);
 		}
-#endif
+
 		/* Addition with carry flag (CF)
 		 - ADC [mem],imm
 		*/
@@ -1372,17 +1364,17 @@ namespace CppAsm::X86
 		static auto Add(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_ADD, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Addition
-		 - ADD reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - ADD EAX,AX,AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Add(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x04, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_ADD, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Add(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Add: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Add: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x04, imm);
 		}
-#endif
+
 		/* Addition
 		 - ADD [mem],imm
 		*/
@@ -1410,17 +1402,14 @@ namespace CppAsm::X86
 		static auto Cmp(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_CMP, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
-		/* Compare Two Operands
-		 - CMP reg,imm		; if reg == EAX/AX/AL opcode size optimized
-		*/
-		template<class REG, class T, class BLOCK>
-		static void Cmp(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x3C, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_CMP, reg, imm);
-			}
+
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Cmp(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Cmp: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Cmp: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x3C, imm);
 		}
-#endif
+
 		/* Compare Two Operands
 		 - CMP [mem],imm
 		*/
@@ -1717,17 +1706,17 @@ namespace CppAsm::X86
 		static auto Sbb(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_SBB, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Integer Subtraction with Borrow
-		 - SBB reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - SBB EAX/AX/AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Sbb(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x1C, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_SBB, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Sbb(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Sbb: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Sbb: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x1C, imm);
 		}
-#endif
+
 		/* Integer Subtraction with Borrow
 		 - SBB [mem],imm
 		*/
@@ -1755,17 +1744,17 @@ namespace CppAsm::X86
 		static auto Sub(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_SUB, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Subtract
-		 - SUB reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - SUB EAX/AX/AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Sub(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x2C, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_SBB, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Sub(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Sub: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Sub: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x2C, imm);
 		}
-#endif
+
 		/* Subtract
 		 - SUB [mem],imm
 		*/
@@ -1843,17 +1832,17 @@ namespace CppAsm::X86
 		static auto And(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_AND, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Logical AND
-		 - AND reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - AND EAX/AX/Al,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void And(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x24, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_AND, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void And(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "And: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "And: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x24, imm);
 		}
-#endif
+
 		/* Logical AND
 		 - AND [mem],imm
 		*/
@@ -1899,17 +1888,17 @@ namespace CppAsm::X86
 		static auto Or(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_OR, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
-		/* Logical OR
-		 - OR reg,imm		; if reg == EAX/AX/AL opcode size optimized
+
+		/* Logical OR operation
+		 - OR EAX/AX/AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Or(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x0C, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_OR, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Or(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Or: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Or: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x0C, imm);
 		}
-#endif
+
 		/* Logical OR operation
 		 - OR [mem],imm
 		*/
@@ -1989,17 +1978,17 @@ namespace CppAsm::X86
 		static auto Test(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			return Test<TypeMemSize<Imm<T>>::value>(block, mem, imm);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Logical Compare
-		 - TEST reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - TEST EAX/AX/AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Test(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0xA8, reg, imm)) {
-				template_2operands_symetric(block, detail::opcode_TEST.getMain(), reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Test(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Test: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Test: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0xA8, imm);
 		}
-#endif
+
 		/* Logical Exclusive OR
 		 - XOR reg,reg
 		 - XOR reg,[mem]
@@ -2010,17 +1999,17 @@ namespace CppAsm::X86
 		static auto Xor(BLOCK& block, const DST& dst, const SRC& src) {
 			return template_2operands_opt_imm(block, detail::opcode_XOR, dst, src);
 		}
-#ifdef X86_SIZE_OPTIMIZED
+
 		/* Logical Exclusive OR
-		 - XOR reg,imm		; if reg == EAX/AX/AL opcode size optimized
+		 - XOR EAX/AX/AL,imm
 		*/
-		template<class REG, class T, class BLOCK>
-		static void Xor(BLOCK& block, const REG& reg, const Imm<T>& imm) {
-			if (!template_2operands_first_reg_imm(block, 0x34, reg, imm)) {
-				template_2operands_opt_imm(block, detail::opcode_XOR, reg, imm);
-			}
+		template<MemSize SIZE, class T, class BLOCK>
+		static void Xor(BLOCK& block, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Xor: Invalid size modifier");
+			static_assert(TypeMemSize<Imm<T>>::value == SIZE, "Xor: Immediate size not equal size modifier");
+			template_2operands_first_reg_imm<SIZE>(block, 0x34, imm);
 		}
-#endif
+
 		/* Logical Exclusive OR
 		 - XOR [mem],imm
 		*/

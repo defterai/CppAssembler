@@ -207,13 +207,11 @@ namespace UnitTest
 		TEST_METHOD(TestXchg) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XCHG AX, r16
-			testArch::Xchg(block, X86::AX, X86::DX);
 			// XCHG r16, AX
-			testArch::Xchg(block, X86::DX, X86::AX);
+			testArch::Xchg(block, X86::DX);
 			// XCHG EAX, r32
-			testArch::Xchg(block, X86::EAX, X86::EDX);
 			// XCHG r32, EAX
-			testArch::Xchg(block, X86::EDX, X86::EAX);
+			testArch::Xchg(block, X86::EDX);
 			// XCHG r/m8, r8
 			testArch::Xchg(block, X86::DH, X86::CH);
 			testArch::Xchg(block, X86::Mem32<X86::BASE>(X86::EDX), X86::AL);
@@ -233,6 +231,12 @@ namespace UnitTest
 
 		TEST_METHOD(TestCmp) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// CMP AL, imm8
+			testArch::Cmp<X86::BYTE_PTR>(block, S8(50));
+			// CMP AX, imm16
+			testArch::Cmp<X86::WORD_PTR>(block, S16(5000));
+			// CMP EAX, imm32
+			testArch::Cmp<X86::DWORD_PTR>(block, S32(5000000));
 			// CMP AL, imm8
 			testArch::Cmp(block, X86::AL, S8(50));
 			// CMP AX, imm16
@@ -271,11 +275,11 @@ namespace UnitTest
 		TEST_METHOD(TestTest) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// TEST AL, imm8
-			testArch::Test(block, X86::AL, S8(50));
+			testArch::Test<X86::BYTE_PTR>(block, S8(50));
 			// TEST AX, imm16
-			testArch::Test(block, X86::AX, S16(5000));
+			testArch::Test<X86::WORD_PTR>(block, S16(5000));
 			// TEST EAX, imm32
-			testArch::Test(block, X86::EAX, S32(5000000));
+			testArch::Test<X86::DWORD_PTR>(block, S32(5000000));
 			// TEST r/m8, imm8
 			testArch::Test(block, X86::DL, S8(50));
 			testArch::Test(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -433,6 +437,12 @@ namespace UnitTest
 
 		TEST_METHOD(TestAdd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// ADD AL, imm8
+			testArch::Add<X86::BYTE_PTR>(block, S8(50));
+			// ADD AX, imm16
+			testArch::Add<X86::WORD_PTR>(block, S16(5000));
+			// ADD EAX, imm32
+			testArch::Add<X86::DWORD_PTR>(block, S32(5000000));
 			// ADD r/m8, imm8
 			testArch::Add(block, X86::DL, S8(50));
 			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -467,6 +477,12 @@ namespace UnitTest
 
 		TEST_METHOD(TestAdc) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// ADC AL, imm8
+			testArch::Adc<X86::BYTE_PTR>(block, S8(50));
+			// ADC AX, imm16
+			testArch::Adc<X86::WORD_PTR>(block, S16(5000));
+			// ADC EAX, imm32
+			testArch::Adc<X86::DWORD_PTR>(block, S32(5000000));
 			// ADC r/m8, imm8
 			testArch::Adc(block, X86::DL, S8(50));
 			testArch::Adc(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -501,6 +517,12 @@ namespace UnitTest
 
 		TEST_METHOD(TestSub) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// SUB AL, imm8
+			testArch::Sub<X86::BYTE_PTR>(block, S8(50));
+			// SUB AX, imm16
+			testArch::Sub<X86::WORD_PTR>(block, S16(5000));
+			// SUB EAX, imm32
+			testArch::Sub<X86::DWORD_PTR>(block, S32(5000000));
 			// SUB r/m8, imm8
 			testArch::Sub(block, X86::DL, S8(50));
 			testArch::Sub(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -535,6 +557,12 @@ namespace UnitTest
 
 		TEST_METHOD(TestSbb) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// SBB AL, imm8
+			testArch::Sbb<X86::BYTE_PTR>(block, S8(50));
+			// SBB AX, imm16
+			testArch::Sbb<X86::WORD_PTR>(block, S16(5000));
+			// SBB EAX, imm32
+			testArch::Sbb<X86::DWORD_PTR>(block, S32(5000000));
 			// SBB r/m8, imm8
 			testArch::Sbb(block, X86::DL, S8(50));
 			testArch::Sbb(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -569,6 +597,12 @@ namespace UnitTest
 
 		TEST_METHOD(TestAnd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
+			// AND AL, imm8
+			testArch::And<X86::BYTE_PTR>(block, S8(50));
+			// AND AX, imm16
+			testArch::And<X86::WORD_PTR>(block, S16(5000));
+			// AND EAX, imm32
+			testArch::And<X86::DWORD_PTR>(block, S32(5000000));
 			// AND AL, imm8
 			testArch::And(block, X86::AL, S8(50));
 			// AND AX, imm16
@@ -610,11 +644,11 @@ namespace UnitTest
 		TEST_METHOD(TestOr) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// OR AL, imm8
-			testArch::Or(block, X86::AL, S8(50));
+			testArch::Or<X86::BYTE_PTR>(block, S8(50));
 			// OR AX, imm16
-			testArch::Or(block, X86::AX, S16(5000));
+			testArch::Or<X86::WORD_PTR>(block, S16(5000));
 			// OR EAX, imm32
-			testArch::Or(block, X86::EAX, S32(5000000));
+			testArch::Or<X86::DWORD_PTR>(block, S32(5000000));
 			// OR r/m8, imm8
 			testArch::Or(block, X86::DL, S8(50));
 			testArch::Or(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -650,11 +684,11 @@ namespace UnitTest
 		TEST_METHOD(TestXor) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// XOR AL, imm8
-			testArch::Xor(block, X86::AL, S8(50));
+			testArch::Xor<X86::BYTE_PTR>(block, S8(50));
 			// XOR AX, imm16
-			testArch::Xor(block, X86::AX, S16(5000));
+			testArch::Xor<X86::WORD_PTR>(block, S16(5000));
 			// XOR EAX, imm32
-			testArch::Xor(block, X86::EAX, S32(5000000));
+			testArch::Xor<X86::DWORD_PTR>(block, S32(5000000));
 			// XOR r/m8, imm8
 			testArch::Xor(block, X86::DL, S8(50));
 			testArch::Xor(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
