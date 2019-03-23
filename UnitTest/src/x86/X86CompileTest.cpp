@@ -16,6 +16,7 @@ namespace UnitTest
 		typedef X86::i486 testArch4;
 		typedef X86::i586 testArch5;
 		typedef X86::i686 testArch6;
+		typedef X86::i387 testArchFpu;
 	public:
 		TEST_METHOD(TestNoParams) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
@@ -75,8 +76,6 @@ namespace UnitTest
 			testArch::Stosb(block);
 			testArch::Stosw(block);
 			testArch::Stosd(block);
-			testArch::Wait(block);
-			testArch::Fwait(block);
 			testArch::Xlat(block);
 			testArch4::Cpuid(block);
 			testArch4::Invd(block);
@@ -1389,6 +1388,427 @@ namespace UnitTest
 
 		/* i686 specific */
 
+		TEST_METHOD(TestFpuNoParams) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			testArchFpu::F2xm1(block);
+			testArchFpu::Fabs(block);
+			testArchFpu::Fchs(block);
+			testArchFpu::Fclex(block);
+			testArchFpu::Fnclex(block);
+			testArchFpu::Fcompp(block);
+			testArchFpu::Fdecstp(block);
+			testArchFpu::Fincstp(block);
+			testArchFpu::Finit(block);
+			testArchFpu::Fninit(block);
+			testArchFpu::Fld1(block);
+			testArchFpu::FldL2E(block);
+			testArchFpu::FldL2T(block);
+			testArchFpu::FldLG2(block);
+			testArchFpu::FldLN2(block);
+			testArchFpu::FldPI(block);
+			testArchFpu::FldZ(block);
+			testArchFpu::Fnop(block);
+			testArchFpu::Fpatan(block);
+			testArchFpu::Fprem(block);
+			testArchFpu::Fptan(block);
+			testArchFpu::Frndint(block);
+			testArchFpu::Fscale(block);
+			testArchFpu::Fsqrt(block);
+			testArchFpu::Ftst(block);
+			testArchFpu::Wait(block);
+			testArchFpu::Fwait(block);
+			testArchFpu::Fxam(block);
+			testArchFpu::Fxtract(block);
+			testArchFpu::FyL2X(block);
+			testArchFpu::FyL2XP1(block);
+			testArchFpu::Fcos(block);
+			testArchFpu::Fprem1(block);
+			testArchFpu::Fsin(block);
+			testArchFpu::Fsincos(block);
+			testArchFpu::Fucompp(block);
 
+		}
+
+		TEST_METHOD(TestFadd) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FADD m32fp
+			testArchFpu::Fadd<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FADD m64fp
+			testArchFpu::Fadd<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FADD ST(0), ST(i)
+			testArchFpu::Fadd(block, X86::ST, X86::ST1);
+			// FADD ST(i), ST(0)
+			testArchFpu::Fadd(block, X86::ST1, X86::ST);
+		}
+
+		TEST_METHOD(TestFaddp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FADDP ST(i), ST(0)
+			testArchFpu::Faddp(block, X86::ST1, X86::ST);
+			// FADDP
+			testArchFpu::Faddp(block);
+		}
+
+		TEST_METHOD(TestFbld) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FBLD m80
+			testArchFpu::Fbld(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFbstp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FBSTP m80bcd
+			testArchFpu::Fbstp(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFcom) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FCOM m32fp
+			testArchFpu::Fcom<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FCOM m64fp
+			testArchFpu::Fcom<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FCOM ST(i)
+			testArchFpu::Fcom(block, X86::ST1);
+			// FCOM
+			testArchFpu::Fcom(block);
+		}
+
+		TEST_METHOD(TestFcomp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FCOMP m32fp
+			testArchFpu::Fcomp<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FCOMP m64fp
+			testArchFpu::Fcomp<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FCOMP ST(i)
+			testArchFpu::Fcomp(block, X86::ST1);
+			// FCOMP
+			testArchFpu::Fcomp(block);
+		}
+
+		TEST_METHOD(TestFdiv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FDIV m32fp
+			testArchFpu::Fdiv<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FDIV m64fp
+			testArchFpu::Fdiv<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FDIV ST(0), ST(i)
+			testArchFpu::Fdiv(block, X86::ST, X86::ST1);
+			// FDIV ST(i), ST(0)
+			testArchFpu::Fdiv(block, X86::ST1, X86::ST);
+		}
+
+		TEST_METHOD(TestFdivp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FDIVP ST(i), ST(0)
+			testArchFpu::Fdivp(block, X86::ST1, X86::ST);
+			// FDIVP
+			testArchFpu::Fdivp(block);
+		}
+
+		TEST_METHOD(TestFdivr) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FDIVR m32fp
+			testArchFpu::Fdivr<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FDIVR m64fp
+			testArchFpu::Fdivr<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FDIVR ST(0), ST(i)
+			testArchFpu::Fdivr(block, X86::ST, X86::ST1);
+			// FDIVR ST(i), ST(0)
+			testArchFpu::Fdivr(block, X86::ST1, X86::ST);
+		}
+
+		TEST_METHOD(TestFdivrp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FDIVRP ST(i), ST(0)
+			testArchFpu::Fdivrp(block, X86::ST1, X86::ST);
+			// FDIVRP
+			testArchFpu::Fdivrp(block);
+		}
+
+		TEST_METHOD(TestFfree) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FFREE ST(i)
+			testArchFpu::Ffree(block, X86::ST1);
+		}
+
+		TEST_METHOD(TestFiadd) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FIADD m32int
+			testArchFpu::Fiadd<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FIADD m16int
+			testArchFpu::Fiadd<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFicom) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FICOM m32int
+			testArchFpu::Ficom<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FICOM m16int
+			testArchFpu::Ficom<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFicomp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FICOMP m32int
+			testArchFpu::Ficomp<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FICOMP m16int
+			testArchFpu::Ficomp<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFidiv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FIDIV m32int
+			testArchFpu::Fidiv<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FIDIV m16int
+			testArchFpu::Fidiv<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFidivr) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FIDIVR m32int
+			testArchFpu::Fidivr<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FIDIVR m16int
+			testArchFpu::Fidivr<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFild) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FILD m16int
+			testArchFpu::Fild<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FILD m32int
+			testArchFpu::Fild<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FILD m64int
+			testArchFpu::Fild<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFimul) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FIMUL m32int
+			testArchFpu::Fimul<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FIMUL m16int
+			testArchFpu::Fimul<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFist) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FIST m16int
+			testArchFpu::Fist<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FIST m32int
+			testArchFpu::Fist<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFistp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FISTP m16int
+			testArchFpu::Fistp<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FISTP m32int
+			testArchFpu::Fistp<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FISTP m64int
+			testArchFpu::Fistp<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFisub) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FISUB m16int
+			testArchFpu::Fisub<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FISUB m32int
+			testArchFpu::Fisub<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFisubr) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FISUBR m16int
+			testArchFpu::Fisubr<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FISUBR m32int
+			testArchFpu::Fisubr<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFld) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FLD m32fp
+			testArchFpu::Fld<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FLD m64fp
+			testArchFpu::Fld<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FLD m80fp
+			testArchFpu::Fld<X86::TBYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FLD ST(i)
+			testArchFpu::Fld(block, X86::ST1);
+		}
+
+		TEST_METHOD(TestFldcw) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FLDCW m2byte
+			testArchFpu::Fldcw(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFldenv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FLDENV m14/28byte
+			testArchFpu::Fldenv(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFmul) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FMUL m32fp
+			testArchFpu::Fmul<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FMUL m64fp
+			testArchFpu::Fmul<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FMUL ST(0), ST(i)
+			testArchFpu::Fmul(block, X86::ST, X86::ST1);
+			// FMUL ST(i), ST(0)
+			testArchFpu::Fmul(block, X86::ST1, X86::ST);
+		}
+
+		TEST_METHOD(TestFmulp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FMULP ST(i), ST(0)
+			testArchFpu::Fmulp(block, X86::ST1, X86::ST);
+			// FMULP
+			testArchFpu::Fmulp(block);
+		}
+
+		TEST_METHOD(TestFsave) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSAVE m94/108byte
+			testArchFpu::Fsave(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFnsave) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FNSAVE m94/108byte
+			testArchFpu::Fnsave(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFstcw) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FNSTCW m2byte
+			testArchFpu::Fstcw(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFnstcw) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FNSTCW m2byte
+			testArchFpu::Fnstcw(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFstenv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSTENV m14/28byte
+			testArchFpu::Fstenv(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFnstenv) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FNSTENV m14/28byte
+			testArchFpu::Fnstenv(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFstsw) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSTSW m2byte
+			testArchFpu::Fstsw(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSTSW AX
+			testArchFpu::Fstsw(block);
+		}
+
+		TEST_METHOD(TestFnstsw) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FNSTSW m2byte
+			testArchFpu::Fnstsw(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FNSTSW AX
+			testArchFpu::Fnstsw(block);
+		}
+
+		TEST_METHOD(TestRstor) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FRSTOR m94/108byte
+			testArchFpu::Frstor(block, X86::Mem32<X86::BASE>(X86::EDX));
+		}
+
+		TEST_METHOD(TestFst) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FST m32fp
+			testArchFpu::Fst<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FST m64fp
+			testArchFpu::Fst<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FST ST(i)
+			testArchFpu::Fst(block, X86::ST1);
+		}
+
+		TEST_METHOD(TestFstp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSTP m32fp
+			testArchFpu::Fstp<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSTP m64fp
+			testArchFpu::Fstp<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSTP m80fp
+			testArchFpu::Fstp<X86::TBYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSTP ST(i)
+			testArchFpu::Fstp(block, X86::ST1);
+		}
+
+		TEST_METHOD(TestFsub) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSUB m32fp
+			testArchFpu::Fsub<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSUB m64fp
+			testArchFpu::Fsub<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSUB ST(0), ST(i)
+			testArchFpu::Fsub(block, X86::ST, X86::ST1);
+			// FSUB ST(i), ST(0)
+			testArchFpu::Fsub(block, X86::ST1, X86::ST);
+		}
+
+		TEST_METHOD(TestFsubp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSUBP ST(i), ST(0)
+			testArchFpu::Fsubp(block, X86::ST1, X86::ST);
+			// FSUBP
+			testArchFpu::Fsubp(block);
+		}
+
+		TEST_METHOD(TestFsubr) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSUBR m32fp
+			testArchFpu::Fsubr<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSUBR m64fp
+			testArchFpu::Fsubr<X86::QWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// FSUBR ST(0), ST(i)
+			testArchFpu::Fsubr(block, X86::ST, X86::ST1);
+			// FSUBR ST(i), ST(0)
+			testArchFpu::Fsubr(block, X86::ST1, X86::ST);
+		}		
+		
+		TEST_METHOD(TestFsubrp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FSUBRP ST(i), ST(0)
+			testArchFpu::Fsubrp(block, X86::ST1, X86::ST);
+			// FSUBRP
+			testArchFpu::Fsubrp(block);
+		}
+
+		TEST_METHOD(TestFxch) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FXCH ST(i)
+			testArchFpu::Fxch(block, X86::ST1);
+			// FXCH
+			testArchFpu::Fxch(block);
+		}
+
+		TEST_METHOD(TestFucom) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FUCOM ST(i)
+			testArchFpu::Fucom(block, X86::ST1);
+			// FUCOM
+			testArchFpu::Fucom(block);
+		}
+
+		TEST_METHOD(TestFucomp) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// FUCOMP ST(i)
+			testArchFpu::Fucomp(block, X86::ST1);
+			// FUCOMP
+			testArchFpu::Fucomp(block);
+		}
 	};
 }

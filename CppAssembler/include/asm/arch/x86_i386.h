@@ -3176,18 +3176,6 @@ namespace CppAsm::X86
 			}
 		}
 
-		/* FPU wait */
-		template<class BLOCK>
-		static void Fwait(BLOCK& block) {
-			Wait(block);
-		}
-
-		/* FPU wait */
-		template<class BLOCK>
-		static void Wait(BLOCK& block) {
-			common::write_Opcode(block, 0x9B);
-		}
-
 		/* Halt processor */
 		template<class BLOCK>
 		static void Hlt(BLOCK& block) {

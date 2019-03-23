@@ -5,7 +5,7 @@
 
 namespace CppAsm::X86
 {
-	struct TopRegFPU {} ST;
+	static constexpr struct TopRegFPU {} ST;
 
 	enum RegFPU : uint8_t {
 		ST0 = 0b000,
@@ -32,7 +32,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void template_1operand_float(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
-			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Invalid operand size");
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "i387: Invalid size modifier");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode(block, opcode.getOpcode() | ((SIZE == DWORD_PTR) ? 0x00 : 0x04));
 			mem.write(block, opcode.getMode());
@@ -40,7 +40,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void template_1operand_float80(BLOCK& block, const detail::OpcodeLarge& opcode, const detail::OpcodeLarge& opcode80, const Mem32<MODE>& mem) {
-			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR) || (SIZE == TBYTE_PTR), "Invalid operand size");
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR) || (SIZE == TBYTE_PTR), "i387: Invalid size modifier");
 			mem.writeSegmPrefix(block);
 			if (SIZE == TBYTE_PTR) {
 				common::write_Opcode(block, opcode80.getOpcode());
@@ -66,7 +66,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void template_1operand_int(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
-			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Invalid operand size");
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "i387: Invalid size modifier");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode(block, opcode.getOpcode() | ((SIZE == DWORD_PTR) ? 0x00 : 0x04));
 			mem.write(block, opcode.getMode());
@@ -74,7 +74,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void template_1operand_int64(BLOCK& block, const detail::OpcodeLarge& opcode, const detail::OpcodeLarge& opcode64, const Mem32<MODE>& mem) {
-			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Invalid operand size");
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "i387: Invalid size modifier");
 			mem.writeSegmPrefix(block);
 			if (SIZE == QWORD_PTR) {
 				common::write_Opcode(block, opcode64.getOpcode());
@@ -110,6 +110,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fadd(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fadd: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b000), mem);
 		}
 
@@ -128,13 +129,20 @@ namespace CppAsm::X86
 			template_1operand_float(block, detail::OpcodeLarge(0xDE, 0b000), reg);
 		}
 
+		template<class BLOCK>
+		static void Faddp(BLOCK& block) {
+			Faddp(block, ST1, ST);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fiadd(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fiadd: Invalid size modifier");
 			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b000), mem);
 		}
 
 		template<MemSize SIZE = TBYTE_PTR, AddressMode MODE, class BLOCK>
 		static void Fbld(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(SIZE == TBYTE_PTR, "Fbld: Invalid size modifier");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode(block, 0xDF);
 			mem.write(block, 0b100);
@@ -142,6 +150,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE = TBYTE_PTR, AddressMode MODE, class BLOCK>
 		static void Fbstp(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(SIZE == TBYTE_PTR, "Fbstp: Invalid size modifier");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode(block, 0xDF);
 			mem.write(block, 0b110);
@@ -165,21 +174,23 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fcom(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fcom: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b010), mem);
 		}
 
 		template<class BLOCK>
-		static void Fcom(BLOCK& block, RegFPU reg) {
+		static void Fcom(BLOCK& block, RegFPU reg = ST1) {
 			template_1operand_float(block, detail::OpcodeLarge(0xD8, 0b010), reg);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fcomp(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fcomp: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b011), mem);
 		}
 
 		template<class BLOCK>
-		static void Fcomp(BLOCK& block, RegFPU reg) {
+		static void Fcomp(BLOCK& block, RegFPU reg = ST1) {
 			template_1operand_float(block, detail::OpcodeLarge(0xD8, 0b011), reg);
 		}
 
@@ -200,6 +211,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fdiv(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fdiv: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b110), mem);
 		}
 
@@ -218,13 +230,20 @@ namespace CppAsm::X86
 			template_1operand_float(block, detail::OpcodeLarge(0xDE, 0b111), reg);
 		}
 
+		template<class BLOCK>
+		static void Fdivp(BLOCK& block) {
+			Fdivp(block, ST1, ST);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fidiv(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b110), reg);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fidiv: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b110), mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fdivr(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fdivr: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b111), mem);
 		}
 
@@ -243,9 +262,15 @@ namespace CppAsm::X86
 			template_1operand_float(block, detail::OpcodeLarge(0xDE, 0b110), reg);
 		}
 
+		template<class BLOCK>
+		static void Fdivrp(BLOCK& block) {
+			Fdivrp(block, ST1, ST);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fidivr(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b111), mem);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fidivr: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b111), mem);
 		}
 
 		template<class BLOCK>
@@ -255,18 +280,21 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Ficom(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b010), mem);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Ficom: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b010), mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Ficomp(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b011), mem);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Ficomp: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b011), mem);
 		}
 
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fild(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int64(block, detail::OpcodeLarge(0xDB, 0b000),
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fild: Invalid size modifier");
+			template_1operand_int64<SIZE>(block, detail::OpcodeLarge(0xDB, 0b000),
 				detail::OpcodeLarge(0xDF, 0b101), mem);
 		}
 
@@ -289,25 +317,29 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fist(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDB, 0b010), mem);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fist: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDB, 0b010), mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fistp(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int64(block, detail::OpcodeLarge(0xDB, 0b011),
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fistp: Invalid size modifier");
+			template_1operand_int64<SIZE>(block, detail::OpcodeLarge(0xDB, 0b011),
 				detail::OpcodeLarge(0xDF, 0b111), mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fisttp(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int64(block, detail::OpcodeLarge(0xDB, 0b001),
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fisttp: Invalid size modifier");
+			template_1operand_int64<SIZE>(block, detail::OpcodeLarge(0xDB, 0b001),
 				detail::OpcodeLarge(0xDD, 0b001), mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fld(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_float80(block, detail::OpcodeLarge(0xD9, 0b000),
-				detail::OpcodeLarge(0xDB, 0b101), mem)
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR) || (SIZE == TBYTE_PTR), "Fld: Invalid size modifier");
+			template_1operand_float80<SIZE>(block, detail::OpcodeLarge(0xD9, 0b000),
+				detail::OpcodeLarge(0xDB, 0b101), mem);
 		}
 
 		template<class BLOCK>
@@ -363,6 +395,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fmul(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fmul: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b001), mem);
 		}
 
@@ -381,9 +414,15 @@ namespace CppAsm::X86
 			template_1operand_float(block, detail::OpcodeLarge(0xDE, 0b001), reg);
 		}
 
+		template<class BLOCK>
+		static void Fmulp(BLOCK& block) {
+			Fmulp(block, ST1, ST);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fimul(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b001), reg);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fimul: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b001), mem);
 		}
 
 		template<class BLOCK>
@@ -454,6 +493,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fst(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fst: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD9, 0b010), mem);
 		}
 
@@ -464,8 +504,9 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fstp(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_float80(block, detail::OpcodeLarge(0xD9, 0b011),
-				detail::OpcodeLarge(0xDB, 0b111), mem)
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR) || (SIZE == TBYTE_PTR), "Fstp: Invalid size modifier");
+			template_1operand_float80<SIZE>(block, detail::OpcodeLarge(0xD9, 0b011),
+				detail::OpcodeLarge(0xDB, 0b111), mem);
 		}
 
 		template<class BLOCK>
@@ -475,13 +516,14 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE = WORD_PTR, AddressMode MODE, class BLOCK>
 		static void Fstcw(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(SIZE == WORD_PTR, "Fstcw: Invalid size modifier");
 			write_Unmask_Exception_Prefix(block);
 			Fnstcw<SIZE>(block, mem);
 		}
 
 		template<MemSize SIZE = WORD_PTR, AddressMode MODE, class BLOCK>
 		static void Fnstcw(BLOCK& block, const Mem32<MODE>& mem) {
-			static_assert(SIZE == WORD_PTR, "Invalid operand size");
+			static_assert(SIZE == WORD_PTR, "Fnstcw: Invalid size modifier");
 			template_1operand_mem_uncheck(block, detail::OpcodeLarge(0xD9, 0b111), mem);
 		}
 
@@ -498,30 +540,33 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE = WORD_PTR, AddressMode MODE, class BLOCK>
 		static void Fstsw(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(SIZE == WORD_PTR, "Fstsw: Invalid size modifier");
 			write_Unmask_Exception_Prefix(block);
 			Fnstsw<SIZE>(block, mem);
 		}
 
 		template<MemSize SIZE = WORD_PTR, AddressMode MODE, class BLOCK>
 		static void Fnstsw(BLOCK& block, const Mem32<MODE>& mem) {
-			static_assert(SIZE == WORD_PTR, "Invalid operand size");
+			static_assert(SIZE == WORD_PTR, "Fnstsw: Invalid size modifier");
 			template_1operand_mem_uncheck(block, detail::OpcodeLarge(0xDD, 0b111), mem);
 		}
 
 		template<Reg16 REG = AX, class BLOCK>
 		static void Fstsw(BLOCK& block) {
+			static_assert(REG == AX, "Fstsw: Invalid register operand");
 			write_Unmask_Exception_Prefix(block);
 			Fnstsw<REG>(block);
 		}
 
 		template<Reg16 REG = AX, class BLOCK>
 		static void Fnstsw(BLOCK& block) {
-			static_assert(REG == AX, "Invalid register operand");
+			static_assert(REG == AX, "Fnstsw: Invalid register operand");
 			template_2Byte_Opcode(block, 0xDF, 0xE0);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fsub(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fsub: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b100), mem);
 		}
 
@@ -540,13 +585,20 @@ namespace CppAsm::X86
 			template_1operand_float(block, detail::OpcodeLarge(0xDE, 0b101), reg);
 		}
 
+		template<class BLOCK>
+		static void Fsubp(BLOCK& block) {
+			Fsubp(block, ST1, ST);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fisub(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b100), mem);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fisub: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b100), mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fsubr(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert((SIZE == DWORD_PTR) || (SIZE == QWORD_PTR), "Fsubr: Invalid size modifier");
 			template_1operand_float<SIZE>(block, detail::OpcodeLarge(0xD8, 0b101), mem);
 		}
 
@@ -565,9 +617,15 @@ namespace CppAsm::X86
 			template_1operand_float(block, detail::OpcodeLarge(0xDE, 0b100), reg);
 		}
 
+		template<class BLOCK>
+		static void Fsubrp(BLOCK& block) {
+			Fsubrp(block, ST1, ST);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static void Fisubr(BLOCK& block, const Mem32<MODE>& mem) {
-			template_1operand_int(block, detail::OpcodeLarge(0xDA, 0b101), mem);
+			static_assert((SIZE == WORD_PTR) || (SIZE == DWORD_PTR), "Fisubr: Invalid size modifier");
+			template_1operand_int<SIZE>(block, detail::OpcodeLarge(0xDA, 0b101), mem);
 		}
 
 		template<class BLOCK>
@@ -576,12 +634,12 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		static void Fucom(BLOCK& block, RegFPU reg) {
+		static void Fucom(BLOCK& block, RegFPU reg = ST1) {
 			template_1operand_float(block, detail::OpcodeLarge(0xDD, 0b100), reg);
 		}
 
 		template<class BLOCK>
-		static void Fucomp(BLOCK& block, RegFPU reg) {
+		static void Fucomp(BLOCK& block, RegFPU reg = ST1) {
 			template_1operand_float(block, detail::OpcodeLarge(0xDD, 0b101), reg);
 		}
 
@@ -596,7 +654,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		static void Fxch(BLOCK& block, RegFPU reg) {
+		static void Fxch(BLOCK& block, RegFPU reg = ST1) {
 			template_1operand_float(block, detail::OpcodeLarge(0xD9, 0b001), reg);
 		}
 
@@ -613,6 +671,18 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void FyL2XP1(BLOCK& block) {
 			template_Extended(block, 0xF9);
+		}
+
+		/* FPU wait */
+		template<class BLOCK>
+		static void Fwait(BLOCK& block) {
+			Wait(block);
+		}
+
+		/* FPU wait */
+		template<class BLOCK>
+		static void Wait(BLOCK& block) {
+			common::write_Opcode(block, 0x9B);
 		}
 #pragma endregion
 	};
