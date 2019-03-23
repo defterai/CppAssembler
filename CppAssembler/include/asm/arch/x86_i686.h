@@ -2,11 +2,15 @@
 
 #include "x86_i586.h"
 #include "x86_PMC.h"
+#include "x86_CMOV.h"
 #include "x86_i387.h"
+
+#pragma warning(push)
+#pragma warning(disable : 4584)
 
 namespace CppAsm::X86
 {
-	class i686 : public i586, public PMC, public i387 {
+	class i686 : public i586, public i387, public CMOV {
 	public:
 		template<class BLOCK>
 		static void Fcomi(BLOCK& block, TopRegFPU, RegFPU reg) {
@@ -35,3 +39,5 @@ namespace CppAsm::X86
 		}
 	};
 }
+
+#pragma warning(pop) 

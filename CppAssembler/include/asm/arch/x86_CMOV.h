@@ -6,7 +6,7 @@
 
 namespace CppAsm::X86
 {
-	class CMOV : private i586, private i387 {
+	class CMOV : private i386, private i387 {
 	protected:
 		template<class BLOCK>
 		static void template_FCMOVcc(BLOCK& block, const detail::OpcodeLarge& opcode, RegFPU reg) {

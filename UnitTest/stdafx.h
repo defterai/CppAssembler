@@ -11,6 +11,6 @@
 #include "CppUnitTest.h"
 
 // Headers for CppAssembler
-#include "asm\arch\x86_i486.h"
+#include "asm\arch\x86_i686.h"
 #include "asm\os\win32.h"
 

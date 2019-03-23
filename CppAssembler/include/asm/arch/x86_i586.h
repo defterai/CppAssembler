@@ -4,11 +4,12 @@
 #include "x86_MSR.h"
 #include "x86_TSC.h"
 #include "x86_CX8.h"
+#include "x86_PMC.h"
 
 namespace CppAsm::X86
 {
 	/* Also known as Pentium */
-	class i586 : public i486, public MSR, public TSC, public CX8 {
+	class i586 : public i486, public MSR, public TSC, public CX8, public PMC {
 	public:
 		/* Resume from System Management Mode  */
 		template<class BLOCK>
