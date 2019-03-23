@@ -124,4 +124,11 @@ namespace CppAsm::X86_64::detail
 		}
 		write_Opcode(block, opcode);
 	}
+
+	template<uint8_t L, class BLOCK>
+	static void write_Lock_Prefix(BLOCK& block) {
+		/*constexpr*/ if (L) {
+			block.pushRaw<uint8_t>(L);
+		}
+	}
 }

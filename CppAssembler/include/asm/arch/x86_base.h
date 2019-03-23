@@ -95,12 +95,17 @@ namespace CppAsm::X86
 	};
 
 	enum RepPrefix : uint8_t {
-		NONE = 0x00,
+		NO_REP = 0x00,
 		REP = 0xF3,
 		REPE = 0xF3,
 		REPZ = 0xF3,
 		REPNE = 0xF2,
 		REPNZ = 0xF2
+	};
+
+	enum LockPrefix : uint8_t {
+		NO_LOCK = 0,
+		LOCK = 0xF0
 	};
 
 	enum AddressMode {

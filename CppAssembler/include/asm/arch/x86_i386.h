@@ -31,20 +31,28 @@ namespace CppAsm::X86
 
 		template<class BLOCK>
 		struct OpcodeWriter<BYTE_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | (rmMode << 1));
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void writeOnlyExtendedPrefixs(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void writeExtended(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode);
 			}
@@ -52,24 +60,32 @@ namespace CppAsm::X86
 
 		template<class BLOCK>
 		struct OpcodeWriter<WORD_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
 				common::write_Opcode_16bit_Prefix(block);
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode) {
 				common::write_Opcode_16bit_Prefix(block);
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void writeOnlyExtendedPrefixs(BLOCK& block, common::Opcode opcode) {
 				common::write_Opcode_16bit_Prefix(block);
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void writeExtended(BLOCK& block, common::Opcode opcode) {
 				common::write_Opcode_16bit_Prefix(block);
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
@@ -77,33 +93,41 @@ namespace CppAsm::X86
 
 		template<class BLOCK>
 		struct OpcodeWriter<DWORD_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void writeOnlyExtendedPrefixs(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode);
 			}
 
+			template<LockPrefix L = NO_LOCK>
 			static void writeExtended(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 		};
 
-		template<MemSize SIZE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static void write_Opcode(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<SIZE, BLOCK>::write(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::write<L>(block, opcode);
 		}
 
-		template<MemSize SIZE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static void write_Opcode(BLOCK& block, common::Opcode opcode, OpMode rmMode) {
-			OpcodeWriter<SIZE, BLOCK>::write(block, opcode, rmMode);
+			OpcodeWriter<SIZE, BLOCK>::write<L>(block, opcode, rmMode);
 		}
 
 		template<class BLOCK>
@@ -111,14 +135,14 @@ namespace CppAsm::X86
 			common::write_Opcode(block, opcode | (rmMode << 1));
 		}
 
-		template<MemSize SIZE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static void write_Opcode_Only_Extended_Prefixs(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<SIZE, BLOCK>::writeOnlyExtendedPrefixs(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::writeOnlyExtendedPrefixs<L>(block, opcode);
 		}
 
-		template<MemSize SIZE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static void write_Opcode_Extended(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<SIZE, BLOCK>::writeExtended(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::writeExtended<L>(block, opcode);
 		}
 
 		template<MemSize SIZE, MemSize OPT_SIZE, class BLOCK>
@@ -126,51 +150,63 @@ namespace CppAsm::X86
 
 		template<class BLOCK>
 		struct OpcodeImmOptimizedWriter<BYTE_PTR, BYTE_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode);
 			}
 		};
 
 		template<class BLOCK>
 		struct OpcodeImmOptimizedWriter<WORD_PTR, WORD_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
 				common::write_Opcode_16bit_Prefix(block);
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 		};
 
 		template<class BLOCK>
 		struct OpcodeImmOptimizedWriter<WORD_PTR, BYTE_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
 				common::write_Opcode_16bit_Prefix(block);
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b11);
 			}
 		};
 
 		template<class BLOCK>
 		struct OpcodeImmOptimizedWriter<DWORD_PTR, DWORD_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 		};
 
 		template<class BLOCK>
 		struct OpcodeImmOptimizedWriter<DWORD_PTR, WORD_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 		};
 
 		template<class BLOCK>
 		struct OpcodeImmOptimizedWriter<DWORD_PTR, BYTE_PTR, BLOCK> {
+			template<LockPrefix L = NO_LOCK>
 			static void write(BLOCK& block, common::Opcode opcode) {
+				common::write_Lock_Prefix<L>(block);
 				common::write_Opcode(block, opcode | 0b11);
 			}
 		};
 
-		template<MemSize SIZE, MemSize OPT_SIZE, class BLOCK>
+		template<MemSize SIZE, MemSize OPT_SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static void write_Opcode_Imm_Optimized(BLOCK& block, common::Opcode opcode) {
-			OpcodeImmOptimizedWriter<SIZE, OPT_SIZE, BLOCK>::write(block, opcode);
+			OpcodeImmOptimizedWriter<SIZE, OPT_SIZE, BLOCK>::write<L>(block, opcode);
 		}
 
 		template<MemSize SIZE, class T, class BLOCK>
@@ -183,10 +219,10 @@ namespace CppAsm::X86
 			block.pushRaw(static_cast<detail::ImmSizeOptimize<SIZE, T>::type>(imm));
 		}
 
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_1mem_operand(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
 			mem.writeSegmPrefix(block);
-			write_Opcode<SIZE>(block, opcode.getOpcode());
+			write_Opcode<SIZE, L>(block, opcode.getOpcode());
 			return mem.write(block, opcode.getMode());
 		}
 
@@ -271,10 +307,10 @@ namespace CppAsm::X86
 			return std::make_pair(replaceMem, ReplaceableExtendedImm<SIZE, T>(offset));
 		}
 
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L, AddressMode MODE, class T, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableOptimizedImm<SIZE, T>> template_mem_imm_opt_operands(BLOCK& block, const detail::OpcodeSet& opcodeSet, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			mem.writeSegmPrefix(block);
-			write_Opcode_Imm_Optimized<SIZE, TypeMemSize<Imm<T>>::value>(block, opcodeSet.getSecond().getOpcode());
+			write_Opcode_Imm_Optimized<SIZE, TypeMemSize<Imm<T>>::value, L>(block, opcodeSet.getSecond().getOpcode());
 			auto replaceMem = mem.write(block, opcodeSet.getSecond().getMode());
 			Offset offset = block.getOffset();
 			write_Imm_Size_Optimize<SIZE>(block, imm);
@@ -405,7 +441,7 @@ namespace CppAsm::X86
 				ReplaceableValue<U8::type>(offset + 1));
 		}
 
-		template<class BLOCK>
+		template<LockPrefix L = NO_LOCK, class BLOCK>
 		static std::pair<ReplaceableReg<Reg8>, ReplaceableReg<Reg8>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg8& dst, const Reg8& src) {
 			write_Opcode<BYTE_PTR>(block, opcode, MODE_RR);
 			Offset offset = block.getOffset();
@@ -414,7 +450,7 @@ namespace CppAsm::X86
 				ReplaceableReg<Reg8>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableReg<Reg8>, ReplaceableMem32<MODE>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg8& dst, const Mem32<MODE>& src) {
 			src.writeSegmPrefix(block);
 			write_Opcode<BYTE_PTR>(block, opcode, MODE_RM);
@@ -422,15 +458,15 @@ namespace CppAsm::X86
 			return std::make_pair(replaceMem.getOtherReg<Reg8>(), replaceMem);
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<Reg8>> template_2operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& dst, const Reg8& src) {
 			dst.writeSegmPrefix(block);
-			write_Opcode<BYTE_PTR>(block, opcode, MODE_MR);
+			write_Opcode<BYTE_PTR, L>(block, opcode, MODE_MR);
 			auto replaceMem = dst.write(block, src);
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg8>());
 		}
 
-		template<class BLOCK>
+		template<LockPrefix L = NO_LOCK, class BLOCK>
 		static std::pair<ReplaceableReg<Reg16>, ReplaceableReg<Reg16>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg16& dst, const Reg16& src) {
 			write_Opcode<WORD_PTR>(block, opcode, MODE_RR);
 			Offset offset = block.getOffset();
@@ -439,7 +475,7 @@ namespace CppAsm::X86
 				ReplaceableReg<Reg16>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableReg<Reg16>, ReplaceableMem32<MODE>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg16& dst, const Mem32<MODE>& src) {
 			src.writeSegmPrefix(block);
 			write_Opcode<WORD_PTR>(block, opcode, MODE_RM);
@@ -447,15 +483,15 @@ namespace CppAsm::X86
 			return std::make_pair(replaceMem.getOtherReg<Reg16>(), replaceMem);
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<Reg16>> template_2operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& dst, const Reg16& src) {
 			dst.writeSegmPrefix(block);
-			write_Opcode<WORD_PTR>(block, opcode, MODE_MR);
+			write_Opcode<WORD_PTR, L>(block, opcode, MODE_MR);
 			auto replaceMem = dst.write(block, src);
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg16>());
 		}
 
-		template<class BLOCK>
+		template<LockPrefix L = NO_LOCK, class BLOCK>
 		static std::pair<ReplaceableReg<Reg32>, ReplaceableReg<Reg32>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Reg32& src) {
 			write_Opcode<DWORD_PTR>(block, opcode, MODE_RR);
 			Offset offset = block.getOffset();
@@ -464,7 +500,7 @@ namespace CppAsm::X86
 				ReplaceableReg<Reg32>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableReg<Reg32>, ReplaceableMem32<MODE>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Mem32<MODE>& src) {
 			src.writeSegmPrefix(block);
 			write_Opcode<DWORD_PTR>(block, opcode, MODE_RM);
@@ -472,10 +508,10 @@ namespace CppAsm::X86
 			return std::make_pair(replaceMem.getOtherReg<Reg32>(), replaceMem);
 		}
 
-		template<AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<Reg32>> template_2operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& dst, const Reg32& src) {
 			dst.writeSegmPrefix(block);
-			write_Opcode<DWORD_PTR>(block, opcode, MODE_MR);
+			write_Opcode<DWORD_PTR, L>(block, opcode, MODE_MR);
 			auto replaceMem = dst.write(block, src);
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg32>());
 		}
@@ -525,22 +561,22 @@ namespace CppAsm::X86
 			src.write(block, getSegmentRegIndex(dst));
 		}
 
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto template_2operands_opt_imm(BLOCK& block, const detail::OpcodeSet& opcodeSet, const DST& dst, const SRC& src) {
-			return template_2operands(block, opcodeSet.getMain(), dst, src);
+			return template_2operands<L>(block, opcodeSet.getMain(), dst, src);
 		}
 
-		template<class T, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class T, class BLOCK>
 		static auto template_2operands_opt_imm(BLOCK& block, const detail::OpcodeSet& opcodeSet, const Reg32& dst, const Imm<T>& src) {
 			return template_reg_imm_opt_operands(block, opcodeSet, dst, src);
 		}
 
-		template<class T, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class T, class BLOCK>
 		static auto template_2operands_opt_imm(BLOCK& block, const detail::OpcodeSet& opcodeSet, const Reg16& dst, const Imm<T>& src) {
 			return template_reg_imm_opt_operands(block, opcodeSet, dst, src);
 		}
 
-		template<class T, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class T, class BLOCK>
 		static auto template_2operands_opt_imm(BLOCK& block, const detail::OpcodeSet& opcodeSet, const Reg8& dst, const Imm<T>& src) {
 			return template_reg_imm_opt_operands(block, opcodeSet, dst, src);
 		}
@@ -692,7 +728,7 @@ namespace CppAsm::X86
 			return std::make_pair(replaceMem.getOtherReg<REG>(), replaceMem);
 		}
 
-		template<class REG, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg1, REG reg2) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
@@ -703,17 +739,17 @@ namespace CppAsm::X86
 				ReplaceableReg<REG>(offset, common::MOD_REG_RM::REG_BIT_OFFSET));
 		}
 
-		template<AddressMode MODE, class REG, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class REG, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<REG>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, REG reg) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getMain());
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value, L>(block, opcode.getMain());
 			auto replaceMem = mem.write(block, reg);
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<REG>());
 		}
 
-		template<class REG, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
@@ -725,10 +761,10 @@ namespace CppAsm::X86
 				ReplaceableValue<U8::type>(offset + 1));
 		}
 
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		template<LockPrefix L = NO_LOCK, MemSize SIZE, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableValue<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
-			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode.getSecond().getOpcode());
+			write_Opcode_Only_Extended_Prefixs<SIZE, L>(block, opcode.getSecond().getOpcode());
 			auto replaceMem = mem.write(block, opcode.getSecond().getMode());
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
@@ -1322,9 +1358,9 @@ namespace CppAsm::X86
 		 - ADC [mem],reg
 		 - ADC reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto Adc(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_ADC, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_ADC, dst, src);
 		}
 
 		/* Addition with carry flag (CF)
@@ -1340,10 +1376,10 @@ namespace CppAsm::X86
 		/* Addition with carry flag (CF)
 		 - ADC [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto Adc(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Adc: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_ADC, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_ADC, mem, imm);
 		}
 
 		/* Addition with carry flag (CF)
@@ -1360,9 +1396,9 @@ namespace CppAsm::X86
 		 - ADD [mem],reg
 		 - ADD reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto Add(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_ADD, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_ADD, dst, src);
 		}
 
 		/* Addition
@@ -1378,10 +1414,10 @@ namespace CppAsm::X86
 		/* Addition
 		 - ADD [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto Add(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Add: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_ADD, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_ADD, mem, imm);
 		}
 
 		/* Addition
@@ -1416,7 +1452,7 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Cmp: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_CMP, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, NO_LOCK>(block, detail::opcode_CMP, mem, imm);
 		}
 
 		/* Compare Two Operands
@@ -1433,7 +1469,7 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Imm<T>& imm, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Cmp: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_CMP, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, NO_LOCK>(block, detail::opcode_CMP, mem, imm);
 		}
 
 		/* Compare and set flags
@@ -1476,10 +1512,10 @@ namespace CppAsm::X86
 		/* Increment
 		 - INC [mem]
 		*/
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Inc(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Inc: Invalid size modifier");
-			return template_1mem_operand<SIZE>(block, detail::opcode_INC, mem);
+			return template_1mem_operand<SIZE, L>(block, detail::opcode_INC, mem);
 		}
 
 		/* Decrement
@@ -1514,10 +1550,10 @@ namespace CppAsm::X86
 		/* Decrement
 		- DEC [mem]
 		*/
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Dec(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Dec: Invalid size modifier");
-			return template_1mem_operand<SIZE>(block, detail::opcode_DEC, mem);
+			return template_1mem_operand<SIZE, L>(block, detail::opcode_DEC, mem);
 		}
 
 		/* Change sign
@@ -1532,10 +1568,10 @@ namespace CppAsm::X86
 		/* Change sign
 		 - NEG [mem]
 		*/
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Neg(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Neg: Invalid size modifier");
-			return template_1mem_operand<SIZE>(block, detail::opcode_NEG, mem);
+			return template_1mem_operand<SIZE, L>(block, detail::opcode_NEG, mem);
 		}
 
 		/* Multiply unsigned numbers
@@ -1702,9 +1738,9 @@ namespace CppAsm::X86
 		 - SBB [mem],reg
 		 - SBB reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto Sbb(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_SBB, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_SBB, dst, src);
 		}
 
 		/* Integer Subtraction with Borrow
@@ -1720,10 +1756,10 @@ namespace CppAsm::X86
 		/* Integer Subtraction with Borrow
 		 - SBB [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto Sbb(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Sbb: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_SBB, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_SBB, mem, imm);
 		}
 
 		/* Integer Subtraction with Borrow
@@ -1740,9 +1776,9 @@ namespace CppAsm::X86
 		 - SUB [mem],reg
 		 - SUB reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto Sub(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_SUB, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_SUB, dst, src);
 		}
 
 		/* Subtract
@@ -1758,10 +1794,10 @@ namespace CppAsm::X86
 		/* Subtract
 		 - SUB [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto Sub(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Sub: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_SUB, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_SUB, mem, imm);
 		}
 
 		/* Subtract
@@ -1828,9 +1864,9 @@ namespace CppAsm::X86
 		 - AND [mem],reg
 		 - AND reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto And(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_AND, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_AND, dst, src);
 		}
 
 		/* Logical AND
@@ -1846,10 +1882,10 @@ namespace CppAsm::X86
 		/* Logical AND
 		 - AND [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto And(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "And: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_AND, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_AND, mem, imm);
 		}
 
 		/* Logical AND
@@ -1872,10 +1908,10 @@ namespace CppAsm::X86
 		/* Logical NOT operation
 		 - NOT [mem]
 		*/
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Not(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Not: Invalid size modifier");
-			return template_1mem_operand<SIZE>(block, detail::opcode_NOT, mem);
+			return template_1mem_operand<SIZE, L>(block, detail::opcode_NOT, mem);
 		}
 
 		/* Logical OR operation
@@ -1884,9 +1920,9 @@ namespace CppAsm::X86
 		 - OR [mem],reg
 		 - OR reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto Or(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_OR, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_OR, dst, src);
 		}
 
 		/* Logical OR operation
@@ -1902,10 +1938,10 @@ namespace CppAsm::X86
 		/* Logical OR operation
 		 - OR [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto Or(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Or: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_OR, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_OR, mem, imm);
 		}
 
 		/* Logical OR operation
@@ -1995,9 +2031,9 @@ namespace CppAsm::X86
 		 - XOR [mem],reg
 		 - XOR reg,imm
 		*/
-		template<class DST, class SRC, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>
 		static auto Xor(BLOCK& block, const DST& dst, const SRC& src) {
-			return template_2operands_opt_imm(block, detail::opcode_XOR, dst, src);
+			return template_2operands_opt_imm<L>(block, detail::opcode_XOR, dst, src);
 		}
 
 		/* Logical Exclusive OR
@@ -2013,10 +2049,10 @@ namespace CppAsm::X86
 		/* Logical Exclusive OR
 		 - XOR [mem],imm
 		*/
-		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
 		static auto Xor(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Xor: Invalid size modifier");
-			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_XOR, mem, imm);
+			return template_mem_imm_opt_operands<SIZE, L>(block, detail::opcode_XOR, mem, imm);
 		}
 
 		/* Logical Exclusive OR
@@ -2420,40 +2456,40 @@ namespace CppAsm::X86
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Bt(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bt: Invalid size modifier");
-			return template_bit_operation<SIZE>(block, detail::opcode_BT, mem, imm);
+			return template_bit_operation<NO_LOCK, SIZE>(block, detail::opcode_BT, mem, imm);
 		}
 
-		template<class T1, class T2, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
 		static auto Btc(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation(block, detail::opcode_BTC, val1, val2);
+			return template_bit_operation<L>(block, detail::opcode_BTC, val1, val2);
 		}
 
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static auto Btc(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
+		static auto Btc(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btc: Invalid size modifier");
-			return template_bit_operation<SIZE>(block, detail::opcode_BTC, mem, imm);
+			return template_bit_operation<L, SIZE>(block, detail::opcode_BTC, mem, imm);
 		}
 
-		template<class T1, class T2, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
 		static auto Btr(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation(block, detail::opcode_BTR, val1, val2);
+			return template_bit_operation<L>(block, detail::opcode_BTR, val1, val2);
 		}
 
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static auto Btr(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
+		static auto Btr(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btr: Invalid size modifier");
-			return template_bit_operation<SIZE>(block, detail::opcode_BTR, mem, imm);
+			return template_bit_operation<L, SIZE>(block, detail::opcode_BTR, mem, imm);
 		}
 
-		template<class T1, class T2, class BLOCK>
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
 		static auto Bts(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation(block, detail::opcode_BTS, val1, val2);
+			return template_bit_operation<L>(block, detail::opcode_BTS, val1, val2);
 		}
 
-		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static auto Bts(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
+		static auto Bts(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bts: Invalid size modifier");
-			return template_bit_operation<SIZE>(block, detail::opcode_BTS, mem, imm);
+			return template_bit_operation<L, SIZE>(block, detail::opcode_BTS, mem, imm);
 		}
 
 		/* Set byte if overflow (OF == 1) */
@@ -3101,114 +3137,114 @@ namespace CppAsm::X86
 
 #pragma region String operations
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Insb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0x6C);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Insw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0x6D);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Insd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0x6D);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Outsb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0x6E);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Outsw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0x6F);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Outsd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0x6F);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Lodsb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xAC);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Lodsw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0xAD);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Lodsd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xAD);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Movsb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xA4);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Movsw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode(block, 0xA5);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Movsd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xA5);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Scasb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xAE);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Scasw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0xAF);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Scasd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xAF);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Stosb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xAA);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Stosw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0xAB);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Stosd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xAB);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Cmpsb(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xA6);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Cmpsw(BLOCK& block) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode_Rep<R>(block, 0xA7);
 		}
 
-		template<RepPrefix R = NONE, class BLOCK>
+		template<RepPrefix R = NO_REP, class BLOCK>
 		static void Cmpsd(BLOCK& block) {
 			common::write_Opcode_Rep<R>(block, 0xA7);
 		}

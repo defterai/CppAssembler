@@ -113,6 +113,115 @@ namespace UnitTest
 			testArch::Stosd<X86::REPE>(block);
 		}
 
+		TEST_METHOD(TestWithLockPrefix) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// ADD
+			testArch::Add<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Add<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Add<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Add<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Add<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Add<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::Add<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::Add<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// ADC
+			testArch::Adc<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Adc<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Adc<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Adc<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Adc<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Adc<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::Adc<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::Adc<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// AND
+			testArch::And<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::And<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::And<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::And<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::And<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::And<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::And<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::And<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// BTC
+			testArch::Btc<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			testArch::Btc<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+			testArch::Btc<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			testArch::Btc<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			// BTR
+			testArch::Btr<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			testArch::Btr<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+			testArch::Btr<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			testArch::Btr<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			// BTS
+			testArch::Bts<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			testArch::Bts<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+			testArch::Bts<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			testArch::Bts<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(50));
+			// CMPXCHG
+			testArch4::CmpXchg<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch4::CmpXchg<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch4::CmpXchg<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// CMPXCH8B
+			// CMPXCHG16B
+			// DEC
+			testArch::Dec<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Dec<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Dec<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// INC
+			testArch::Inc<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Inc<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Inc<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// NEG
+			testArch::Neg<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Neg<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Neg<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// NOT
+			testArch::Not<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Not<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			testArch::Not<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// OR
+			testArch::Or<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Or<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Or<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Or<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Or<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Or<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::Or<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::Or<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// SBB
+			testArch::Sbb<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Sbb<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Sbb<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Sbb<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Sbb<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Sbb<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::Sbb<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::Sbb<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// SUB
+			testArch::Sub<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Sub<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Sub<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Sub<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Sub<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Sub<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::Sub<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::Sub<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// XOR
+			testArch::Xor<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Xor<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Xor<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Xor<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Xor<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Xor<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch::Xor<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch::Xor<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// XADD
+			testArch4::Xadd<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			testArch4::Xadd<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			testArch4::Xadd<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// XCHG (not required)
+		}
+
 		TEST_METHOD(TestNeg) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// NEG r/m8

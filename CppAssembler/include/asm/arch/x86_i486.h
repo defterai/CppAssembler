@@ -28,11 +28,11 @@ namespace CppAsm::X86
 		/* Xchange and add
 		 - XADD [mem],reg
 		*/
-		template<AddressMode MODE, class REG, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class REG, class BLOCK>
 		static void Xadd(BLOCK& block, const Mem32<MODE>& mem, const REG& reg) {
 			static_assert(IsRegType<REG>::value, "Xadd: Second parameter is not register");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Extended<TypeMemSize<REG>::value>(block, 0xC0);
+			write_Opcode_Extended<TypeMemSize<REG>::value, L>(block, 0xC0);
 			mem.write(block, reg);
 		}
 
@@ -49,11 +49,11 @@ namespace CppAsm::X86
 		/* Compare and xchange
 		 - CMPXCHG [mem],reg
 		*/
-		template<AddressMode MODE, class REG, class BLOCK>
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class REG, class BLOCK>
 		static void CmpXchg(BLOCK& block, const Mem32<MODE>& mem, const REG& reg) {
 			static_assert(IsRegType<REG>::value, "CmpXchg: Second parameter is not register");
 			mem.writeSegmPrefix(block);
-			write_Opcode_Extended<TypeMemSize<REG>::value>(block, 0xB0);
+			write_Opcode_Extended<TypeMemSize<REG>::value, L>(block, 0xB0);
 			mem.write(block, reg);
 		}
 
