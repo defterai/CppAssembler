@@ -22,7 +22,7 @@ x86 and x64 assembly code generation library for C++11
 * Too low level
 1. No optimization of instructions size (should be implemented by more high level code)
 2. No relocation code support (should be implemented by more high level code)
-3. No check for input variable parameters range etc (high level code must ensure it pass valid constants as arguments to prevert UB)
+3. No check for input variable parameters range (high level code must ensure it pass valid constants as arguments to prevent any UB)
 
 ## Support compilers
 
