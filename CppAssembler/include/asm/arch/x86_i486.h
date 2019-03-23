@@ -17,20 +17,44 @@ namespace CppAsm::X86
 
 		/* Xchange and add
 		 - XADD reg,reg
+		*/
+		template<class REG, class BLOCK>
+		static void Xadd(BLOCK& block, const REG& dst, const REG& src) {
+			static_assert(IsRegType<REG>::value, "Xadd: First and second parameter is not register");
+			write_Opcode_Extended<TypeMemSize<REG>::value>(block, 0xC0);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
+		}
+
+		/* Xchange and add
 		 - XADD [mem],reg
 		*/
-		template<class DST, class SRC, class BLOCK>
-		static void Xadd(BLOCK& block, const DST& dst, const SRC& src) {
-			template_2operands_xchange(block, 0xC0, dst, src);
+		template<AddressMode MODE, class REG, class BLOCK>
+		static void Xadd(BLOCK& block, const Mem32<MODE>& mem, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Xadd: Second parameter is not register");
+			mem.writeSegmPrefix(block);
+			write_Opcode_Extended<TypeMemSize<REG>::value>(block, 0xC0);
+			mem.write(block, reg);
 		}
 
 		/* Compare and xchange
 		 - CMPXCHG reg,reg
+		*/
+		template<class REG, class BLOCK>
+		static void CmpXchg(BLOCK& block, const REG& dst, const REG& src) {
+			static_assert(IsRegType<REG>::value, "CmpXchg: First and second parameter is not register");
+			write_Opcode_Extended<TypeMemSize<REG>::value>(block, 0xB0);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
+		}
+
+		/* Compare and xchange
 		 - CMPXCHG [mem],reg
 		*/
-		template<class DST, class SRC, class BLOCK>
-		static void CmpXchg(BLOCK& block, const DST& dst, const SRC& src) {
-			template_2operands_xchange(block, 0xB0, dst, src);
+		template<AddressMode MODE, class REG, class BLOCK>
+		static void CmpXchg(BLOCK& block, const Mem32<MODE>& mem, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "CmpXchg: Second parameter is not register");
+			mem.writeSegmPrefix(block);
+			write_Opcode_Extended<TypeMemSize<REG>::value>(block, 0xB0);
+			mem.write(block, reg);
 		}
 
 		/* Returns processor identification and feature information to the EAX, EBX, ECX, and EDX registers, 

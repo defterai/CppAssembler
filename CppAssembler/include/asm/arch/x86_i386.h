@@ -17,6 +17,10 @@ namespace CppAsm::X86
 			MODE_RR = 0b1
 		};
 		
+		constexpr static bool isGeneralMemSize(MemSize size) {
+			return size == BYTE_PTR || size == WORD_PTR || size == DWORD_PTR;
+		}
+
 		template<class BLOCK>
 		static void write_Operand_Segm_Prefix(BLOCK& block, RegSeg segm) {
 			block.pushRaw<uint8_t>(segm);
@@ -279,7 +283,7 @@ namespace CppAsm::X86
 
 		template<class REG, class T, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableOptimizedImm<TypeMemSize<REG>::value, T>> template_reg_imm_opt_operands(BLOCK& block, const detail::OpcodeSet& opcodeSet, const REG& reg, const Imm<T>& imm) {
-			static_assert(IsRegType<REG>::value, "First param must be register");
+			static_assert(IsRegType<REG>::value, "i386: First param must be register");
 			write_Opcode_Imm_Optimized<TypeMemSize<REG>::value, TypeMemSize<Imm<T>>::value>(block, opcodeSet.getSecond().getOpcode());
 			Offset modOffset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcodeSet.getSecond().getMode(), reg);
@@ -291,7 +295,7 @@ namespace CppAsm::X86
 
 		template<class REG, class T, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableExtendedImm<TypeMemSize<REG>::value, T>> template_reg_imm_operands(BLOCK& block, const detail::OpcodeSet& opcodeSet, const REG& reg, const Imm<T>& imm) {
-			static_assert(IsRegType<REG>::value, "First param must be register");
+			static_assert(IsRegType<REG>::value, "i386: First param must be register");
 			write_Opcode<TypeMemSize<REG>::value>(block, opcodeSet.getSecond().getOpcode());
 			Offset regOffset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcodeSet.getSecond().getMode(), reg);
@@ -316,9 +320,9 @@ namespace CppAsm::X86
 			return ReplaceableReg<REG>(offset, common::MOD_REG_RM::RM_BIT_OFFSET);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
-			static_assert(REG == CL, "Invalid register for shift operation");
+			static_assert(SH_REG == CL, "i386: Invalid register for shift operation");
 			mem.writeSegmPrefix(block);
 			write_Opcode<SIZE>(block, opcode.getOpcode() | 0x12);
 			return mem.write(block, opcode.getMode());
@@ -326,7 +330,7 @@ namespace CppAsm::X86
 
 		template<class REG, Reg8 SH_REG, class BLOCK>
 		static ReplaceableReg<REG> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
-			static_assert(SH_REG == CL, "Invalid register for shift operation");
+			static_assert(SH_REG == CL, "i386: Invalid register for shift operation");
 			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode() | 0x12);
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
@@ -355,9 +359,9 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, Reg8 COUNT_REG = CL, AddressMode MODE, class REG, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<REG>> template_prshift_operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem, REG reg) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
-			static_assert(COUNT_REG == CL, "Invalid register for precision shift operation");
-			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Invalid precision shift size prefix");
+			static_assert(IsRegType<REG>::value, "i386: Param must be register");
+			static_assert(COUNT_REG == CL, "i386: Invalid register for precision shift operation");
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "i386: Invalid precision shift size prefix");
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode | 0x01);
 			auto replaceMem = mem.write(block, reg);
@@ -366,9 +370,9 @@ namespace CppAsm::X86
 
 		template<Reg8 COUNT_REG = CL, class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_prshift_operands(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
-			static_assert(COUNT_REG == CL, "Invalid register for precision shift operation");
-			static_assert(TypeMemSize<REG>::value == WORD_PTR || TypeMemSize<REG>::value == DWORD_PTR, "Invalid precision shift size prefix");
+			static_assert(IsRegType<REG>::value, "i386: Param must be register");
+			static_assert(COUNT_REG == CL, "i386: Invalid register for precision shift operation");
+			static_assert(TypeMemSize<REG>::value == WORD_PTR || TypeMemSize<REG>::value == DWORD_PTR, "i386: Invalid precision shift size prefix");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode | 0x01);
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg2, reg1);
@@ -378,8 +382,8 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class REG, class BLOCK>
 		static std::tuple<ReplaceableMem32<MODE>, ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_prshift_operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem, REG reg, const U8& imm) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
-			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Invalid precision shift size prefix");
+			static_assert(IsRegType<REG>::value, "i386: Param must be register");
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "i386: Invalid precision shift size prefix");
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode);
 			auto replaceMem = mem.write(block, reg);
@@ -390,7 +394,7 @@ namespace CppAsm::X86
 
 		template<class REG, class BLOCK>
 		static std::tuple<ReplaceableReg<REG>, ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_prshift_operands(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2, const U8& imm) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
+			static_assert(IsRegType<REG>::value, "i386: Param must be register");
 			static_assert(TypeMemSize<REG>::value == WORD_PTR || TypeMemSize<REG>::value == DWORD_PTR, "Invalid precision shift size prefix");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
 			Offset offset = block.getOffset();
@@ -583,21 +587,6 @@ namespace CppAsm::X86
 			return template_2operands(block, opcode, src, dst);
 		}
 
-		template<class DST, class SRC, class BLOCK>
-		static void template_2operands_xchange(BLOCK& block, common::Opcode opcode, const DST& dst, const SRC& src) {
-			static_assert(TypeMemSize<DST>::value == TypeMemSize<SRC>::value, "Xchange operand size mismatch");
-			write_Opcode_Extended<TypeMemSize<DST>::value>(block, opcode);
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
-		}
-
-		template<AddressMode MODE, class REG, class BLOCK>
-		static void template_2operands_xchange(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem, const REG& reg) {
-			static_assert(IsRegType<REG>::value, "Param must be register");
-			mem.writeSegmPrefix(block);
-			write_Opcode_Extended<TypeMemSize<REG>::value>(block, opcode);
-			mem.write(block, reg);
-		}
-
 		template<class BLOCK>
 		static std::pair<ReplaceableReg<Reg32>, ReplaceableReg<Reg16>> template_2reg_operands_extend_val(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Reg16& src) {
 			write_Opcode_Extended<TypeMemSize<Reg32>::value>(block, opcode);
@@ -689,8 +678,8 @@ namespace CppAsm::X86
 
 		template<class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_scan(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2) {
-			static_assert(IsRegType<REG>::value, "Invalid type of operand");
-			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "Invalid size of operand");
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
@@ -700,8 +689,8 @@ namespace CppAsm::X86
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableMem32<MODE>> template_bit_scan(BLOCK& block, common::Opcode opcode, REG reg, const Mem32<MODE>& mem) {
-			static_assert(IsRegType<REG>::value, "Invalid type of operand");
-			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "Invalid size of operand");
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
 			auto replaceMem = mem.write(block, reg);
@@ -710,8 +699,8 @@ namespace CppAsm::X86
 
 		template<class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg1, REG reg2) {
-			static_assert(IsRegType<REG>::value, "Invalid type of operand");
-			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "Invalid size of operand");
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getMain());
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg2, reg1);
@@ -721,8 +710,8 @@ namespace CppAsm::X86
 
 		template<AddressMode MODE, class REG, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<REG>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, REG reg) {
-			static_assert(IsRegType<REG>::value, "Invalid type of operand");
-			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "Invalid size of operand");
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getMain());
 			auto replaceMem = mem.write(block, reg);
@@ -731,8 +720,8 @@ namespace CppAsm::X86
 
 		template<class REG, class BLOCK>
 		static std::pair<ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
-			static_assert(IsRegType<REG>::value, "Invalid type of operand");
-			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "Invalid size of operand");
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getSecond().getOpcode());
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getSecond().getMode(), reg);
@@ -743,7 +732,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableValue<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
-			static_assert(SIZE != BYTE_PTR, "Invalid size of operand");
+			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode.getSecond().getOpcode());
 			auto replaceMem = mem.write(block, opcode.getSecond().getMode());
 			Offset offset = block.getOffset();
@@ -762,7 +751,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE = BYTE_PTR, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Setcc(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem) {
-			static_assert(SIZE == BYTE_PTR, "Setcc: Invalid size of operand");
+			static_assert(SIZE == BYTE_PTR, "i386: Invalid size of Setcc operand");
 			mem.writeSegmPrefix(block);
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, opcode);
@@ -808,18 +797,19 @@ namespace CppAsm::X86
 		};
 
 		template<JmpSize SIZE, class BLOCK>
-		static FwdLabel<SIZE> template_Jmp(BLOCK& block) {
-			return JumpWriter<SIZE, BLOCK>::write(block);
-		}
-
-		template<JmpSize SIZE, class BLOCK>
 		static FwdLabel<SIZE> template_Jxx(BLOCK& block, common::Opcode opcode) {
 			return JumpWriter<SIZE, BLOCK>::writeConditional(block, opcode);
 		}
 
+		template<JmpSize SIZE, class BLOCK>
+		static FwdLabel<SIZE> template_Jmp(BLOCK& block) {
+			static_assert(SIZE == SHORT || SIZE == LONG, "Jmp: Invalid jump size");
+			return JumpWriter<SIZE, BLOCK>::write(block);
+		}
+
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Jmp(BLOCK& block, const Mem32<MODE>& mem) {
-			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Jmp: size not supported");
+			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Jmp: Invalid size modifier");
 			if (SIZE == DWORD_PTR) {
 				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_JMP_NEAR, mem);
 			}
@@ -828,20 +818,20 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, class BLOCK>
 		static ReplaceableReg<Reg32> template_Jmp(BLOCK& block, const Reg32& reg) {
-			static_assert(SIZE == DWORD_PTR, "Jmp: size not supported");
+			static_assert(SIZE == DWORD_PTR, "Jmp: Invalid size modifier");
 			return template_1reg_operand(block, detail::opcode_JMP_NEAR, reg);
 		}
 
 		template<MemSize SIZE, class BLOCK>
 		static void template_Call(BLOCK& block, const Addr& jumpAddress) {
-			static_assert(SIZE == DWORD_PTR, "Call: size not supported");
+			static_assert(SIZE == DWORD_PTR, "Call: Invalid size modifier");
 			common::write_Opcode(block, 0xE8);
 			block.pushRaw(common::calc_Jump_Offset(block.getCurrentPtr(), jumpAddress, sizeof(Addr)));
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> template_Call(BLOCK& block, const Mem32<MODE>& mem) {
-			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Call: size not supported");
+			static_assert(SIZE == DWORD_PTR || SIZE == FWORD_PTR, "Call: Invalid size modifier");
 			if (SIZE == DWORD_PTR) {
 				return template_1mem_operand<DWORD_PTR>(block, detail::opcode_CALL_NEAR, mem);
 			}
@@ -850,13 +840,13 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, class BLOCK>
 		static ReplaceableReg<Reg32> template_Call(BLOCK& block, const Reg32& reg) {
-			static_assert(SIZE == DWORD_PTR, "Call: size not supported");
+			static_assert(SIZE == DWORD_PTR, "Call: Invalid size modifier");
 			return template_1reg_operand(block, detail::opcode_CALL_NEAR, reg);
 		}
 
 		template<JmpSize SIZE, class BLOCK>
 		static FwdLabel<SIZE> template_Loop(BLOCK& block, common::Opcode opcode) {
-			static_assert(SIZE == SHORT, "Loop: unsupported jump size");
+			static_assert(SIZE == SHORT, "i386: unsupported loop jump size");
 			common::write_Opcode(block, opcode);
 			Offset offset = block.getOffset();
 			block.skipBytes(FwdLabel<SHORT>::offset_size);
@@ -960,6 +950,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Mov(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Mov: Invalid size modifier");
 			return template_mem_imm_operands<SIZE>(block, detail::opcode_MOV, mem, imm);
 		}
 
@@ -976,6 +967,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class T, class BLOCK>
 		static auto Mov(BLOCK& block, const REG& reg, const Imm<T>& imm) {
+			static_assert(IsRegType<REG>::value, "Mov: First parameter is not register");
 			return template_reg_imm_operands(block, detail::opcode_MOV, reg, imm);
 		}
 		
@@ -1042,6 +1034,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, class REG, AddressMode MODE, class BLOCK>
 		static auto Movsx(BLOCK& block, const REG& dst, const Mem32<MODE>& src) {
+			static_assert(IsRegType<REG>::value, "Movsx: First parameter is not register");
 			return template_2operands_extend_val<SIZE>(block, 0xBE, dst, src);
 		}
 
@@ -1058,6 +1051,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, class REG, AddressMode MODE, class BLOCK>
 		static auto Movzx(BLOCK& block, const REG& dst, const Mem32<MODE>& src) {
+			static_assert(IsRegType<REG>::value, "Movzx: First parameter is not register");
 			return template_2operands_extend_val<SIZE>(block, 0xB6, dst, src);
 		}
 
@@ -1121,6 +1115,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Push(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Push: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_PUSH, mem);
 		}
 
@@ -1185,7 +1180,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Pop(BLOCK& block, const Mem32<MODE>& mem) {
-			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Invalid Pop size prefix");
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Pop: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_POP, mem);
 		}
 		
@@ -1290,6 +1285,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, class BLOCK>
 		static ReplaceableValue<U8> In(BLOCK& block, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "In: Invalid size modifier");
 			write_Opcode<SIZE>(block, 0xE4);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
@@ -1297,10 +1293,11 @@ namespace CppAsm::X86
 		}
 
 		/* Read data from port
-		 - IN eax/ax,dx
+		 - IN eax/ax/al,dx
 		*/
 		template<MemSize SIZE, Reg16 PORT_REG, class BLOCK>
 		static void In(BLOCK& block) {
+			static_assert(isGeneralMemSize(SIZE), "In: Invalid size modifier");
 			write_Opcode<SIZE>(block, 0xEC);
 		}
 
@@ -1309,6 +1306,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, class BLOCK>
 		static ReplaceableValue<U8> Out(BLOCK& block, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Out: Invalid size modifier");
 			write_Opcode<SIZE>(block, 0xE6);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
@@ -1320,6 +1318,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, Reg16 PORT_REG, class BLOCK>
 		static void Out(BLOCK& block) {
+			static_assert(isGeneralMemSize(SIZE), "Out: Invalid size modifier");
 			write_Opcode<SIZE>(block, 0xEE);
 		}
 #pragma endregion
@@ -1351,6 +1350,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Adc(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Adc: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_ADC, mem, imm);
 		}
 
@@ -1388,6 +1388,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Add(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Add: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_ADD, mem, imm);
 		}
 
@@ -1425,6 +1426,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Cmp: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_CMP, mem, imm);
 		}
 
@@ -1441,6 +1443,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Cmp(BLOCK& block, const Imm<T>& imm, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Cmp: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_CMP, mem, imm);
 		}
 
@@ -1486,6 +1489,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Inc(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Inc: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_INC, mem);
 		}
 
@@ -1523,6 +1527,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Dec(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Dec: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_DEC, mem);
 		}
 
@@ -1531,6 +1536,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static ReplaceableReg<REG> Neg(BLOCK& block, REG reg) {
+			static_assert(IsRegType<REG>::value, "Neg: Parameter is not register");
 			return template_1reg_operand(block, detail::opcode_NEG, reg);
 		}
 
@@ -1539,6 +1545,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Neg(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Neg: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_NEG, mem);
 		}
 
@@ -1547,6 +1554,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static ReplaceableReg<REG> Mul(BLOCK& block, REG reg) {
+			static_assert(IsRegType<REG>::value, "Mul: Parameter is not register");
 			return template_1reg_operand(block, detail::opcode_MUL, reg);
 		}
 
@@ -1555,6 +1563,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Mul(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Mul: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_MUL, mem);
 		}
 
@@ -1563,6 +1572,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static ReplaceableReg<REG> Imul(BLOCK& block, REG reg) {
+			static_assert(IsRegType<REG>::value, "Imul: Parameter is not register");
 			return template_1reg_operand(block, detail::opcode_IMUL, reg);
 		}
 
@@ -1571,6 +1581,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Imul(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Imul: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_IMUL, mem);
 		}
 
@@ -1579,6 +1590,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static void Imul(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Imul: First and second parameter is not register");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, 0xAF);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
 		}
@@ -1588,6 +1600,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, AddressMode MODE, class BLOCK>
 		static void Imul(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Imul: First parameter is not register");
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, 0xAF);
 			mem.write(block, reg);
@@ -1640,6 +1653,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class T, class BLOCK>
 		static void Imul(BLOCK& block, REG reg1, REG reg2, const Imm<T>& imm) {
+			static_assert(IsRegType<REG>::value, "Imul: First and second parameter is not register");
 			write_Opcode_Imm_Optimized<TypeMemSize<REG>::value, TypeMemSize<Imm<T>>::value>(block, 0x69);
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
 			common::write_Immediate(block, imm);
@@ -1650,6 +1664,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, AddressMode MODE, class T, class BLOCK>
 		static void Imul(BLOCK& block, REG reg, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(IsRegType<REG>::value, "Imul: First parameter is not register");
 			mem.writeSegmPrefix(block);
 			write_Opcode_Imm_Optimized<TypeMemSize<REG>::value, TypeMemSize<Imm<T>>::value>(block, 0x69);
 			mem.write(block, reg);
@@ -1661,6 +1676,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static ReplaceableReg<REG> Div(BLOCK& block, REG reg) {
+			static_assert(IsRegType<REG>::value, "Div: Parameter is not register");
 			return template_1reg_operand(block, detail::opcode_DIV, reg);
 		}
 
@@ -1669,6 +1685,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Div(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Div: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_DIV, mem);
 		}
 
@@ -1677,6 +1694,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static ReplaceableReg<REG> Idiv(BLOCK& block, REG reg) {
+			static_assert(IsRegType<REG>::value, "Idiv: Parameter is not register");
 			return template_1reg_operand(block, detail::opcode_IDIV, reg);
 		}
 
@@ -1685,6 +1703,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Idiv(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Idiv: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_IDIV, mem);
 		}
 
@@ -1714,6 +1733,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Sbb(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Sbb: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_SBB, mem, imm);
 		}
 
@@ -1751,6 +1771,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Sub(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Sub: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_SUB, mem, imm);
 		}
 
@@ -1838,6 +1859,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto And(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "And: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_AND, mem, imm);
 		}
 
@@ -1854,6 +1876,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class BLOCK>
 		static ReplaceableReg<REG> Not(BLOCK& block, REG reg) {
+			static_assert(IsRegType<REG>::value, "Not: Parameter is not register");
 			return template_1reg_operand(block, detail::opcode_NOT, reg);
 		}
 
@@ -1862,6 +1885,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static ReplaceableMem32<MODE> Not(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Not: Invalid size modifier");
 			return template_1mem_operand<SIZE>(block, detail::opcode_NOT, mem);
 		}
 
@@ -1891,6 +1915,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Or(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Or: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_OR, mem, imm);
 		}
 
@@ -1935,6 +1960,7 @@ namespace CppAsm::X86
 		*/
 		template<class REG, class T, class BLOCK>
 		static auto Test(BLOCK& block, REG reg, const Imm<T>& imm) {
+			static_assert(IsRegType<REG>::value, "Test: First parameter is not register");
 			return template_reg_imm_operands(block, detail::opcode_TEST, reg, imm);
 		}
 
@@ -1952,6 +1978,7 @@ namespace CppAsm::X86
 		 */
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Test(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Test: Invalid size modifier");
 			return template_mem_imm_operands<SIZE>(block, detail::opcode_TEST, mem, imm);
 		}
 
@@ -1999,6 +2026,7 @@ namespace CppAsm::X86
 		*/
 		template<MemSize SIZE, AddressMode MODE, class T, class BLOCK>
 		static auto Xor(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Xor: Invalid size modifier");
 			return template_mem_imm_opt_operands<SIZE>(block, detail::opcode_XOR, mem, imm);
 		}
 
@@ -2012,283 +2040,360 @@ namespace CppAsm::X86
 #pragma endregion
 		
 #pragma region Bit shift operations [DONE]
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Rol(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_ROL, mem);
+			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
+			static_assert(SH_REG == CL, "Rol: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_ROL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Rol(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_ROL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Rol(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_ROL, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Rol(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Rol: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_ROL, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Rol(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Rol: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Rol: Parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_ROL, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Rol(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Rol: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_ROL, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Ror(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_ROR, mem);
+			static_assert(isGeneralMemSize(SIZE), "Ror: Invalid size modifier");
+			static_assert(SH_REG == CL, "Ror: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_ROR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Ror(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Ror: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_ROR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Ror(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Ror: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_ROR, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Ror(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Ror: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_ROR, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Ror(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Rol: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Ror: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_ROR, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Ror(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Ror: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_ROR, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Rcl(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_RCL, mem);
+			static_assert(isGeneralMemSize(SIZE), "Rcl: Invalid size modifier");
+			static_assert(SH_REG == CL, "Rcl: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_RCL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Rcl(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Rcl: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_RCL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Rcl(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Rcl: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_RCL, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Rcl(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Rcl: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_RCL, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Rcl(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Rcl: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Rcl: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_RCL, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Rcl(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Rcl: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_RCL, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Rcr(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_RCR, mem);
+			static_assert(isGeneralMemSize(SIZE), "Rcr: Invalid size modifier");
+			static_assert(SH_REG == CL, "Rcr: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_RCR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Rcr(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Rcr: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_RCR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Rcr(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Rcr: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_RCR, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Rcr(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Rcr: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_RCR, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Rcr(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Rcr: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Rcr: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_RCR, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Rcr(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Rcr: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_RCR, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Sal(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_SAL, mem);
+			static_assert(isGeneralMemSize(SIZE), "Sal: Invalid size modifier");
+			static_assert(SH_REG == CL, "Rcr: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_SAL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Sal(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Sal: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SAL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Sal(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Sal: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SAL, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Sal(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Sal: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SAL, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Sal(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Sal: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SAL, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Sal(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Sal: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SAL, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Shl(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_SHL, mem);
+			static_assert(isGeneralMemSize(SIZE), "Shl: Invalid size modifier");
+			static_assert(SH_REG == CL, "Shl: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_SHL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Shl(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Shl: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SHL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Shl(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Shl: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SHL, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Shl(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Shl: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SHL, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Shl(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Shl: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Shl: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SHL, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Shl(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Shl: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SHL, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Shr(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_SHR, mem);
+			static_assert(isGeneralMemSize(SIZE), "Shr: Invalid size modifier");
+			static_assert(SH_REG == CL, "Shr: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_SHR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Shr(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Shr: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SHR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Shr(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Shr: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SHR, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Shr(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Shr: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SHR, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Shr(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Shr: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Shr: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SHR, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Shr(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Shr: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SHR, reg, imm);
 		}
 
-		template<MemSize SIZE, Reg8 REG, AddressMode MODE, class BLOCK>
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
 		static auto Sar(BLOCK& block, const Mem32<MODE>& mem) {
-			return template_shift_operands<SIZE, REG>(block, detail::opcode_SAR, mem);
+			static_assert(isGeneralMemSize(SIZE), "Sar: Invalid size modifier");
+			static_assert(SH_REG == CL, "Sar: Invalid shift register");
+			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_SAR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Sar(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Sar: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SAR, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Sar(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Sar: Invalid size modifier");
 			return template_shift_operands<SIZE>(block, detail::opcode_SAR, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Sar(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Sar: Parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SAR, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
 		static auto Sar(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Sar: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Sar: First parameter is not register");
 			return template_shift_operands<REG, SH_REG>(block, detail::opcode_SAR, reg);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Sar(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Sar: First parameter is not register");
 			return template_shift_operands<REG>(block, detail::opcode_SAR, reg, imm);
 		}
 
 		template<MemSize SIZE, Reg8 COUNT_REG, class REG, AddressMode MODE, class BLOCK>
 		static auto Shrd(BLOCK& block, const Mem32<MODE>& mem, REG reg) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Shrd: Invalid size modifier");
+			static_assert(COUNT_REG == CL, "Shrd: Invalid count register");
+			static_assert(IsRegType<REG>::value, "Shrd: Second parameter is not register");
 			return template_prshift_operands<SIZE, COUNT_REG>(block, 0xAC, mem, reg);
 		}
 
 		template<Reg8 COUNT_REG, class REG, class BLOCK>
 		static auto Shrd(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Shrd: First and second parameter is not register");
 			return template_prshift_operands<COUNT_REG>(block, 0xAC, reg1, reg2);
 		}
 
 		template<MemSize SIZE, class REG, AddressMode MODE, class BLOCK>
 		static auto Shrd(BLOCK& block, const Mem32<MODE>& mem, REG reg, const U8& imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Shrd: Invalid size modifier");
+			static_assert(IsRegType<REG>::value, "Shrd: Second parameter is not register");
 			return template_prshift_operands<SIZE>(block, 0xAC, mem, reg, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Shrd(BLOCK& block, REG reg1, REG reg2, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Shrd: First and second parameter is not register");
 			return template_prshift_operands(block, 0xAC, reg1, reg2, imm);
 		}
 
 		template<MemSize SIZE, Reg8 COUNT_REG, class REG, AddressMode MODE, class BLOCK>
 		static auto Shld(BLOCK& block, const Mem32<MODE>& mem, REG reg) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Shld: Invalid size modifier");
+			static_assert(COUNT_REG == CL, "Shld: Invalid count register");
+			static_assert(IsRegType<REG>::value, "Shld: Second parameter is not register");
 			return template_prshift_operands<SIZE, COUNT_REG>(block, 0xA4, mem, reg);
 		}
 
 		template<Reg8 COUNT_REG, class REG, class BLOCK>
 		static auto Shld(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Shld: First and second parameter is not register");
 			return template_prshift_operands<COUNT_REG>(block, 0xA4, reg1, reg2);
 		}
 
 		template<MemSize SIZE, class REG, AddressMode MODE, class BLOCK>
 		static auto Shld(BLOCK& block, const Mem32<MODE>& mem, REG reg, const U8& imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Shld: Invalid size modifier");
+			static_assert(IsRegType<REG>::value, "Shld: Second parameter is not register");
 			return template_prshift_operands<SIZE>(block, 0xA4, mem, reg, imm);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Shld(BLOCK& block, REG reg1, REG reg2, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Shld: First and second parameter is not register");
 			return template_prshift_operands(block, 0xA4, reg1, reg2, imm);
 		}
 #pragma endregion
@@ -2296,21 +2401,25 @@ namespace CppAsm::X86
 #pragma region Bit manipulations [DONE]
 		template<class REG, class BLOCK>
 		static auto Bsf(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Bsf: First and second parameter is not register");
 			return template_bit_scan(block, 0xBC, reg1, reg2);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static auto Bsf(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Bsf: First parameter is not register");
 			return template_bit_scan(block, 0xBC, reg, mem);
 		}
 
 		template<class REG, class BLOCK>
 		static auto Bsr(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Bsr: First and second parameter is not register");
 			return template_bit_scan(block, 0xBD, reg1, reg2);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static auto Bsr(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Bsr: First parameter is not register");
 			return template_bit_scan(block, 0xBD, reg, mem);
 		}
 
@@ -2321,6 +2430,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Bt(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bt: Invalid size modifier");
 			return template_bit_operation<SIZE>(block, detail::opcode_BT, mem, imm);
 		}
 
@@ -2331,6 +2441,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Btc(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btc: Invalid size modifier");
 			return template_bit_operation<SIZE>(block, detail::opcode_BTC, mem, imm);
 		}
 
@@ -2341,6 +2452,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Btr(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btr: Invalid size modifier");
 			return template_bit_operation<SIZE>(block, detail::opcode_BTR, mem, imm);
 		}
 
@@ -2351,6 +2463,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
 		static auto Bts(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bts: Invalid size modifier");
 			return template_bit_operation<SIZE>(block, detail::opcode_BTS, mem, imm);
 		}
 
@@ -3116,26 +3229,31 @@ namespace CppAsm::X86
 #pragma region Load segment registers
 		template<class REG, AddressMode MODE, class BLOCK>
 		static void Lds(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Lds: First parameter is not register");
 			template_LoadSegReg(block, 0xC5, reg, mem);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static void Les(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Les: First parameter is not register");
 			template_LoadSegReg(block, 0xC4, reg, mem);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static void Lfs(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Lfs: First parameter is not register");
 			template_LoadSegRegEx(block, 0xB4, reg, mem);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static void Lgs(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Lgs: First parameter is not register");
 			template_LoadSegRegEx(block, 0xB5, reg, mem);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
 		static void Lss(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Lss: First parameter is not register");
 			template_LoadSegRegEx(block, 0xB2, reg, mem);
 		}
 #pragma endregion
@@ -3174,6 +3292,18 @@ namespace CppAsm::X86
 			for (; count > 0; count--) {
 				common::write_Opcode(block, 0x90);
 			}
+		}
+
+		/* FPU wait */
+		template<class BLOCK>
+		static void Fwait(BLOCK& block) {
+			Wait(block);
+		}
+
+		/* FPU wait */
+		template<class BLOCK>
+		static void Wait(BLOCK& block) {
+			common::write_Opcode(block, 0x9B);
 		}
 
 		/* Halt processor */
