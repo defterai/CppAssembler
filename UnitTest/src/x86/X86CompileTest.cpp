@@ -881,7 +881,9 @@ namespace UnitTest
 		TEST_METHOD(TestCall) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// CALL rel32 (near)
+			Addr addr = block.getCurrentPtr();
 			testArch::Call(block).bind(block);
+			testArch::Call(block, addr);
 			// CALL r/m32 (near)
 			testArch::Call(block, X86::EDX);
 			testArch::Call(block, X86::Mem32<X86::BASE>(X86::EDX));
