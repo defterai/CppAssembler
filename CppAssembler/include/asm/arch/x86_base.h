@@ -215,7 +215,7 @@ namespace CppAsm::X86
 				return mCustomSegReg;
 			}
 			template<class BLOCK>
-			void writeSegmPrefix(BLOCK& block) const {
+			constexpr void writeSegmPrefix(BLOCK& block) const {
 				block.writeRaw<byteOrder>(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
@@ -253,13 +253,13 @@ namespace CppAsm::X86
 			}
 
 			template<class BLOCK>
-			void writeSmallestOffset(BLOCK& block) const {
+			constexpr void writeSmallestOffset(BLOCK& block) const {
 				block.writeRaw<byteOrder>(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
 
 			template<class BLOCK>
-			void writeOffset(BLOCK& block) const {
+			constexpr void writeOffset(BLOCK& block) const {
 				block.pushRaw<byteOrder>(mOffset);
 			}
 		};
@@ -283,7 +283,7 @@ namespace CppAsm::X86
 			}
 
 			template<class BLOCK>
-			void writeEspPostfix(BLOCK& block) const {
+			constexpr void writeEspPostfix(BLOCK& block) const {
 				block.writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mEspBase ? sizeof(uint8_t) : 0);
 			}
@@ -788,7 +788,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		bool bind(BLOCK& block) const {
+		constexpr bool bind(BLOCK& block) const {
 			return bind(block, block.getCurrentPtr());
 		}
 	};
@@ -814,7 +814,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		bool bind(BLOCK& block) const {
+		constexpr bool bind(BLOCK& block) const {
 			return bind(block, block.getCurrentPtr());
 		}
 	};

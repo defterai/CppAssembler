@@ -54,19 +54,19 @@ namespace CppAsm::Os
 
 		/* Create sub block from current write position to end of parent block */
 		template<class BLOCK>
-		BLOCK subBlock() const {
+		constexpr BLOCK subBlock() const {
 			return BLOCK(mDataCurr, getRemainingSize());
 		}
 
 		/* Create sub block from current write position with specified size */
 		template<class BLOCK>
-		BLOCK subBlock(Size size) const {
+		constexpr BLOCK subBlock(Size size) const {
 			return BLOCK(mDataCurr, size);
 		}
 
 		/* Get size in bytes needed to align current write position */
 		template<uint8_t ALIGN>
-		Size getAlignSize() const {
+		constexpr Size getAlignSize() const {
 			static_assert((ALIGN & (ALIGN - 1)) == 0, "MeasureBlock::getAlignSize(): align not power of two");
 			Size alignRemainder = reinterpret_cast<Size>(const_cast<uint8_t*>(mDataCurr)) % ALIGN;
 			return (ALIGN - alignRemainder) % ALIGN;
