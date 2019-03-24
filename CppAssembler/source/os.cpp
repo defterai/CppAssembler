@@ -1,4 +1,4 @@
-#include "asm\os.h"
+#include "asm/os.h"
 #include <cstring>
 #include <cassert>
 
@@ -12,14 +12,17 @@ namespace CppAsm::Os
 		assert(mDataCurr + size <= mDataStart + mSize);
 	}
 
-	void BaseBlock::write(const void* data, Size size) {
+	void* BaseBlock::write(const void* data, Size size) {
 		verifyCurrent(size);
 		std::memcpy(mDataCurr, data, size);
+		return mDataCurr;
 	}
 
-	void BaseBlock::writeOffset(Size offset, const void* data, Size size) {
+	void* BaseBlock::writeOffset(Size offset, const void* data, Size size) {
 		verifyOffset(offset, size);
-		std::memcpy(mDataStart + offset, data, size);
+		void* writePtr = mDataStart + offset;
+		std::memcpy(writePtr, data, size);
+		return writePtr;
 	}
 
 	void BaseBlock::read(void* data, Size size) {

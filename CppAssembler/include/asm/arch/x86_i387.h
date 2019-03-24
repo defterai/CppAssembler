@@ -22,12 +22,12 @@ namespace CppAsm::X86
 	protected:
 		template<class BLOCK>
 		static void write_Ext_Prefix(BLOCK& block) {
-			block.pushRaw<uint8_t>(0xD9);
+			block.pushRaw<byteOrder, uint8_t>(0xD9);
 		}
 
 		template<class BLOCK>
 		static void write_Unmask_Exception_Prefix(BLOCK& block) {
-			block.pushRaw<uint8_t>(0x9B);
+			block.pushRaw<byteOrder, uint8_t>(0x9B);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>

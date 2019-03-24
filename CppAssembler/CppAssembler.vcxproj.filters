@@ -96,6 +96,9 @@
     <ClInclude Include="include\asm\os\win32.h">
       <Filter>Header Files\asm\os</Filter>
     </ClInclude>
+    <ClInclude Include="include\asm\os\byte_order.h">
+      <Filter>Header Files\asm\os</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\os.cpp">

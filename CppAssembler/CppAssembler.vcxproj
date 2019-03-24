@@ -195,6 +195,7 @@
     <ClInclude Include="include\asm\arch\x86_TSC.h" />
     <ClInclude Include="include\asm\defs.h" />
     <ClInclude Include="include\asm\os.h" />
+    <ClInclude Include="include\asm\os\byte_order.h" />
     <ClInclude Include="include\asm\os\win32.h" />
     <ClInclude Include="include\asm\replaceable.h" />
   </ItemGroup>

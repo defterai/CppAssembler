@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "defs.h"
+#include "os/byte_order.h"
 
 namespace CppAsm::Os
 {
@@ -15,8 +16,8 @@ namespace CppAsm::Os
 	protected:
 		void verifyCurrent(Size size);
 		void verifyOffset(Size offset, Size size);
-		void write(const void* data, Size size);
-		void writeOffset(Size offset, const void* data, Size size);
+		void* write(const void* data, Size size);
+		void* writeOffset(Size offset, const void* data, Size size);
 		void read(void* data, Size size);
 		void readOffset(Size offset, void* data, Size size);
 	public:
@@ -80,27 +81,27 @@ namespace CppAsm::Os
 		MeasureBlock& operator=(const MeasureBlock&) = delete;
 		MeasureBlock& operator=(MeasureBlock&&) = default;
 
-		template<class T>
+		template<endian ORDER, class T>
 		void readRaw(T& val) {
 			// do nothing
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void readRaw(T& val, Offset offset) {
 			// do nothing
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void writeRaw(const T& val) {
 			// do nothing
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void writeRaw(const T& val, Offset offset) {
 			// do nothing
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void pushRaw(const T& val) {
 			skipBytes(sizeof(val));
 		}
@@ -114,29 +115,34 @@ namespace CppAsm::Os
 		CodeBlock& operator=(const CodeBlock&) = delete;
 		CodeBlock& operator=(CodeBlock&&) = default;
 
-		template<class T>
+		template<endian ORDER, class T>
 		void readRaw(T& val) {
 			read(&val, sizeof(val));
+			change_byte_order<T, endian::native, ORDER>(&val, 1);
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void readRaw(T& val, Offset offset) {
 			readOffset(offset, &val, sizeof(val));
+			change_byte_order<T, endian::native, ORDER>(&val, 1);
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void writeRaw(const T& val) {
-			write(&val, sizeof(val));
+			void* ptr = write(&val, sizeof(val));
+			change_byte_order<T, endian::native, ORDER>(ptr, 1);
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void writeRaw(const T& val, Offset offset) {
-			writeOffset(offset, &val, sizeof(val));
+			void* ptr = writeOffset(offset, &val, sizeof(val));
+			change_byte_order<T, endian::native, ORDER>(ptr, 1);
 		}
 
-		template<class T>
+		template<endian ORDER, class T>
 		void pushRaw(const T& val) {
-			write(&val, sizeof(val));
+			void* ptr = write(&val, sizeof(val));
+			change_byte_order<T, endian::native, ORDER>(ptr, 1);
 			skipBytes(sizeof(val));
 		}
 	};

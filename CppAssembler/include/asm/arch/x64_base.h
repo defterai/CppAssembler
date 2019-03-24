@@ -10,6 +10,8 @@ namespace CppAsm::X64
 		namespace common = CppAsm::X86_64::detail;
 	}
 
+	constexpr static endian byteOrder = common::byteOrder;
+
 	enum Reg8 : uint8_t {
 		AL = 0b000,
 		CL = 0b001,
@@ -250,7 +252,7 @@ namespace CppAsm::X64
 			
 			template<class BLOCK>
 			void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw(mSegReg);
+				block.writeRaw<byteOrder>(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
@@ -282,7 +284,7 @@ namespace CppAsm::X64
 			}
 			template<class BLOCK>
 			void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw(mSegReg);
+				block.writeRaw<byteOrder>(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
@@ -320,13 +322,13 @@ namespace CppAsm::X64
 
 			template<class BLOCK>
 			void writeSmallestOffset(BLOCK& block) const {
-				block.writeRaw(mOffset);
+				block.writeRaw<byteOrder>(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
 			
 			template<class BLOCK>
 			void writeOffset(BLOCK& block) const {
-				block.pushRaw(mOffset);
+				block.pushRaw<byteOrder>(mOffset);
 			}
 		};
 
@@ -350,7 +352,7 @@ namespace CppAsm::X64
 
 			template<class BLOCK>
 			void writeEspPostfix(BLOCK& block) const {
-				block.writeRaw<uint8_t>(0x24);
+				block.writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mRspBase ? sizeof(uint8_t) : 0);
 			}
 		};
@@ -375,7 +377,7 @@ namespace CppAsm::X64
 
 			template<class BLOCK>
 			void writeEspPostfix(BLOCK& block) const {
-				block.writeRaw<uint8_t>(0x24);
+				block.writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mRspBase ? sizeof(uint8_t) : 0);
 			}
 		};
@@ -482,7 +484,7 @@ namespace CppAsm::X64
 		template<class BLOCK>
 		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
-			block.pushRaw<uint8_t>(0x25);
+			block.pushRaw<byteOrder, uint8_t>(0x25);
 			writeOffset(block);
 		}
 	};
@@ -520,7 +522,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<uint8_t>(0x67);
+			block.pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -564,7 +566,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<uint8_t>(0x67);
+			block.pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -617,7 +619,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<uint8_t>(0x67);
+			block.pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -663,7 +665,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<uint8_t>(0x67);
+			block.pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -709,7 +711,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<uint8_t>(0x67);
+			block.pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -755,7 +757,7 @@ namespace CppAsm::X64
 		SegmMem64(X86::RegSeg segment, Reg64 baseReg, uint64_t offset) : Mem64(baseReg, offset), mSegmReg(segment) {}
 		void writeSegmPrefix(CodeBlock& block, X86::RegSeg defaultSegm = X86::DS) const {
 			if (mSegmReg != defaultSegm) {
-				block.pushRaw<uint8_t>(mSegmReg);
+				block.pushRaw<byteOrder, uint8_t>(mSegmReg);
 			}
 		}
 		X86::RegSeg getSegmReg() const {

@@ -12,6 +12,8 @@ namespace CppAsm::X86
 		namespace common = CppAsm::X86_64::detail;
 	}
 
+	constexpr static endian byteOrder = common::byteOrder;
+
 	enum Reg8 : uint8_t {
 		AL = 0b000,
 		CL = 0b001,
@@ -214,7 +216,7 @@ namespace CppAsm::X86
 			}
 			template<class BLOCK>
 			void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw(mSegReg);
+				block.writeRaw<byteOrder>(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
@@ -252,13 +254,13 @@ namespace CppAsm::X86
 
 			template<class BLOCK>
 			void writeSmallestOffset(BLOCK& block) const {
-				block.writeRaw(mOffset);
+				block.writeRaw<byteOrder>(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
 
 			template<class BLOCK>
 			void writeOffset(BLOCK& block) const {
-				block.pushRaw(mOffset);
+				block.pushRaw<byteOrder>(mOffset);
 			}
 		};
 
@@ -282,7 +284,7 @@ namespace CppAsm::X86
 
 			template<class BLOCK>
 			void writeEspPostfix(BLOCK& block) const {
-				block.writeRaw<uint8_t>(0x24);
+				block.writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mEspBase ? sizeof(uint8_t) : 0);
 			}
 		};
@@ -459,12 +461,15 @@ namespace CppAsm::X86
 	};
 
 	template<class REG>
-	class ReplaceableReg final : public ReplaceableBits<REG, TypeBitsMask<REG>::value> {
+	class ReplaceableReg final : public ReplaceableBits<REG, byteOrder, TypeBitsMask<REG>::value> {
 	public:
-		using ReplaceableBits<REG, TypeBitsMask<REG>::value>::ReplaceableBits;
+		using ReplaceableBits<REG, byteOrder, TypeBitsMask<REG>::value>::ReplaceableBits;
 	};
 
-	typedef ReplaceableBits<IndexScale, TypeBitsMask<IndexScale>::value> ReplaceableIndexScale;
+	typedef ReplaceableBits<IndexScale, byteOrder, TypeBitsMask<IndexScale>::value> ReplaceableIndexScale;
+
+	template<class T>
+	using ReplaceableImmediate = ReplaceableValue<T, byteOrder>;
 
 	template<AddressMode MODE = OFFSET>
 	class ReplaceableMem32;
@@ -482,8 +487,8 @@ namespace CppAsm::X86
 			return ReplaceableReg<REG>(getCbOffset(), common::MOD_REG_RM::REG_BIT_OFFSET);
 		}
 
-		constexpr ReplaceableValue<int32_t> getOffset() const {
-			return ReplaceableValue<int32_t>(getCbOffset() + 1); // +1 skip MOD_REG_RM byte
+		constexpr ReplaceableImmediate<int32_t> getOffset() const {
+			return ReplaceableImmediate<int32_t>(getCbOffset() + 1); // +1 skip MOD_REG_RM byte
 		}
 	};
 
@@ -565,12 +570,12 @@ namespace CppAsm::X86
 			return assert(!mEspBase), ReplaceableReg<REG>(getCbOffset(), common::MOD_REG_RM::RM_BIT_OFFSET);
 		}
 
-		constexpr ReplaceableValue<int32_t> getDWordOffset() const {
-			return assert(!mByteOffset), ReplaceableValue<int32_t>(getCbOffset() + (mEspBase ? 1 : 0) + 1); // +1 skip MOD_REG_RM byte
+		constexpr ReplaceableImmediate<int32_t> getDWordOffset() const {
+			return assert(!mByteOffset), ReplaceableImmediate<int32_t>(getCbOffset() + (mEspBase ? 1 : 0) + 1); // +1 skip MOD_REG_RM byte
 		}
 
-		constexpr ReplaceableValue<int8_t> getByteOffset() const {
-			return assert(mByteOffset), ReplaceableValue<int8_t>(getCbOffset() + (mEspBase ? 1 : 0) + 1); // +1 skip MOD_REG_RM byte
+		constexpr ReplaceableImmediate<int8_t> getByteOffset() const {
+			return assert(mByteOffset), ReplaceableImmediate<int8_t>(getCbOffset() + (mEspBase ? 1 : 0) + 1); // +1 skip MOD_REG_RM byte
 		}
 	};
 
@@ -611,9 +616,9 @@ namespace CppAsm::X86
 			return ReplaceableIndexScale(getCbOffset() + 1, detail::Mem32_SIB::SCALE_BIT_OFFSET);
 		}
 
-		constexpr ReplaceableValue<int32_t> getOffset() const {
+		constexpr ReplaceableImmediate<int32_t> getOffset() const {
 			// +2 skip MOD_REG_RM and SIB bytes
-			return ReplaceableValue<int32_t>(getCbOffset() + 2);
+			return ReplaceableImmediate<int32_t>(getCbOffset() + 2);
 		}
 	};
 
@@ -717,14 +722,14 @@ namespace CppAsm::X86
 			return ReplaceableIndexScale(getCbOffset() + 1, detail::Mem32_SIB::SCALE_BIT_OFFSET);
 		}
 
-		constexpr ReplaceableValue<int32_t> getDWordOffset() const {
+		constexpr ReplaceableImmediate<int32_t> getDWordOffset() const {
 			// +2 skip MOD_REG_RM and SIB bytes
-			return assert(!mByteOffset), ReplaceableValue<int32_t>(getCbOffset() + 2);
+			return assert(!mByteOffset), ReplaceableImmediate<int32_t>(getCbOffset() + 2);
 		}
 
-		constexpr ReplaceableValue<int8_t> getByteOffset() const {
+		constexpr ReplaceableImmediate<int8_t> getByteOffset() const {
 			// +2 skip MOD_REG_RM and SIB bytes
-			return assert(mByteOffset), ReplaceableValue<int8_t>(getCbOffset() + 2);
+			return assert(mByteOffset), ReplaceableImmediate<int8_t>(getCbOffset() + 2);
 		}
 	};
 
@@ -747,17 +752,17 @@ namespace CppAsm::X86
 	};
 
 	template<MemSize SIZE, class T>
-	class ReplaceableOptimizedImm : public ReplaceableValue<typename detail::ImmSizeOptimize<SIZE, T>::type> {
+	class ReplaceableOptimizedImm : public ReplaceableImmediate<typename detail::ImmSizeOptimize<SIZE, T>::type> {
 	private:
-		typedef ReplaceableValue<typename detail::ImmSizeOptimize<SIZE, T>::type> ParentType;
+		typedef ReplaceableImmediate<typename detail::ImmSizeOptimize<SIZE, T>::type> ParentType;
 	public:
 		using ParentType::ParentType;
 	};
 
 	template<MemSize SIZE, class T>
-	class ReplaceableExtendedImm : public ReplaceableValue<typename detail::ImmSizeExtend<SIZE, T>::type> {
+	class ReplaceableExtendedImm : public ReplaceableImmediate<typename detail::ImmSizeExtend<SIZE, T>::type> {
 	private:
-		typedef ReplaceableValue<typename detail::ImmSizeExtend<SIZE, T>::type> ParentType;
+		typedef ReplaceableImmediate<typename detail::ImmSizeExtend<SIZE, T>::type> ParentType;
 	public:
 		using ParentType::ParentType;
 	};
@@ -778,7 +783,7 @@ namespace CppAsm::X86
 			Offset labelOffset = getCbOffset();
 			auto jumpOffset = common::calc_Jump_Offset(block.getStartPtr() + labelOffset,
 				newAddr, offset_size);
-			block.writeRaw(reinterpret_cast<offset_type>(jumpOffset), labelOffset);
+			block.writeRaw<byteOrder>(reinterpret_cast<offset_type>(jumpOffset), labelOffset);
 			return true;
 		}
 
@@ -802,7 +807,7 @@ namespace CppAsm::X86
 			auto jumpOffset = common::calc_Jump_Offset(block.getStartPtr() + labelOffset,
 				newAddr, offset_size);
 			if (common::is_Byte_Offset(jumpOffset)) {
-				block.writeRaw(static_cast<offset_type>(jumpOffset), labelOffset);
+				block.writeRaw<byteOrder>(static_cast<offset_type>(jumpOffset), labelOffset);
 				return true;
 			}
 			return false;

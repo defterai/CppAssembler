@@ -8,6 +8,8 @@ namespace CppAsm::X86_64::detail
 {
 	typedef uint8_t Opcode;
 
+	constexpr static endian byteOrder = endian::little;
+
 	constexpr auto calc_Jump_Offset(Addr addr, Addr jumpAddr, uint32_t instructionSize) {
 		return jumpAddr - (addr + instructionSize);
 	}
@@ -46,12 +48,12 @@ namespace CppAsm::X86_64::detail
 
 		template<class BLOCK>
 		void writeMOD_REG_RM(BLOCK& block) const {
-			block.pushRaw(mValue);
+			block.pushRaw<byteOrder>(mValue);
 		}
 
 		template<class BLOCK>
 		void writeMOD_REG_RM(BLOCK& block, uint8_t reg) const {
-			block.pushRaw(addReg(mValue, reg));
+			block.pushRaw<byteOrder>(addReg(mValue, reg));
 		}
 	};
 
@@ -88,39 +90,39 @@ namespace CppAsm::X86_64::detail
 
 		template<class BLOCK>
 		void writeSIB(BLOCK& block) const {
-			block.pushRaw(mValue);
+			block.pushRaw<byteOrder>(mValue);
 		}
 	};
 
 	template<class BLOCK>
 	static void write_Opcode(BLOCK& block, Opcode opcode) {
-		block.pushRaw(opcode);
+		block.pushRaw<byteOrder>(opcode);
 	}
 
 	template<class BLOCK>
 	static void write_Opcode_16bit_Prefix(BLOCK& block) {
-		block.pushRaw<uint8_t>(0x66);
+		block.pushRaw<byteOrder, uint8_t>(0x66);
 	}
 
 	template<class BLOCK>
 	static void write_Opcode_Extended_Prefix(BLOCK& block) {
-		block.pushRaw<uint8_t>(0x0F);
+		block.pushRaw<byteOrder, uint8_t>(0x0F);
 	}
 
 	template<class BLOCK>
 	static void write_MOD_REG_RM(BLOCK& block, MOD_REG_RM::Mod mod, uint8_t reg, uint8_t rm) {
-		block.pushRaw(MOD_REG_RM::generate(mod, reg, rm));
+		block.pushRaw<byteOrder>(MOD_REG_RM::generate(mod, reg, rm));
 	}
 
 	template<class IMM, class BLOCK>
 	static void write_Immediate(BLOCK& block, const IMM& imm) {
-		block.pushRaw<IMM::type>(imm);
+		block.pushRaw<byteOrder, IMM::type>(imm);
 	}
 
 	template<uint8_t R, class BLOCK>
 	static void write_Opcode_Rep(BLOCK& block, Opcode opcode) {
 		/*constexpr*/ if (R) {
-			block.pushRaw<uint8_t>(R);
+			block.pushRaw<byteOrder, uint8_t>(R);
 		}
 		write_Opcode(block, opcode);
 	}
@@ -128,7 +130,7 @@ namespace CppAsm::X86_64::detail
 	template<uint8_t L, class BLOCK>
 	static void write_Lock_Prefix(BLOCK& block) {
 		/*constexpr*/ if (L) {
-			block.pushRaw<uint8_t>(L);
+			block.pushRaw<byteOrder, uint8_t>(L);
 		}
 	}
 }

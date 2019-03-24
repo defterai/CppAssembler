@@ -30,4 +30,16 @@ namespace CppAsm
 	typedef Imm<uint16_t> U16;
 	typedef Imm<uint32_t> U32;
 	typedef Imm<uint64_t> U64;
+
+	enum class endian {
+#ifdef _WIN32
+		little = 0,
+		big = 1,
+		native = little
+#else
+		little = __ORDER_LITTLE_ENDIAN__,
+		big = __ORDER_BIG_ENDIAN__,
+		native = __BYTE_ORDER__
+#endif
+	};
 }

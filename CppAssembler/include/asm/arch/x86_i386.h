@@ -21,11 +21,6 @@ namespace CppAsm::X86
 			return size == BYTE_PTR || size == WORD_PTR || size == DWORD_PTR;
 		}
 
-		template<class BLOCK>
-		static void write_Operand_Segm_Prefix(BLOCK& block, RegSeg segm) {
-			block.pushRaw<uint8_t>(segm);
-		}
-
 		template<MemSize SIZE, class BLOCK>
 		struct OpcodeWriter;
 
@@ -211,12 +206,12 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, class T, class BLOCK>
 		static void write_Imm_Size_Extend(BLOCK& block, const Imm<T>& imm) {
-			block.pushRaw(static_cast<detail::ImmSizeExtend<SIZE, T>::type>(imm));
+			block.pushRaw<byteOrder>(static_cast<detail::ImmSizeExtend<SIZE, T>::type>(imm));
 		}
 
 		template<MemSize SIZE, class T, class BLOCK>
 		static void write_Imm_Size_Optimize(BLOCK& block, const Imm<T>& imm) {
-			block.pushRaw(static_cast<detail::ImmSizeOptimize<SIZE, T>::type>(imm));
+			block.pushRaw<byteOrder>(static_cast<detail::ImmSizeOptimize<SIZE, T>::type>(imm));
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
@@ -374,23 +369,23 @@ namespace CppAsm::X86
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static std::pair<ReplaceableMem32<MODE>, ReplaceableValue<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem, const U8& imm) {
+		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem, const U8& imm) {
 			mem.writeSegmPrefix(block);
 			write_Opcode<SIZE>(block, opcode.getOpcode());
 			auto replaceMem = mem.write(block, opcode.getMode());
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
-			return std::make_pair(replaceMem, ReplaceableValue<U8::type>(offset));
+			return std::make_pair(replaceMem, ReplaceableImmediate<U8::type>(offset));
 		}
 
 		template<class REG, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg, const U8& imm) {
+		static std::pair<ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg, const U8& imm) {
 			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode());
 			Offset offset = block.getOffset();
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
 			common::write_Immediate(block, imm);
 			return std::make_pair(ReplaceableReg<REG>(offset, common::MOD_REG_RM::RM_BIT_OFFSET),
-				ReplaceableValue<U8::type>(offset + 1));
+				ReplaceableImmediate<U8::type>(offset + 1));
 		}
 
 		template<MemSize SIZE, Reg8 COUNT_REG = CL, AddressMode MODE, class REG, class BLOCK>
@@ -417,7 +412,7 @@ namespace CppAsm::X86
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class REG, class BLOCK>
-		static std::tuple<ReplaceableMem32<MODE>, ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_prshift_operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem, REG reg, const U8& imm) {
+		static std::tuple<ReplaceableMem32<MODE>, ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_prshift_operands(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& mem, REG reg, const U8& imm) {
 			static_assert(IsRegType<REG>::value, "i386: Param must be register");
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "i386: Invalid precision shift size prefix");
 			mem.writeSegmPrefix(block);
@@ -425,11 +420,11 @@ namespace CppAsm::X86
 			auto replaceMem = mem.write(block, reg);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
-			return std::make_tuple(replaceMem, replaceMem.getOtherReg<REG>(), ReplaceableValue<U8::type>(offset));
+			return std::make_tuple(replaceMem, replaceMem.getOtherReg<REG>(), ReplaceableImmediate<U8::type>(offset));
 		}
 
 		template<class REG, class BLOCK>
-		static std::tuple<ReplaceableReg<REG>, ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_prshift_operands(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2, const U8& imm) {
+		static std::tuple<ReplaceableReg<REG>, ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_prshift_operands(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2, const U8& imm) {
 			static_assert(IsRegType<REG>::value, "i386: Param must be register");
 			static_assert(TypeMemSize<REG>::value == WORD_PTR || TypeMemSize<REG>::value == DWORD_PTR, "Invalid precision shift size prefix");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
@@ -438,7 +433,7 @@ namespace CppAsm::X86
 			common::write_Immediate(block, imm);
 			return std::make_tuple(ReplaceableReg<REG>(offset, common::MOD_REG_RM::RM_BIT_OFFSET),
 				ReplaceableReg<REG>(offset, common::MOD_REG_RM::REG_BIT_OFFSET),
-				ReplaceableValue<U8::type>(offset + 1));
+				ReplaceableImmediate<U8::type>(offset + 1));
 		}
 
 		template<LockPrefix L = NO_LOCK, class BLOCK>
@@ -750,7 +745,7 @@ namespace CppAsm::X86
 		}
 
 		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableValue<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
+		static std::pair<ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getSecond().getOpcode());
@@ -758,17 +753,17 @@ namespace CppAsm::X86
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getSecond().getMode(), reg);
 			common::write_Immediate(block, imm);
 			return std::make_pair(ReplaceableReg<REG>(offset, common::MOD_REG_RM::RM_BIT_OFFSET),
-				ReplaceableValue<U8::type>(offset + 1));
+				ReplaceableImmediate<U8::type>(offset + 1));
 		}
 
 		template<LockPrefix L = NO_LOCK, MemSize SIZE, AddressMode MODE, class BLOCK>
-		static std::pair<ReplaceableMem32<MODE>, ReplaceableValue<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
+		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<SIZE, L>(block, opcode.getSecond().getOpcode());
 			auto replaceMem = mem.write(block, opcode.getSecond().getMode());
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
-			return std::make_pair(replaceMem, ReplaceableValue<U8::type>(offset));
+			return std::make_pair(replaceMem, ReplaceableImmediate<U8::type>(offset));
 		}
 
 		template<class BLOCK>
@@ -857,7 +852,7 @@ namespace CppAsm::X86
 		static void template_Call(BLOCK& block, const Addr& jumpAddress) {
 			static_assert(SIZE == DWORD_PTR, "Call: Invalid size modifier");
 			common::write_Opcode(block, 0xE8);
-			block.pushRaw(common::calc_Jump_Offset(block.getCurrentPtr(), jumpAddress, sizeof(Addr)));
+			block.pushRaw<byteOrder>(common::calc_Jump_Offset(block.getCurrentPtr(), jumpAddress, sizeof(Addr)));
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
@@ -1111,34 +1106,34 @@ namespace CppAsm::X86
 		 - PUSH imm8
 		*/
 		template<class BLOCK>
-		static ReplaceableValue<S8> Push(BLOCK& block, S8 number) {
+		static ReplaceableImmediate<S8> Push(BLOCK& block, S8 number) {
 			common::write_Opcode(block, 0x6A);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, number);
-			return ReplaceableValue<S8>(offset);
+			return ReplaceableImmediate<S8>(offset);
 		}
 
 		/* Push value to the stack
 		 - PUSH imm16
 		*/
 		template<class BLOCK>
-		static ReplaceableValue<S16> Push(BLOCK& block, S16 number) {
+		static ReplaceableImmediate<S16> Push(BLOCK& block, S16 number) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode(block, 0x68);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, number);
-			return ReplaceableValue<S16>(offset);
+			return ReplaceableImmediate<S16>(offset);
 		}
 
 		/* Push value to the stack
 		 - PUSH imm32
 		*/
 		template<class BLOCK>
-		static ReplaceableValue<S32> Push(BLOCK& block, S32 number) {
+		static ReplaceableImmediate<S32> Push(BLOCK& block, S32 number) {
 			common::write_Opcode(block, 0x68);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, number);
-			return ReplaceableValue<S32>(offset);
+			return ReplaceableImmediate<S32>(offset);
 		}
 
 		/* Push value to the stack
@@ -1312,12 +1307,12 @@ namespace CppAsm::X86
 		 - IN reg,imm
 		*/
 		template<MemSize SIZE, class BLOCK>
-		static ReplaceableValue<U8> In(BLOCK& block, const U8& imm) {
+		static ReplaceableImmediate<U8> In(BLOCK& block, const U8& imm) {
 			static_assert(isGeneralMemSize(SIZE), "In: Invalid size modifier");
 			write_Opcode<SIZE>(block, 0xE4);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
-			return ReplaceableValue<U8>(offset);
+			return ReplaceableImmediate<U8>(offset);
 		}
 
 		/* Read data from port
@@ -1333,12 +1328,12 @@ namespace CppAsm::X86
 		 - OUT imm, reg
 		*/
 		template<MemSize SIZE, class BLOCK>
-		static ReplaceableValue<U8> Out(BLOCK& block, const U8& imm) {
+		static ReplaceableImmediate<U8> Out(BLOCK& block, const U8& imm) {
 			static_assert(isGeneralMemSize(SIZE), "Out: Invalid size modifier");
 			write_Opcode<SIZE>(block, 0xE6);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
-			return ReplaceableValue<U8>(offset);
+			return ReplaceableImmediate<U8>(offset);
 		}
 
 		/* Write data to port
@@ -1820,22 +1815,22 @@ namespace CppAsm::X86
 		 - AAD {imm} 
 		 */
 		template<class BLOCK>
-		static ReplaceableValue<S8::type> Aad(BLOCK& block, S8 base = S8(10)) {
+		static ReplaceableImmediate<S8::type> Aad(BLOCK& block, S8 base = S8(10)) {
 			common::write_Opcode(block, 0xD5);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, base);
-			return ReplaceableValue<S8::type>(offset);
+			return ReplaceableImmediate<S8::type>(offset);
 		}
 
 		/* ASCII correction after multiply
 		 - AAM {imm}
 		 */
 		template<class BLOCK>
-		static ReplaceableValue<S8::type> Aam(BLOCK& block, S8 base = S8(10)) {
+		static ReplaceableImmediate<S8::type> Aam(BLOCK& block, S8 base = S8(10)) {
 			common::write_Opcode(block, 0xD4);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, base);
-			return ReplaceableValue<S8::type>(offset);
+			return ReplaceableImmediate<S8::type>(offset);
 		}
 
 		/* ASCII correction after subtraction */
@@ -2917,11 +2912,11 @@ namespace CppAsm::X86
 		 - INT imm
 		*/
 		template<class BLOCK>
-		static ReplaceableValue<U8::type> Int(BLOCK& block, U8 number) {
+		static ReplaceableImmediate<U8::type> Int(BLOCK& block, U8 number) {
 			common::write_Opcode(block, 0xCD);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, number);
-			return ReplaceableValue<U8::type>(offset);
+			return ReplaceableImmediate<U8::type>(offset);
 		}
 
 		/* Launch interrupt number 3 */
@@ -2949,8 +2944,8 @@ namespace CppAsm::X86
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, size);
 			common::write_Immediate(block, level);
-			return std::make_pair(ReplaceableValue<U16::type>(offset),
-				ReplaceableValue<U8::type>(offset + sizeof(U16::type)));
+			return std::make_pair(ReplaceableImmediate<U16::type>(offset),
+				ReplaceableImmediate<U8::type>(offset + sizeof(U16::type)));
 		}
 
 		/* Create leave procedure stack frame */
@@ -2967,11 +2962,11 @@ namespace CppAsm::X86
 
 		/* Return from near procedure */
 		template<class BLOCK>
-		static ReplaceableValue<U16::type> Ret(BLOCK& block, U16 number) {
+		static ReplaceableImmediate<U16::type> Ret(BLOCK& block, U16 number) {
 			common::write_Opcode(block, 0xC2);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, number);
-			return ReplaceableValue<U16::type>(offset);
+			return ReplaceableImmediate<U16::type>(offset);
 		}
 
 		/* Return from near procedure */
@@ -2994,11 +2989,11 @@ namespace CppAsm::X86
 
 		/* Return from far procedure */
 		template<class BLOCK>
-		static ReplaceableValue<U16::type> Retf(BLOCK& block, U16 number) {
+		static ReplaceableImmediate<U16::type> Retf(BLOCK& block, U16 number) {
 			common::write_Opcode(block, 0xCA);
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, number);
-			return ReplaceableValue<U16::type>(offset);
+			return ReplaceableImmediate<U16::type>(offset);
 		}
 
 		/* Jump if ECX == 0 */
@@ -3010,7 +3005,7 @@ namespace CppAsm::X86
 		/* Jump if CX == 0 */
 		template<class BLOCK>
 		static FwdLabel<SHORT> Jcxz(BLOCK& block) {
-			block.pushRaw<uint8_t>(0x67);
+			block.pushRaw<byteOrder, uint8_t>(0x67);
 			return Jecxz(block);
 		}
 
