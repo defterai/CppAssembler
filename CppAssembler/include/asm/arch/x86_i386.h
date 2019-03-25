@@ -51,6 +51,10 @@ namespace CppAsm::X86
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode);
 			}
+
+			constexpr static void writeWithReg(BLOCK& block, common::Opcode opcode, uint8_t reg) {
+				common::write_Opcode(block, opcode | reg);
+			}
 		};
 
 		template<class BLOCK>
@@ -84,6 +88,11 @@ namespace CppAsm::X86
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
+
+			constexpr static void writeWithReg(BLOCK& block, common::Opcode opcode, uint8_t reg) {
+				common::write_Opcode_16bit_Prefix(block);
+				common::write_Opcode(block, opcode | 0x08 | reg);
+			}
 		};
 
 		template<class BLOCK>
@@ -113,6 +122,10 @@ namespace CppAsm::X86
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | 0b1);
 			}
+
+			constexpr static void writeWithReg(BLOCK& block, common::Opcode opcode, uint8_t reg) {
+				common::write_Opcode(block, opcode | 0x08 | reg);
+			}
 		};
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
@@ -138,6 +151,11 @@ namespace CppAsm::X86
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		constexpr static void write_Opcode_Extended(BLOCK& block, common::Opcode opcode) {
 			OpcodeWriter<SIZE, BLOCK>::writeExtended<L>(block, opcode);
+		}
+
+		template<MemSize SIZE, class BLOCK>
+		constexpr static void write_Opcode_With_Reg(BLOCK& block, common::Opcode opcode, uint8_t reg) {
+			OpcodeWriter<SIZE, BLOCK>::writeWithReg(block, opcode, reg);
 		}
 
 		template<MemSize SIZE, MemSize OPT_SIZE, class BLOCK>
@@ -333,6 +351,17 @@ namespace CppAsm::X86
 			Offset offset = block.getOffset();
 			write_Imm_Size_Extend<TypeMemSize<REG>::value>(block, imm);
 			return std::make_pair(ReplaceableReg<REG>(regOffset, common::MOD_REG_RM::RM_BIT_OFFSET),
+				ReplaceableExtendedImm<TypeMemSize<REG>::value, T>(offset));
+		}
+
+		template<class REG, class T, class BLOCK>
+		static std::pair<ReplaceableReg<REG>, ReplaceableExtendedImm<TypeMemSize<REG>::value, T>> template_reg_imm_short_operands(BLOCK& block, common::Opcode opcode, const REG& reg, const Imm<T>& imm) {
+			static_assert(IsRegType<REG>::value, "i386: First param must be register");
+			Offset regOffset = block.getOffset();
+			write_Opcode_With_Reg<TypeMemSize<REG>::value>(block, opcode, reg);
+			Offset offset = block.getOffset();
+			write_Imm_Size_Extend<TypeMemSize<REG>::value>(block, imm);
+			return std::make_pair(ReplaceableReg<REG>(regOffset, 0),
 				ReplaceableExtendedImm<TypeMemSize<REG>::value, T>(offset));
 		}
 
@@ -994,7 +1023,7 @@ namespace CppAsm::X86
 		template<class REG, class T, class BLOCK>
 		static auto Mov(BLOCK& block, const REG& reg, const Imm<T>& imm) {
 			static_assert(IsRegType<REG>::value, "Mov: First parameter is not register");
-			return template_reg_imm_operands(block, detail::opcode_MOV, reg, imm);
+			return template_reg_imm_short_operands(block, 0xB0, reg, imm);
 		}
 		
 		/* Moving data
@@ -1953,7 +1982,7 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Test(BLOCK& block, Reg32 dst, Reg32 src) {
 			common::write_Opcode(block, detail::opcode_TEST.getMain() | 1);
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 		}
 
 		/* Logical Compare
@@ -1963,7 +1992,7 @@ namespace CppAsm::X86
 		static void Test(BLOCK& block, Reg16 dst, Reg16 src) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode(block, detail::opcode_TEST.getMain() | 1);
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 		}
 
 		/* Logical Compare
@@ -1972,7 +2001,7 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Test(BLOCK& block, Reg8 dst, Reg8 src) {
 			common::write_Opcode(block, detail::opcode_TEST.getMain());
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 		}
 
 		/* Logical Compare
