@@ -85,6 +85,47 @@ namespace UnitTest
 			AssertBlockEqual(block, LoadExpectedData("lea.txt"));
 		}
 
+		TEST_METHOD(TestAdd) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// ADD AL, imm8
+			testArch::Add<X86::BYTE_PTR>(block, S8(50));
+			// ADD AX, imm16
+			testArch::Add<X86::WORD_PTR>(block, S16(5000));
+			// ADD EAX, imm32
+			testArch::Add<X86::DWORD_PTR>(block, S32(5000000));
+			// ADD r/m8, imm8
+			testArch::Add(block, X86::DL, S8(50));
+			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// ADD r/m16, imm16
+			testArch::Add(block, X86::DX, S16(5000));
+			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// ADD r/m32, imm32
+			testArch::Add(block, X86::EDX, S32(5000000));
+			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			// ADD r/m16, imm8
+			testArch::Add(block, X86::DX, S8(50));
+			testArch::Add<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// ADD r/m32, imm8
+			testArch::Add(block, X86::EDX, S8(50));
+			testArch::Add<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// ADD r/m8, r8
+			testArch::Add(block, X86::DL, X86::CL);
+			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+			// ADD r/m16, r16
+			testArch::Add(block, X86::DX, X86::CX);
+			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+			// ADD r/m32, r32
+			testArch::Add(block, X86::EDX, X86::ECX);
+			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+			// ADD r8, r/m8
+			testArch::Add(block, X86::CL, X86::Mem32<X86::BASE>(X86::EDX));
+			// ADD r16, r/m16
+			testArch::Add(block, X86::CX, X86::Mem32<X86::BASE>(X86::EDX));
+			// ADD r32, r/m32
+			testArch::Add(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
+			AssertBlockEqual(block, LoadExpectedData("add.txt"));
+		}
+
 		TEST_METHOD(TestAdc) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// ADC AL, imm8
@@ -124,6 +165,53 @@ namespace UnitTest
 			// ADC r32, r/m32
 			testArch::Adc(block, X86::ECX, X86::Mem32<X86::BASE>(X86::EDX));
 			AssertBlockEqual(block, LoadExpectedData("adc.txt"));
+		}
+
+		TEST_METHOD(TestRet) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// RET (near)
+			testArch::Retn(block);
+			// RET (far)
+			testArch::Retf(block);
+			// RET imm16 (near)
+			testArch::Retn(block, U16(4));
+			// RET imm16 (far)
+			testArch::Retf(block, U16(4));
+			AssertBlockEqual(block, LoadExpectedData("ret.txt"));
+		}
+
+		TEST_METHOD(TestIn) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// IN AL, imm8
+			testArch::In<X86::BYTE_PTR>(block, U8(50));
+			// IN AX, imm8
+			testArch::In<X86::WORD_PTR>(block, U8(50));
+			// IN EAX, imm8
+			testArch::In<X86::DWORD_PTR>(block, U8(50));
+			// IN AL, DX
+			testArch::In<X86::BYTE_PTR, X86::DX>(block);
+			// IN AX, DX
+			testArch::In<X86::WORD_PTR, X86::DX>(block);
+			// IN EAX, DX
+			testArch::In<X86::DWORD_PTR, X86::DX>(block);
+			AssertBlockEqual(block, LoadExpectedData("in.txt"));
+		}
+
+		TEST_METHOD(TestOut) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// OUT imm8, AL
+			testArch::Out<X86::BYTE_PTR>(block, U8(50));
+			// OUT imm8, AX
+			testArch::Out<X86::WORD_PTR>(block, U8(50));
+			// OUT imm8, EAX
+			testArch::Out<X86::DWORD_PTR>(block, U8(50));
+			// OUT DX, AL
+			testArch::Out<X86::BYTE_PTR, X86::DX>(block);
+			// OUT DX, AX
+			testArch::Out<X86::WORD_PTR, X86::DX>(block);
+			// OUT DX, EAX 
+			testArch::Out<X86::DWORD_PTR, X86::DX>(block);
+			AssertBlockEqual(block, LoadExpectedData("out.txt"));
 		}
 
 		TEST_METHOD(TestBt) {
