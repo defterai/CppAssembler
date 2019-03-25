@@ -3308,12 +3308,6 @@ namespace CppAsm::X86
 #pragma endregion
 
 #pragma region Other operations
-		/* TODO: Lock processor memory bus */
-		template<class BLOCK>
-		static void Lock(BLOCK& block) {
-			common::write_Opcode(block, 0xF0);
-		}
-
 		template<AddressMode MODE, class BLOCK>
 		static void Bound(BLOCK& block, Reg16 reg, const Mem32<MODE>& mem) {
 			mem.writeSegmPrefix(block);
