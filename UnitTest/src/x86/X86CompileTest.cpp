@@ -562,7 +562,7 @@ namespace UnitTest
 			testArch::Add(block, X86::EDX, S32(5000000));
 			testArch::Add(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
 			// ADD r/m16, imm8
-			testArch::Add(block, X86::EDX, S8(50));
+			testArch::Add(block, X86::DX, S8(50));
 			testArch::Add<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
 			// ADD r/m32, imm8
 			testArch::Add(block, X86::EDX, S8(50));
@@ -602,7 +602,7 @@ namespace UnitTest
 			testArch::Adc(block, X86::EDX, S32(5000000));
 			testArch::Adc(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
 			// ADC r/m16, imm8
-			testArch::Adc(block, X86::EDX, S8(50));
+			testArch::Adc(block, X86::DX, S8(50));
 			testArch::Adc<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
 			// ADC r/m32, imm8
 			testArch::Adc(block, X86::EDX, S8(50));
@@ -642,7 +642,7 @@ namespace UnitTest
 			testArch::Sub(block, X86::EDX, S32(5000000));
 			testArch::Sub(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
 			// SUB r/m16, imm8
-			testArch::Sub(block, X86::EDX, S8(50));
+			testArch::Sub(block, X86::DX, S8(50));
 			testArch::Sub<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
 			// SUB r/m32, imm8
 			testArch::Sub(block, X86::EDX, S8(50));
@@ -682,7 +682,7 @@ namespace UnitTest
 			testArch::Sbb(block, X86::EDX, S32(5000000));
 			testArch::Sbb(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
 			// SBB r/m16, imm8
-			testArch::Sbb(block, X86::EDX, S8(50));
+			testArch::Sbb(block, X86::DX, S8(50));
 			testArch::Sbb<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
 			// SBB r/m32, imm8
 			testArch::Sbb(block, X86::EDX, S8(50));
