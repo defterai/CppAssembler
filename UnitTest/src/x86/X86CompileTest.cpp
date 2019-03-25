@@ -161,8 +161,9 @@ namespace UnitTest
 			testArch4::CmpXchg<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
 			testArch4::CmpXchg<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
 			testArch4::CmpXchg<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
-			// CMPXCH8B
-			// CMPXCHG16B
+			// CMPXCHG8B
+			testArch5::CmpXchg8b<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// CMPXCHG16B (64 bit only)
 			// DEC
 			testArch::Dec<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
 			testArch::Dec<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
