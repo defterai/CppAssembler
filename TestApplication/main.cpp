@@ -17,6 +17,7 @@ using namespace CppAsm;
 
 #ifdef WIN32
 	typedef Arch::CustomArch<X86::i686, X86::SEP, X86::CLFSH> GArch;
+	typedef GArch testArch;
 #else // WIN32
 	typedef Arch::CustomArch<X64::i386> GArch;
 #endif 
@@ -27,7 +28,26 @@ int main()
 
 	{
 #ifdef WIN32
-		
+		testArch::Mov(block, X86::DL, S8(50));
+
+		//testArch::Add<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+		//testArch::Add<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+		//testArch::Add<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+		testArch::Inc<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX));
+		//testArch::Add<X86::WORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+		testArch::Nop(block);
+		testArch::Nop(block);
+		testArch::Nop(block);
+		testArch::Nop(block);
+		testArch::Nop(block);
+		testArch::Nop(block);
+		testArch::Nop(block);
+		testArch::Nop(block);
+		//testArch::Add<X86::DWORD_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+		//testArch::Add<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CL);
+		//testArch::Add<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::CX);
+		//testArch::Add<X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), X86::ECX);
+
 		Os::MeasureBlock measureBlock = block.subBlock<Os::MeasureBlock>(1024);
 		GArch::Nop(measureBlock);
 		GArch::Lds(measureBlock, X86::EDX, X86::Mem32<X86::OFFSET>(5000));
