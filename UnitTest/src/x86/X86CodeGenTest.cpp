@@ -85,6 +85,75 @@ namespace UnitTest
 			AssertBlockEqual(block, LoadExpectedData("lea.txt"));
 		}
 
+		TEST_METHOD(TestMov) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// MOV r/m8, r8
+			testArch::Mov(block, X86::AL, X86::DL);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DL);
+			// MOV r/m16, r16
+			testArch::Mov(block, X86::AX, X86::DX);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DX);
+			// MOV r/m32, r32
+			testArch::Mov(block, X86::EAX, X86::EDX);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::EDX);
+			// MOV r8, r/m8
+			testArch::Mov(block, X86::DL, X86::AL);
+			testArch::Mov(block, X86::DL, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOV r16, r/m16
+			testArch::Mov(block, X86::DX, X86::AX);
+			testArch::Mov(block, X86::DX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOV r32, r/m32
+			testArch::Mov(block, X86::EDX, X86::EAX);
+			testArch::Mov(block, X86::EDX, X86::Mem32<X86::BASE>(X86::EDX));
+			// MOV r/m16, Sreg
+			testArch::Mov(block, X86::AX, X86::DS);
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), X86::DS);
+			// MOV Sreg, r/m16
+			testArch::Mov(block, X86::DS, X86::AX);
+			testArch::Mov(block, X86::DS, X86::Mem32<X86::BASE>(X86::EDX));
+			/// TODO: short variants
+			// MOV r/m88, imm8
+			testArch::Mov(block, X86::DL, S8(50));
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			// MOV r/m16, imm16
+			testArch::Mov(block, X86::DX, S8(50));
+			testArch::Mov(block, X86::DX, S16(5000));
+			testArch::Mov<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			// MOV r/m32, imm32
+			testArch::Mov(block, X86::EDX, S8(50));
+			testArch::Mov(block, X86::EDX, S16(5000));
+			testArch::Mov(block, X86::EDX, S32(50000000));
+			testArch::Mov<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
+			testArch::Mov<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
+			testArch::Mov(block, X86::Mem32<X86::BASE>(X86::EDX), S32(50000000));
+			// MOV CR0, r32
+			testArch::Mov(block, X86::CR0, X86::EDX);
+			// MOV CR2, r32
+			testArch::Mov(block, X86::CR2, X86::EDX);
+			// MOV CR3, r32
+			testArch::Mov(block, X86::CR3, X86::EDX);
+			// MOV CR4, r32
+			testArch::Mov(block, X86::CR4, X86::EDX);
+			// MOV r32, CR0
+			testArch::Mov(block, X86::EDX, X86::CR0);
+			// MOV r32, CR2
+			testArch::Mov(block, X86::EDX, X86::CR2);
+			// MOV r32, CR3
+			testArch::Mov(block, X86::EDX, X86::CR3);
+			// MOV r32, CR4
+			testArch::Mov(block, X86::EDX, X86::CR4);
+			// MOV r32, DR0-DR7
+			testArch::Mov(block, X86::EDX, X86::DR0);
+			testArch::Mov(block, X86::EDX, X86::DR5);
+			testArch::Mov(block, X86::EDX, X86::DR7);
+			// MOV DR0-DR7, r32 
+			testArch::Mov(block, X86::DR0, X86::EDX);
+			testArch::Mov(block, X86::DR5, X86::EDX);
+			testArch::Mov(block, X86::DR7, X86::EDX);
+			AssertBlockEqual(block, LoadExpectedData("mov.txt"));
+		}
+
 		TEST_METHOD(TestAdd) {
 			testCodeBlock block(CODE_BLOCK_SIZE);
 			// ADD AL, imm8
@@ -142,7 +211,9 @@ namespace UnitTest
 			testArch::Adc(block, X86::Mem32<X86::BASE>(X86::EDX), S16(5000));
 			// ADC r/m32, imm32
 			testArch::Adc(block, X86::EDX, S32(5000000));
+			testArch::Adc(block, X86::EDX, S32(5000));
 			testArch::Adc(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000000));
+			testArch::Adc(block, X86::Mem32<X86::BASE>(X86::EDX), S32(5000));
 			// ADC r/m16, imm8
 			testArch::Adc(block, X86::DX, S8(50));
 			testArch::Adc<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -174,9 +245,17 @@ namespace UnitTest
 			// RET (far)
 			testArch::Retf(block);
 			// RET imm16 (near)
+			testArch::Retn(block, U16(0));
+			testArch::Retn(block, U16(1));
 			testArch::Retn(block, U16(4));
+			testArch::Retn(block, U16(10000));
+			testArch::Retn(block, U16(65535));
 			// RET imm16 (far)
+			testArch::Retf(block, U16(0));
+			testArch::Retf(block, U16(1));
 			testArch::Retf(block, U16(4));
+			testArch::Retf(block, U16(10000));
+			testArch::Retf(block, U16(65535));
 			AssertBlockEqual(block, LoadExpectedData("ret.txt"));
 		}
 
