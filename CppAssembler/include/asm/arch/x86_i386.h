@@ -438,9 +438,9 @@ namespace CppAsm::X86
 
 		template<LockPrefix L = NO_LOCK, class BLOCK>
 		static std::pair<ReplaceableReg<Reg8>, ReplaceableReg<Reg8>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg8& dst, const Reg8& src) {
-			write_Opcode<BYTE_PTR>(block, opcode, MODE_RR);
+			write_Opcode<BYTE_PTR>(block, opcode);
 			Offset offset = block.getOffset();
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 			return std::make_pair(ReplaceableReg<Reg8>(offset, common::MOD_REG_RM::REG_BIT_OFFSET),
 				ReplaceableReg<Reg8>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}
@@ -463,9 +463,9 @@ namespace CppAsm::X86
 
 		template<LockPrefix L = NO_LOCK, class BLOCK>
 		static std::pair<ReplaceableReg<Reg16>, ReplaceableReg<Reg16>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg16& dst, const Reg16& src) {
-			write_Opcode<WORD_PTR>(block, opcode, MODE_RR);
+			write_Opcode<WORD_PTR>(block, opcode);
 			Offset offset = block.getOffset();
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 			return std::make_pair(ReplaceableReg<Reg16>(offset, common::MOD_REG_RM::REG_BIT_OFFSET),
 				ReplaceableReg<Reg16>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}
@@ -488,9 +488,9 @@ namespace CppAsm::X86
 
 		template<LockPrefix L = NO_LOCK, class BLOCK>
 		static std::pair<ReplaceableReg<Reg32>, ReplaceableReg<Reg32>> template_2operands(BLOCK& block, common::Opcode opcode, const Reg32& dst, const Reg32& src) {
-			write_Opcode<DWORD_PTR>(block, opcode, MODE_RR);
+			write_Opcode<DWORD_PTR>(block, opcode);
 			Offset offset = block.getOffset();
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 			return std::make_pair(ReplaceableReg<Reg32>(offset, common::MOD_REG_RM::REG_BIT_OFFSET),
 				ReplaceableReg<Reg32>(offset, common::MOD_REG_RM::RM_BIT_OFFSET));
 		}

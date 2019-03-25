@@ -35,5 +35,8 @@
     <ClCompile Include="src\x86\X86CompileTest.cpp">
       <Filter>Source Files\x86</Filter>
     </ClCompile>
+    <ClCompile Include="src\x86\X86CodeGenTest.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
