@@ -184,6 +184,7 @@
     <ClInclude Include="include\asm\arch\x86_CLFSH.h" />
     <ClInclude Include="include\asm\arch\x86_CMOV.h" />
     <ClInclude Include="include\asm\arch\x86_CX8.h" />
+    <ClInclude Include="include\asm\arch\x86_i386_optimized.h" />
     <ClInclude Include="include\asm\arch\x86_i387.h" />
     <ClInclude Include="include\asm\arch\x86_i386.h" />
     <ClInclude Include="include\asm\arch\x86_i486.h" />

@@ -99,6 +99,9 @@
     <ClInclude Include="include\asm\os\byte_order.h">
       <Filter>Header Files\asm\os</Filter>
     </ClInclude>
+    <ClInclude Include="include\asm\arch\x86_i386_optimized.h">
+      <Filter>Header Files\asm\arch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\os.cpp">
