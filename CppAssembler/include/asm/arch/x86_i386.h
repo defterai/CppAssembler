@@ -540,49 +540,31 @@ namespace CppAsm::X86
 			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg32>());
 		}
 
-		static uint8_t getSegmentRegIndex(RegSeg sreg) {
-			switch (sreg) {
-			case ES:
-				return 0;
-			case CS:
-				return 1;
-			case SS:
-				return 2;
-			case DS:
-				return 3;
-			case FS:
-				return 4;
-			case GS:
-				return 5;
-			}
-			return 0;
-		}
-
 		template<class BLOCK>
 		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const Reg16& dst, const RegSeg& src) {
 			common::write_Opcode_16bit_Prefix(block);
 			common::write_Opcode(block, opcode);
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, getSegmentRegIndex(src), dst);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, src, dst);
 		}
 
 		template<class BLOCK>
 		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const RegSeg& dst, const Reg16& src) {
 			write_Opcode_Only_RM_Mode(block, opcode, MODE_RR);
-			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, getSegmentRegIndex(dst), src);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, dst, src);
 		}
 
 		template<AddressMode MODE, class BLOCK>
 		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const Mem32<MODE>& dst, const RegSeg& src) {
 			dst.writeSegmPrefix(block);
 			write_Opcode_Only_RM_Mode(block, opcode, MODE_MR);
-			dst.write(block, getSegmentRegIndex(src));
+			dst.write(block, src);
 		}
 
 		template<AddressMode MODE, class BLOCK>
 		static void template_2operands_segm(BLOCK& block, common::Opcode opcode, const RegSeg& dst, const Mem32<MODE>& src) {
 			src.writeSegmPrefix(block);
 			write_Opcode_Only_RM_Mode(block, opcode, MODE_RM);
-			src.write(block, getSegmentRegIndex(dst));
+			src.write(block, dst);
 		}
 
 		template<LockPrefix L = NO_LOCK, class DST, class SRC, class BLOCK>

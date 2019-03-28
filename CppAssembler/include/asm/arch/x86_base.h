@@ -48,12 +48,12 @@ namespace CppAsm::X86
 	};
 
 	enum RegSeg : uint8_t {
-		ES = 0x26,
-		CS = 0x2E,
-		SS = 0x36,
-		DS = 0x3E,
-		FS = 0x64,
-		GS = 0x65
+		ES = 0b000,
+		CS = 0b001,
+		SS = 0b010,
+		DS = 0b011,
+		FS = 0b100,
+		GS = 0b101
 	};
 
 	enum RegDebug : uint8_t {
@@ -203,6 +203,15 @@ namespace CppAsm::X86
 			constexpr static bool isCustomSegReg(Reg32 baseReg, RegSeg segReg) {
 				return segRegFromBase(baseReg) != segReg;
 			}
+
+			constexpr static uint8_t segmRegPrefix[] = {
+				0x26, // ES
+				0x2E, // CS
+				0x36, // SS
+				0x3E, // DS
+				0x64, // FS
+				0x65, // GS
+			};
 		public:
 			constexpr Mem32_Seg() : mSegReg(DS), mCustomSegReg(false) {}
 			explicit constexpr Mem32_Seg(RegSeg segReg) : mSegReg(segReg), mCustomSegReg(isCustomSegReg(segReg)) {}
@@ -216,7 +225,7 @@ namespace CppAsm::X86
 			}
 			template<class BLOCK>
 			constexpr void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw<byteOrder>(mSegReg);
+				block.writeRaw<byteOrder>(segmRegPrefix[mSegReg]);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
