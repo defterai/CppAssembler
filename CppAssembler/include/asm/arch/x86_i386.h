@@ -1161,21 +1161,11 @@ namespace CppAsm::X86
 		*/
 		template<class BLOCK>
 		static void Push(BLOCK& block, RegSeg sreg) {
-			if (sreg == ES) {
-				common::write_Opcode(block, 0x06);
-			} else if (sreg == CS) {
-				common::write_Opcode(block, 0x0E);
-			} else if (sreg == SS) {
-				common::write_Opcode(block, 0x16);
-			} else if (sreg == DS) {
-				common::write_Opcode(block, 0x1E);
-			} else if (sreg == FS) {
+			constexpr static common::Opcode opcodes[] = { 0x06, 0x0E, 0x16, 0x1E, 0xA0, 0xA8 };
+			if (sreg == FS || sreg == GS) {
 				common::write_Opcode_Extended_Prefix(block);
-				common::write_Opcode(block, 0xA0);
-			} else if (sreg == GS) {
-				common::write_Opcode_Extended_Prefix(block);
-				common::write_Opcode(block, 0xA8);
 			}
+			common::write_Opcode(block, opcodes[sreg]);
 		}
 
 		/* Store all 16 bit general registers to stack */
