@@ -1216,19 +1216,12 @@ namespace CppAsm::X86
 		*/
 		template<class BLOCK>
 		static void Pop(BLOCK& block, RegSeg sreg) {
-			if (sreg == ES) {
-				common::write_Opcode(block, 0x07);
-			} else if (sreg == SS) {
-				common::write_Opcode(block, 0x17);
-			} else if (sreg == DS) {
-				common::write_Opcode(block, 0x1F);
-			} else if (sreg == FS) {
+			// replace invalid pop cs by nop
+			constexpr static common::Opcode opcodes[] = { 0x07, 0x90, 0x17, 0x1F, 0xA1, 0xA9 };
+			if (sreg == FS || sreg == GS) {
 				common::write_Opcode_Extended_Prefix(block);
-				common::write_Opcode(block, 0xA1);
-			} else if (sreg == GS) {
-				common::write_Opcode_Extended_Prefix(block);
-				common::write_Opcode(block, 0xA9);
 			}
+			common::write_Opcode(block, opcodes[sreg]);
 		}
 
 		/* Load all 16 bit general registers from stack */
