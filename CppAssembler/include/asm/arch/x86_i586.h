@@ -13,7 +13,7 @@ namespace CppAsm::X86
 	public:
 		/* Resume from System Management Mode  */
 		template<class BLOCK>
-		static void Rsm(BLOCK& block) {
+		static constexpr void Rsm(BLOCK& block) {
 			common::write_Opcode_Extended_Prefix(block);
 			common::write_Opcode(block, 0xAA);
 		}

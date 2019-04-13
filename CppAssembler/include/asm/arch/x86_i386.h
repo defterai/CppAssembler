@@ -988,7 +988,24 @@ namespace CppAsm::X86
 		}
 
 		template<class REG, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_scan(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2) {
+		static constexpr void template_bit_scan(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg1, reg2);
+		}
+
+		template<class REG, AddressMode MODE, class BLOCK>
+		static constexpr void template_bit_scan(BLOCK& block, common::Opcode opcode, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
+			mem.writeSegmPrefix(block);
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
+			mem.write(block, reg);
+		}
+
+		template<class REG, class BLOCK>
+		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_scan_r(BLOCK& block, common::Opcode opcode, REG reg1, REG reg2) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
@@ -996,7 +1013,7 @@ namespace CppAsm::X86
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableMem32<MODE>> template_bit_scan(BLOCK& block, common::Opcode opcode, REG reg, const Mem32<MODE>& mem) {
+		static std::pair<ReplaceableReg<REG>, ReplaceableMem32<MODE>> template_bit_scan_r(BLOCK& block, common::Opcode opcode, REG reg, const Mem32<MODE>& mem) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			mem.writeSegmPrefix(block);
@@ -1006,7 +1023,41 @@ namespace CppAsm::X86
 		}
 
 		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg1, REG reg2) {
+		static constexpr void template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getMain());
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg2, reg1);
+		}
+
+		template<LockPrefix L = NO_LOCK, AddressMode MODE, class REG, class BLOCK>
+		static constexpr void template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, REG reg) {
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
+			mem.writeSegmPrefix(block);
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value, L>(block, opcode.getMain());
+			mem.write(block, reg);
+		}
+
+		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
+		static constexpr void template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
+			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
+			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
+			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getSecond().getOpcode());
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getSecond().getMode(), reg);
+			common::write_Immediate(block, imm);
+		}
+
+		template<LockPrefix L = NO_LOCK, MemSize SIZE, AddressMode MODE, class BLOCK>
+		static constexpr void template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
+			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
+			write_Opcode_Only_Extended_Prefixs<SIZE, L>(block, opcode.getSecond().getOpcode());
+			mem.write(block, opcode.getSecond().getMode());
+			common::write_Immediate(block, imm);
+		}
+
+		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
+		static std::pair<ReplaceableReg<REG>, ReplaceableReg<REG>> template_bit_operation_r(BLOCK& block, const detail::OpcodeSet& opcode, REG reg1, REG reg2) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getMain());
@@ -1014,7 +1065,7 @@ namespace CppAsm::X86
 		}
 
 		template<LockPrefix L = NO_LOCK, AddressMode MODE, class REG, class BLOCK>
-		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<REG>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, REG reg) {
+		static std::pair<ReplaceableMem32<MODE>, ReplaceableReg<REG>> template_bit_operation_r(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, REG reg) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			mem.writeSegmPrefix(block);
@@ -1024,7 +1075,7 @@ namespace CppAsm::X86
 		}
 
 		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
+		static std::pair<ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_bit_operation_r(BLOCK& block, const detail::OpcodeSet& opcode, REG reg, U8 imm) {
 			static_assert(IsRegType<REG>::value, "i386: Invalid type of operand");
 			static_assert(TypeMemSize<REG>::value != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode.getSecond().getOpcode());
@@ -1036,7 +1087,7 @@ namespace CppAsm::X86
 		}
 
 		template<LockPrefix L = NO_LOCK, MemSize SIZE, AddressMode MODE, class BLOCK>
-		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
+		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_bit_operation_r(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
 			write_Opcode_Only_Extended_Prefixs<SIZE, L>(block, opcode.getSecond().getOpcode());
 			auto replaceMem = mem.writeReplaceable(block, opcode.getSecond().getMode());
@@ -3250,71 +3301,139 @@ namespace CppAsm::X86
 
 #pragma region Bit manipulations [DONE]
 		template<class REG, class BLOCK>
-		static auto Bsf(BLOCK& block, REG reg1, REG reg2) {
+		static constexpr void Bsf(BLOCK& block, REG reg1, REG reg2) {
 			static_assert(IsRegType<REG>::value, "Bsf: First and second parameter is not register");
-			return template_bit_scan(block, 0xBC, reg1, reg2);
-		}
-
-		template<class REG, AddressMode MODE, class BLOCK>
-		static auto Bsf(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
-			static_assert(IsRegType<REG>::value, "Bsf: First parameter is not register");
-			return template_bit_scan(block, 0xBC, reg, mem);
+			template_bit_scan(block, 0xBC, reg1, reg2);
 		}
 
 		template<class REG, class BLOCK>
-		static auto Bsr(BLOCK& block, REG reg1, REG reg2) {
-			static_assert(IsRegType<REG>::value, "Bsr: First and second parameter is not register");
-			return template_bit_scan(block, 0xBD, reg1, reg2);
+		static auto Bsf_r(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Bsf: First and second parameter is not register");
+			return template_bit_scan_r(block, 0xBC, reg1, reg2);
 		}
 
 		template<class REG, AddressMode MODE, class BLOCK>
-		static auto Bsr(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+		static constexpr void Bsf(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Bsf: First parameter is not register");
+			template_bit_scan(block, 0xBC, reg, mem);
+		}
+
+		template<class REG, AddressMode MODE, class BLOCK>
+		static auto Bsf_r(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Bsf: First parameter is not register");
+			return template_bit_scan_r(block, 0xBC, reg, mem);
+		}
+
+		template<class REG, class BLOCK>
+		static constexpr void Bsr(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Bsr: First and second parameter is not register");
+			template_bit_scan(block, 0xBD, reg1, reg2);
+		}
+
+		template<class REG, class BLOCK>
+		static auto Bsr_r(BLOCK& block, REG reg1, REG reg2) {
+			static_assert(IsRegType<REG>::value, "Bsr: First and second parameter is not register");
+			return template_bit_scan_r(block, 0xBD, reg1, reg2);
+		}
+
+		template<class REG, AddressMode MODE, class BLOCK>
+		static constexpr void Bsr(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
 			static_assert(IsRegType<REG>::value, "Bsr: First parameter is not register");
-			return template_bit_scan(block, 0xBD, reg, mem);
+			template_bit_scan(block, 0xBD, reg, mem);
+		}
+
+		template<class REG, AddressMode MODE, class BLOCK>
+		static auto Bsr_r(BLOCK& block, REG reg, const Mem32<MODE>& mem) {
+			static_assert(IsRegType<REG>::value, "Bsr: First parameter is not register");
+			return template_bit_scan_r(block, 0xBD, reg, mem);
 		}
 
 		template<class T1, class T2, class BLOCK>
-		static auto Bt(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation(block, detail::opcode_BT, val1, val2);
+		static constexpr void Bt(BLOCK& block, T1 val1, T2 val2) {
+			template_bit_operation(block, detail::opcode_BT, val1, val2);
+		}
+
+		template<class T1, class T2, class BLOCK>
+		static auto Bt_r(BLOCK& block, T1 val1, T2 val2) {
+			return template_bit_operation_r(block, detail::opcode_BT, val1, val2);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static auto Bt(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+		static constexpr void Bt(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bt: Invalid size modifier");
-			return template_bit_operation<NO_LOCK, SIZE>(block, detail::opcode_BT, mem, imm);
+			template_bit_operation<NO_LOCK, SIZE>(block, detail::opcode_BT, mem, imm);
+		}
+
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static auto Bt_r(BLOCK& block, const Mem32<MODE>& mem, U8 imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bt: Invalid size modifier");
+			return template_bit_operation_r<NO_LOCK, SIZE>(block, detail::opcode_BT, mem, imm);
 		}
 
 		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
-		static auto Btc(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation<L>(block, detail::opcode_BTC, val1, val2);
+		static constexpr void Btc(BLOCK& block, T1 val1, T2 val2) {
+			template_bit_operation<L>(block, detail::opcode_BTC, val1, val2);
+		}
+
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
+		static auto Btc_r(BLOCK& block, T1 val1, T2 val2) {
+			return template_bit_operation_r<L>(block, detail::opcode_BTC, val1, val2);
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
-		static auto Btc(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+		static constexpr void Btc(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btc: Invalid size modifier");
-			return template_bit_operation<L, SIZE>(block, detail::opcode_BTC, mem, imm);
-		}
-
-		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
-		static auto Btr(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation<L>(block, detail::opcode_BTR, val1, val2);
+			template_bit_operation<L, SIZE>(block, detail::opcode_BTC, mem, imm);
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
-		static auto Btr(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+		static auto Btc_r(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btc: Invalid size modifier");
+			return template_bit_operation_r<L, SIZE>(block, detail::opcode_BTC, mem, imm);
+		}
+
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
+		static constexpr void Btr(BLOCK& block, T1 val1, T2 val2) {
+			template_bit_operation<L>(block, detail::opcode_BTR, val1, val2);
+		}
+
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
+		static auto Btr_r(BLOCK& block, T1 val1, T2 val2) {
+			return template_bit_operation_r<L>(block, detail::opcode_BTR, val1, val2);
+		}
+
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
+		static constexpr void Btr(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btr: Invalid size modifier");
-			return template_bit_operation<L, SIZE>(block, detail::opcode_BTR, mem, imm);
-		}
-
-		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
-		static auto Bts(BLOCK& block, T1 val1, T2 val2) {
-			return template_bit_operation<L>(block, detail::opcode_BTS, val1, val2);
+			template_bit_operation<L, SIZE>(block, detail::opcode_BTR, mem, imm);
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
-		static auto Bts(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+		static auto Btr_r(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Btr: Invalid size modifier");
+			return template_bit_operation_r<L, SIZE>(block, detail::opcode_BTR, mem, imm);
+		}
+
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
+		static constexpr void Bts(BLOCK& block, T1 val1, T2 val2) {
+			template_bit_operation<L>(block, detail::opcode_BTS, val1, val2);
+		}
+
+		template<LockPrefix L = NO_LOCK, class T1, class T2, class BLOCK>
+		static auto Bts_r(BLOCK& block, T1 val1, T2 val2) {
+			return template_bit_operation_r<L>(block, detail::opcode_BTS, val1, val2);
+		}
+
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
+		static constexpr void Bts(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
 			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bts: Invalid size modifier");
-			return template_bit_operation<L, SIZE>(block, detail::opcode_BTS, mem, imm);
+			template_bit_operation<L, SIZE>(block, detail::opcode_BTS, mem, imm);
+		}
+
+		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class T, class BLOCK>
+		static auto Bts_r(BLOCK& block, const Mem32<MODE>& mem, const Imm<T>& imm) {
+			static_assert(SIZE == WORD_PTR || SIZE == DWORD_PTR, "Bts: Invalid size modifier");
+			return template_bit_operation_r<L, SIZE>(block, detail::opcode_BTS, mem, imm);
 		}
 
 		/* Set byte if overflow (OF == 1) */
