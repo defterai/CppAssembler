@@ -469,6 +469,21 @@ namespace CppAsm::X86
 		constexpr static IndexScale value = IndexScale(0b11);
 	};
 
+	template<>
+	struct TypeBitsMask<RegSeg> {
+		constexpr static RegSeg value = RegSeg(0b111);
+	};
+
+	template<>
+	struct TypeBitsMask<RegDebug> {
+		constexpr static RegDebug value = RegDebug(0b111);
+	};
+
+	template<>
+	struct TypeBitsMask<RegControl> {
+		constexpr static RegControl value = RegControl(0b111);
+	};
+
 	template<class REG>
 	class ReplaceableReg final : public ReplaceableBits<REG, byteOrder, TypeBitsMask<REG>::value> {
 	public:
@@ -514,7 +529,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		ReplaceableMem32<OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+		ReplaceableMem32<OFFSET> writeReplaceable(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			write(block, reg);
 			return ReplaceableMem32<OFFSET>(offset);
@@ -556,7 +571,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE> writeReplacable(BLOCK& block, uint8_t reg) const {
+		ReplaceableMem32<BASE> writeReplaceable(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			write(block, reg);
 			return ReplaceableMem32<BASE>(offset, isEspBase());
@@ -612,7 +627,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE_OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+		ReplaceableMem32<BASE_OFFSET> writeReplaceable(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			write(block, reg);
 			return ReplaceableMem32<BASE_OFFSET>(offset, isEspBase(), isByteOffset());
@@ -666,7 +681,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		ReplaceableMem32<INDEX_OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+		ReplaceableMem32<INDEX_OFFSET> writeReplaceable(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			write(block, reg);
 			return ReplaceableMem32<INDEX_OFFSET>(offset);
@@ -716,7 +731,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE_INDEX> writeReplacable(BLOCK& block, uint8_t reg) const {
+		ReplaceableMem32<BASE_INDEX> writeReplaceable(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			write(block, reg);
 			return ReplaceableMem32<BASE_INDEX>(offset);
@@ -783,7 +798,7 @@ namespace CppAsm::X86
 		}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE_INDEX_OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+		ReplaceableMem32<BASE_INDEX_OFFSET> writeReplaceable(BLOCK& block, uint8_t reg) const {
 			Offset offset = block.getOffset();
 			write(block, reg);
 			return ReplaceableMem32<BASE_INDEX_OFFSET>(offset, isByteOffset());
