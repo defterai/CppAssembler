@@ -508,10 +508,15 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, int32_t offset) : MOD_REG_OFFSET(REG_IND_ADDR), Mem32_Offset(offset), Mem32_Seg(segReg) {}
 
 		template<class BLOCK>
-		ReplaceableMem32<OFFSET> write(BLOCK& block, uint8_t reg) const {
-			Offset offset = block.getOffset();
+		constexpr void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeOffset(block);
+		}
+
+		template<class BLOCK>
+		ReplaceableMem32<OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+			Offset offset = block.getOffset();
+			write(block, reg);
 			return ReplaceableMem32<OFFSET>(offset);
 		}
 	};
@@ -545,10 +550,15 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg) : MOD_REG_RM(REG_IND_ADDR, baseReg), Mem32_Base(baseReg), Mem32_Seg(segReg, baseReg) {}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE> write(BLOCK& block, uint8_t reg) const {
-			Offset offset = block.getOffset();
+		constexpr void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
+		}
+
+		template<class BLOCK>
+		ReplaceableMem32<BASE> writeReplacable(BLOCK& block, uint8_t reg) const {
+			Offset offset = block.getOffset();
+			write(block, reg);
 			return ReplaceableMem32<BASE>(offset, isEspBase());
 		}
 	};
@@ -595,11 +605,16 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, int32_t offset) : Mem32_Base(baseReg), Mem32_Offset(offset), MOD_REG_RM(getDispMod(), baseReg), Mem32_Seg(segReg, baseReg) {}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE_OFFSET> write(BLOCK& block, uint8_t reg) const {
-			Offset offset = block.getOffset();
+		constexpr void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeEspPostfix(block);
 			writeSmallestOffset(block);
+		}
+
+		template<class BLOCK>
+		ReplaceableMem32<BASE_OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+			Offset offset = block.getOffset();
+			write(block, reg);
 			return ReplaceableMem32<BASE_OFFSET>(offset, isEspBase(), isByteOffset());
 		}
 	};
@@ -644,11 +659,16 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 indexReg, IndexScale indexScale, int32_t offset) : MOD_REG_INDEX(SIB_NO_DISP), Mem32_SIB(indexScale, indexReg), Mem32_Offset(offset), Mem32_Seg(segReg) {}
 
 		template<class BLOCK>
-		ReplaceableMem32<INDEX_OFFSET> write(BLOCK& block, uint8_t reg) const {
-			Offset offset = block.getOffset();
+		constexpr void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 			writeOffset(block);
+		}
+
+		template<class BLOCK>
+		ReplaceableMem32<INDEX_OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+			Offset offset = block.getOffset();
+			write(block, reg);
 			return ReplaceableMem32<INDEX_OFFSET>(offset);
 		}
 	};
@@ -690,10 +710,15 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, Reg32 indexReg, IndexScale indexScale) : MOD_REG_INDEX(SIB_NO_DISP), Mem32_SIB(indexScale, indexReg, baseReg), Mem32_Seg(segReg, baseReg) {}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE_INDEX> write(BLOCK& block, uint8_t reg) const {
-			Offset offset = block.getOffset();
+		constexpr void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
+		}
+
+		template<class BLOCK>
+		ReplaceableMem32<BASE_INDEX> writeReplacable(BLOCK& block, uint8_t reg) const {
+			Offset offset = block.getOffset();
+			write(block, reg);
 			return ReplaceableMem32<BASE_INDEX>(offset);
 		}
 	};
@@ -751,11 +776,16 @@ namespace CppAsm::X86
 		constexpr Mem32(RegSeg segReg, Reg32 baseReg, Reg32 indexReg, IndexScale indexScale, int32_t offset) : Mem32_SIB(indexScale, indexReg, baseReg), Mem32_Offset(offset), MOD_REG_INDEX(getDispMod()), Mem32_Seg(segReg, baseReg) {}
 
 		template<class BLOCK>
-		ReplaceableMem32<BASE_INDEX_OFFSET> write(BLOCK& block, uint8_t reg) const {
-			Offset offset = block.getOffset();
+		constexpr void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
 			writeSIB(block);
 			writeSmallestOffset(block);
+		}
+
+		template<class BLOCK>
+		ReplaceableMem32<BASE_INDEX_OFFSET> writeReplacable(BLOCK& block, uint8_t reg) const {
+			Offset offset = block.getOffset();
+			write(block, reg);
 			return ReplaceableMem32<BASE_INDEX_OFFSET>(offset, isByteOffset());
 		}
 	};
