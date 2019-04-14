@@ -21,7 +21,7 @@ namespace CppAsm::Win32
 		struct FuncBuilder {
 			typedef R(__cdecl *funcType)(P...);
 		};
-		constexpr static bool clearParams = false;
+		static constexpr bool clearParams = false;
 	};
 
 	template<>
@@ -30,7 +30,7 @@ namespace CppAsm::Win32
 		struct FuncBuilder {
 			typedef R(__stdcall *funcType)(P...);
 		};
-		constexpr static bool clearParams = true;
+		static constexpr bool clearParams = true;
 	};
 
 	template<>
@@ -39,7 +39,7 @@ namespace CppAsm::Win32
 		struct FuncBuilder {
 			typedef R(__fastcall *funcType)(P...);
 		};
-		constexpr static bool clearParams = true;
+		static constexpr bool clearParams = true;
 	};
 
 	template<>
@@ -48,13 +48,13 @@ namespace CppAsm::Win32
 		struct FuncBuilder {
 			typedef R(pascal *funcType)(P...);
 		};
-		constexpr static bool clearParams = true;
+		static constexpr bool clearParams = true;
 	};
 
 	class CodeBlock : public Os::CodeBlock {
 	private:
 		template<class T>
-		constexpr static T funcTypeCast(Addr addr) {
+		static constexpr T funcTypeCast(Addr addr) {
 			return reinterpret_cast<T>(addr);
 		}
 

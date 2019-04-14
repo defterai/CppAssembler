@@ -12,7 +12,7 @@ namespace CppAsm::X86
 		namespace common = CppAsm::X86_64::detail;
 	}
 
-	constexpr static endian byteOrder = common::byteOrder;
+	static constexpr endian byteOrder = common::byteOrder;
 
 	enum Reg8 : uint8_t {
 		AL = 0b000,
@@ -124,67 +124,67 @@ namespace CppAsm::X86
 
 	template<>
 	struct TypeMemSize<Reg8> {
-		constexpr static MemSize value = MemSize::BYTE_PTR;
+		static constexpr MemSize value = MemSize::BYTE_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<Reg16> {
-		constexpr static MemSize value = MemSize::WORD_PTR;
+		static constexpr MemSize value = MemSize::WORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<Reg32> {
-		constexpr static MemSize value = MemSize::DWORD_PTR;
+		static constexpr MemSize value = MemSize::DWORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<S8> {
-		constexpr static MemSize value = MemSize::BYTE_PTR;
+		static constexpr MemSize value = MemSize::BYTE_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<S16> {
-		constexpr static MemSize value = MemSize::WORD_PTR;
+		static constexpr MemSize value = MemSize::WORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<S32> {
-		constexpr static MemSize value = MemSize::DWORD_PTR;
+		static constexpr MemSize value = MemSize::DWORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<U8> {
-		constexpr static MemSize value = MemSize::BYTE_PTR;
+		static constexpr MemSize value = MemSize::BYTE_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<U16> {
-		constexpr static MemSize value = MemSize::WORD_PTR;
+		static constexpr MemSize value = MemSize::WORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<U32> {
-		constexpr static MemSize value = MemSize::DWORD_PTR;
+		static constexpr MemSize value = MemSize::DWORD_PTR;
 	};
 
 	template<class T>
 	struct IsRegType {
-		constexpr static bool value = false;
+		static constexpr bool value = false;
 	};
 
 	template<>
 	struct IsRegType<Reg32> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	template<>
 	struct IsRegType<Reg16> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	template<>
 	struct IsRegType<Reg8> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	namespace detail
@@ -194,17 +194,17 @@ namespace CppAsm::X86
 			RegSeg mSegReg;
 			bool mCustomSegReg;
 
-			constexpr static RegSeg segRegFromBase(Reg32 baseReg) {
+			static constexpr RegSeg segRegFromBase(Reg32 baseReg) {
 				return ((baseReg == EBP) || (baseReg == ESP)) ? SS : DS;
 			}
-			constexpr static bool isCustomSegReg(RegSeg segReg) {
+			static constexpr bool isCustomSegReg(RegSeg segReg) {
 				return segReg != DS;
 			}
-			constexpr static bool isCustomSegReg(Reg32 baseReg, RegSeg segReg) {
+			static constexpr bool isCustomSegReg(Reg32 baseReg, RegSeg segReg) {
 				return segRegFromBase(baseReg) != segReg;
 			}
 
-			constexpr static uint8_t segmRegPrefix[] = {
+			static constexpr uint8_t segmRegPrefix[] = {
 				0x26, // ES
 				0x2E, // CS
 				0x36, // SS
@@ -237,10 +237,10 @@ namespace CppAsm::X86
 			bool mByteOffset;
 			common::MOD_REG_RM::Mod mDispMod;
 
-			constexpr static uint8_t calcOptimalBytes(int32_t offset) {
+			static constexpr uint8_t calcOptimalBytes(int32_t offset) {
 				return common::is_Byte_Offset(offset) ? sizeof(uint8_t) : sizeof(mOffset);
 			}
-			constexpr static common::MOD_REG_RM::Mod calcDispMod(int32_t offset) {
+			static constexpr common::MOD_REG_RM::Mod calcDispMod(int32_t offset) {
 				return common::is_Byte_Offset(offset) ? common::MOD_REG_RM::DISP_ADDR_1BYTE : common::MOD_REG_RM::DISP_ADDR_4BYTE;
 			}
 		public:
@@ -277,10 +277,6 @@ namespace CppAsm::X86
 		private:
 			Reg32 mBaseReg;
 			bool mEspBase;
-
-			constexpr static bool isEsp(Reg32 baseReg) {
-				return baseReg == ESP;
-			}
 		public:
 			explicit constexpr Mem32_Base(Reg32 baseReg) : mBaseReg(baseReg), mEspBase(baseReg == ESP) {}
 
@@ -388,62 +384,62 @@ namespace CppAsm::X86
 		struct ImmSizeExtend<DWORD_PTR, uint16_t> {
 			typedef uint32_t type;
 		};
-		constexpr static OpcodeSet opcode_ADD(0x00, OpcodeLarge(0x80, 0b000));
-		constexpr static OpcodeSet opcode_OR(0x08, OpcodeLarge(0x80, 0b001));
-		constexpr static OpcodeSet opcode_ADC(0x10, OpcodeLarge(0x80, 0b010));
-		constexpr static OpcodeSet opcode_SBB(0x18, OpcodeLarge(0x80, 0b011));
-		constexpr static OpcodeSet opcode_AND(0x20, OpcodeLarge(0x80, 0b100));
-		constexpr static OpcodeSet opcode_SUB(0x28, OpcodeLarge(0x80, 0b101));
-		constexpr static OpcodeSet opcode_XOR(0x30, OpcodeLarge(0x80, 0b110));
-		constexpr static OpcodeSet opcode_CMP(0x38, OpcodeLarge(0x80, 0b111));
+		static constexpr OpcodeSet opcode_ADD(0x00, OpcodeLarge(0x80, 0b000));
+		static constexpr OpcodeSet opcode_OR(0x08, OpcodeLarge(0x80, 0b001));
+		static constexpr OpcodeSet opcode_ADC(0x10, OpcodeLarge(0x80, 0b010));
+		static constexpr OpcodeSet opcode_SBB(0x18, OpcodeLarge(0x80, 0b011));
+		static constexpr OpcodeSet opcode_AND(0x20, OpcodeLarge(0x80, 0b100));
+		static constexpr OpcodeSet opcode_SUB(0x28, OpcodeLarge(0x80, 0b101));
+		static constexpr OpcodeSet opcode_XOR(0x30, OpcodeLarge(0x80, 0b110));
+		static constexpr OpcodeSet opcode_CMP(0x38, OpcodeLarge(0x80, 0b111));
 
-		constexpr static OpcodeSet opcode_MOV(0x88, OpcodeLarge(0xC6, 0b000));
-		constexpr static OpcodeSet opcode_TEST(0x84, OpcodeLarge(0xF6, 0b000));
+		static constexpr OpcodeSet opcode_MOV(0x88, OpcodeLarge(0xC6, 0b000));
+		static constexpr OpcodeSet opcode_TEST(0x84, OpcodeLarge(0xF6, 0b000));
 
-		constexpr static OpcodeSet opcode_BT(0xA3, OpcodeLarge(0xBA, 0b100));
-		constexpr static OpcodeSet opcode_BTS(0xAB, OpcodeLarge(0xBA, 0b101));
-		constexpr static OpcodeSet opcode_BTR(0xB3, OpcodeLarge(0xBA, 0b110));
-		constexpr static OpcodeSet opcode_BTC(0xBB, OpcodeLarge(0xBA, 0b111));
+		static constexpr OpcodeSet opcode_BT(0xA3, OpcodeLarge(0xBA, 0b100));
+		static constexpr OpcodeSet opcode_BTS(0xAB, OpcodeLarge(0xBA, 0b101));
+		static constexpr OpcodeSet opcode_BTR(0xB3, OpcodeLarge(0xBA, 0b110));
+		static constexpr OpcodeSet opcode_BTC(0xBB, OpcodeLarge(0xBA, 0b111));
 
-		constexpr static OpcodeLarge opcode_SLDT(0x00, 0b000);
-		constexpr static OpcodeLarge opcode_STR(0x00, 0b001);
-		constexpr static OpcodeLarge opcode_LLDT(0x00, 0b010);
-		constexpr static OpcodeLarge opcode_LTR(0x00, 0b011);
-		constexpr static OpcodeLarge opcode_VERR(0x00, 0b100);
-		constexpr static OpcodeLarge opcode_VERW(0x00, 0b101);
-		constexpr static OpcodeLarge opcode_SGDT(0x01, 0b000);
-		constexpr static OpcodeLarge opcode_SIDT(0x01, 0b001);
-		constexpr static OpcodeLarge opcode_LGDT(0x01, 0b010);
-		constexpr static OpcodeLarge opcode_LIDT(0x01, 0b011);
-		constexpr static OpcodeLarge opcode_SMSW(0x01, 0b100);
-		constexpr static OpcodeLarge opcode_LMSW(0x01, 0b110);
+		static constexpr OpcodeLarge opcode_SLDT(0x00, 0b000);
+		static constexpr OpcodeLarge opcode_STR(0x00, 0b001);
+		static constexpr OpcodeLarge opcode_LLDT(0x00, 0b010);
+		static constexpr OpcodeLarge opcode_LTR(0x00, 0b011);
+		static constexpr OpcodeLarge opcode_VERR(0x00, 0b100);
+		static constexpr OpcodeLarge opcode_VERW(0x00, 0b101);
+		static constexpr OpcodeLarge opcode_SGDT(0x01, 0b000);
+		static constexpr OpcodeLarge opcode_SIDT(0x01, 0b001);
+		static constexpr OpcodeLarge opcode_LGDT(0x01, 0b010);
+		static constexpr OpcodeLarge opcode_LIDT(0x01, 0b011);
+		static constexpr OpcodeLarge opcode_SMSW(0x01, 0b100);
+		static constexpr OpcodeLarge opcode_LMSW(0x01, 0b110);
 
-		constexpr static OpcodeLarge opcode_POP(0x8F, 0b000);
+		static constexpr OpcodeLarge opcode_POP(0x8F, 0b000);
 
-		constexpr static OpcodeLarge opcode_NOT(0xF6, 0b010);
-		constexpr static OpcodeLarge opcode_NEG(0xF6, 0b011);
-		constexpr static OpcodeLarge opcode_MUL(0xF6, 0b100);
-		constexpr static OpcodeLarge opcode_IMUL(0xF6, 0b101);
-		constexpr static OpcodeLarge opcode_DIV(0xF6, 0b110);
-		constexpr static OpcodeLarge opcode_IDIV(0xF6, 0b111);
+		static constexpr OpcodeLarge opcode_NOT(0xF6, 0b010);
+		static constexpr OpcodeLarge opcode_NEG(0xF6, 0b011);
+		static constexpr OpcodeLarge opcode_MUL(0xF6, 0b100);
+		static constexpr OpcodeLarge opcode_IMUL(0xF6, 0b101);
+		static constexpr OpcodeLarge opcode_DIV(0xF6, 0b110);
+		static constexpr OpcodeLarge opcode_IDIV(0xF6, 0b111);
 
-		constexpr static OpcodeLarge opcode_INC(0xFE, 0b000);
-		constexpr static OpcodeLarge opcode_DEC(0xFE, 0b001);
+		static constexpr OpcodeLarge opcode_INC(0xFE, 0b000);
+		static constexpr OpcodeLarge opcode_DEC(0xFE, 0b001);
 
-		constexpr static OpcodeLarge opcode_CALL_NEAR(0xFF, 0b010);
-		constexpr static OpcodeLarge opcode_CALL_FAR(0xFF, 0b011);
-		constexpr static OpcodeLarge opcode_JMP_NEAR(0xFF, 0b100);
-		constexpr static OpcodeLarge opcode_JMP_FAR(0xFF, 0b101);
-		constexpr static OpcodeLarge opcode_PUSH(0xFF, 0b110);
+		static constexpr OpcodeLarge opcode_CALL_NEAR(0xFF, 0b010);
+		static constexpr OpcodeLarge opcode_CALL_FAR(0xFF, 0b011);
+		static constexpr OpcodeLarge opcode_JMP_NEAR(0xFF, 0b100);
+		static constexpr OpcodeLarge opcode_JMP_FAR(0xFF, 0b101);
+		static constexpr OpcodeLarge opcode_PUSH(0xFF, 0b110);
 
-		constexpr static OpcodeLarge opcode_ROL(0xC0, 0b000);
-		constexpr static OpcodeLarge opcode_ROR(0xC0, 0b001);
-		constexpr static OpcodeLarge opcode_RCL(0xC0, 0b010);
-		constexpr static OpcodeLarge opcode_RCR(0xC0, 0b011);
-		constexpr static OpcodeLarge opcode_SHL(0xC0, 0b100);
-		constexpr static OpcodeLarge opcode_SHR(0xC0, 0b101);
-		constexpr static OpcodeLarge opcode_SAL(0xC0, 0b110);
-		constexpr static OpcodeLarge opcode_SAR(0xC0, 0b111);
+		static constexpr OpcodeLarge opcode_ROL(0xC0, 0b000);
+		static constexpr OpcodeLarge opcode_ROR(0xC0, 0b001);
+		static constexpr OpcodeLarge opcode_RCL(0xC0, 0b010);
+		static constexpr OpcodeLarge opcode_RCR(0xC0, 0b011);
+		static constexpr OpcodeLarge opcode_SHL(0xC0, 0b100);
+		static constexpr OpcodeLarge opcode_SHR(0xC0, 0b101);
+		static constexpr OpcodeLarge opcode_SAL(0xC0, 0b110);
+		static constexpr OpcodeLarge opcode_SAR(0xC0, 0b111);
 	}
 
 	template<class T>
@@ -451,37 +447,37 @@ namespace CppAsm::X86
 
 	template<>
 	struct TypeBitsMask<Reg32> {
-		constexpr static Reg32 value = Reg32(0b111);
+		static constexpr Reg32 value = Reg32(0b111);
 	};
 
 	template<>
 	struct TypeBitsMask<Reg16> {
-		constexpr static Reg16 value = Reg16(0b111);
+		static constexpr Reg16 value = Reg16(0b111);
 	};
 
 	template<>
 	struct TypeBitsMask<Reg8> {
-		constexpr static Reg8 value = Reg8(0b111);
+		static constexpr Reg8 value = Reg8(0b111);
 	};
 
 	template<>
 	struct TypeBitsMask<IndexScale> {
-		constexpr static IndexScale value = IndexScale(0b11);
+		static constexpr IndexScale value = IndexScale(0b11);
 	};
 
 	template<>
 	struct TypeBitsMask<RegSeg> {
-		constexpr static RegSeg value = RegSeg(0b111);
+		static constexpr RegSeg value = RegSeg(0b111);
 	};
 
 	template<>
 	struct TypeBitsMask<RegDebug> {
-		constexpr static RegDebug value = RegDebug(0b111);
+		static constexpr RegDebug value = RegDebug(0b111);
 	};
 
 	template<>
 	struct TypeBitsMask<RegControl> {
-		constexpr static RegControl value = RegControl(0b111);
+		static constexpr RegControl value = RegControl(0b111);
 	};
 
 	template<class REG>

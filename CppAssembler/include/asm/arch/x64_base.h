@@ -10,7 +10,7 @@ namespace CppAsm::X64
 		namespace common = CppAsm::X86_64::detail;
 	}
 
-	constexpr static endian byteOrder = common::byteOrder;
+	static constexpr endian byteOrder = common::byteOrder;
 
 	enum Reg8 : uint8_t {
 		AL = 0b000,
@@ -110,77 +110,77 @@ namespace CppAsm::X64
 
 	template<>
 	struct TypeMemSize<Reg8> {
-		constexpr static MemSize value = MemSize::BYTE_PTR;
+		static constexpr MemSize value = MemSize::BYTE_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<Reg16> {
-		constexpr static MemSize value = MemSize::WORD_PTR;
+		static constexpr MemSize value = MemSize::WORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<Reg32> {
-		constexpr static MemSize value = MemSize::DWORD_PTR;
+		static constexpr MemSize value = MemSize::DWORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<Reg64> {
-		constexpr static MemSize value = MemSize::QWORD_PTR;
+		static constexpr MemSize value = MemSize::QWORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<S8> {
-		constexpr static MemSize value = MemSize::BYTE_PTR;
+		static constexpr MemSize value = MemSize::BYTE_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<S16> {
-		constexpr static MemSize value = MemSize::WORD_PTR;
+		static constexpr MemSize value = MemSize::WORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<S32> {
-		constexpr static MemSize value = MemSize::DWORD_PTR;
+		static constexpr MemSize value = MemSize::DWORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<U8> {
-		constexpr static MemSize value = MemSize::BYTE_PTR;
+		static constexpr MemSize value = MemSize::BYTE_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<U16> {
-		constexpr static MemSize value = MemSize::WORD_PTR;
+		static constexpr MemSize value = MemSize::WORD_PTR;
 	};
 
 	template<>
 	struct TypeMemSize<U32> {
-		constexpr static MemSize value = MemSize::DWORD_PTR;
+		static constexpr MemSize value = MemSize::DWORD_PTR;
 	};
 
 	template<class T>
 	struct IsRegType {
-		constexpr static bool value = false;
+		static constexpr bool value = false;
 	};
 
 	template<>
 	struct IsRegType<Reg64> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	template<>
 	struct IsRegType<Reg32> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	template<>
 	struct IsRegType<Reg16> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	template<>
 	struct IsRegType<Reg8> {
-		constexpr static bool value = true;
+		static constexpr bool value = true;
 	};
 
 	namespace detail
@@ -229,13 +229,13 @@ namespace CppAsm::X64
 			RegSeg mSegReg;
 			bool mCustomSegReg;
 
-			constexpr static RegSeg segRegFromBase(Reg64 baseReg) {
+			static constexpr RegSeg segRegFromBase(Reg64 baseReg) {
 				return ((baseReg == RBP) || (baseReg == RSP)) ? SS : DS;
 			}
-			constexpr static bool isCustomSegReg(RegSeg segReg) {
+			static constexpr bool isCustomSegReg(RegSeg segReg) {
 				return segReg != DS;
 			}
-			constexpr static bool isCustomSegReg(Reg64 baseReg, RegSeg segReg) {
+			static constexpr bool isCustomSegReg(Reg64 baseReg, RegSeg segReg) {
 				return segRegFromBase(baseReg) != segReg;
 			}
 		public:
@@ -262,13 +262,13 @@ namespace CppAsm::X64
 			RegSeg mSegReg;
 			bool mCustomSegReg;
 
-			constexpr static RegSeg segRegFromBase(Reg32 baseReg) {
+			static constexpr RegSeg segRegFromBase(Reg32 baseReg) {
 				return ((baseReg == EBP) || (baseReg == ESP)) ? SS : DS;
 			}
-			constexpr static bool isCustomSegReg(RegSeg segReg) {
+			static constexpr bool isCustomSegReg(RegSeg segReg) {
 				return segReg != DS;
 			}
-			constexpr static bool isCustomSegReg(Reg32 baseReg, RegSeg segReg) {
+			static constexpr bool isCustomSegReg(Reg32 baseReg, RegSeg segReg) {
 				return segRegFromBase(baseReg) != segReg;
 			}
 		public:
@@ -296,10 +296,10 @@ namespace CppAsm::X64
 			bool mByteOffset;
 			common::MOD_REG_RM::Mod mDispMod;
 
-			constexpr static uint8_t calcOptimalBytes(int32_t offset) {
+			static constexpr uint8_t calcOptimalBytes(int32_t offset) {
 				return common::is_Byte_Offset(offset) ? sizeof(uint8_t) : sizeof(mOffset);
 			}
-			constexpr static common::MOD_REG_RM::Mod calcDispMod(int32_t offset) {
+			static constexpr common::MOD_REG_RM::Mod calcDispMod(int32_t offset) {
 				return common::is_Byte_Offset(offset) ? common::MOD_REG_RM::DISP_ADDR_1BYTE : common::MOD_REG_RM::DISP_ADDR_4BYTE;
 			}
 		public:
@@ -337,7 +337,7 @@ namespace CppAsm::X64
 			Reg32 mBaseReg;
 			bool mRspBase;
 
-			constexpr static bool isRsp(Reg64 baseReg) {
+			static constexpr bool isRsp(Reg64 baseReg) {
 				return baseReg == ESP;
 			}
 		public:
@@ -362,7 +362,7 @@ namespace CppAsm::X64
 			Reg64 mBaseReg;
 			bool mRspBase;
 
-			constexpr static bool isRsp(Reg64 baseReg) {
+			static constexpr bool isRsp(Reg64 baseReg) {
 				return baseReg == RSP;
 			}
 		public:
@@ -422,11 +422,11 @@ namespace CppAsm::X64
 
 		class ExtSizePrefix {
 		public:
-			constexpr static uint8_t FIRST_REG_BIT_OFFSET = 0;
-			constexpr static uint8_t BASE_REG_BIT_OFFSET = 0;
-			constexpr static uint8_t INDEX_REG_BIT_OFFSET = 1;
-			constexpr static uint8_t SECOND_REG_BIT_OFFSET = 2;
-			constexpr static uint8_t SIZE_BIT_OFFSET = 3;
+			static constexpr uint8_t FIRST_REG_BIT_OFFSET = 0;
+			static constexpr uint8_t BASE_REG_BIT_OFFSET = 0;
+			static constexpr uint8_t INDEX_REG_BIT_OFFSET = 1;
+			static constexpr uint8_t SECOND_REG_BIT_OFFSET = 2;
+			static constexpr uint8_t SIZE_BIT_OFFSET = 3;
 		};
 
 		template<MemSize SIZE, class T>

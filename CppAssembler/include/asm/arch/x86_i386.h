@@ -17,7 +17,7 @@ namespace CppAsm::X86
 			MODE_RR = 0b1
 		};
 		
-		constexpr static bool isGeneralMemSize(MemSize size) {
+		static constexpr bool isGeneralMemSize(MemSize size) {
 			return size == BYTE_PTR || size == WORD_PTR || size == DWORD_PTR;
 		}
 
@@ -483,20 +483,63 @@ namespace CppAsm::X86
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static ReplaceableMem32<MODE> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
+		static constexpr void template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
+			mem.writeSegmPrefix(block);
+			write_Opcode<SIZE>(block, opcode.getOpcode() | 0x10);
+			mem.write(block, opcode.getMode());
+		}
+
+		template<class REG, class BLOCK>
+		static constexpr void template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
+			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode() | 0x10);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
+		}
+
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
+		static constexpr void template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
+			static_assert(SH_REG == CL, "i386: Invalid register for shift operation");
+			mem.writeSegmPrefix(block);
+			write_Opcode<SIZE>(block, opcode.getOpcode() | 0x12);
+			mem.write(block, opcode.getMode());
+		}
+
+		template<class REG, Reg8 SH_REG, class BLOCK>
+		static constexpr void template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
+			static_assert(SH_REG == CL, "i386: Invalid register for shift operation");
+			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode() | 0x12);
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
+		}
+
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static constexpr void template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem, const U8& imm) {
+			mem.writeSegmPrefix(block);
+			write_Opcode<SIZE>(block, opcode.getOpcode());
+			mem.write(block, opcode.getMode());
+			common::write_Immediate(block, imm);
+		}
+
+		template<class REG, class BLOCK>
+		static constexpr void template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg, const U8& imm) {
+			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode());
+			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, opcode.getMode(), reg);
+			common::write_Immediate(block, imm);
+		}
+
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static ReplaceableMem32<MODE> template_shift_operands_r(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
 			mem.writeSegmPrefix(block);
 			write_Opcode<SIZE>(block, opcode.getOpcode() | 0x10);
 			return mem.writeReplaceable(block, opcode.getMode());
 		}
 
 		template<class REG, class BLOCK>
-		static ReplaceableReg<REG> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
+		static ReplaceableReg<REG> template_shift_operands_r(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
 			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode() | 0x10);
 			return write_MOD_REG_RM_ReplaceableRm(block, opcode.getMode(), reg);
 		}
 
 		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
-		static ReplaceableMem32<MODE> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
+		static ReplaceableMem32<MODE> template_shift_operands_r(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem) {
 			static_assert(SH_REG == CL, "i386: Invalid register for shift operation");
 			mem.writeSegmPrefix(block);
 			write_Opcode<SIZE>(block, opcode.getOpcode() | 0x12);
@@ -504,14 +547,14 @@ namespace CppAsm::X86
 		}
 
 		template<class REG, Reg8 SH_REG, class BLOCK>
-		static ReplaceableReg<REG> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
+		static ReplaceableReg<REG> template_shift_operands_r(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg) {
 			static_assert(SH_REG == CL, "i386: Invalid register for shift operation");
 			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode() | 0x12);
 			return write_MOD_REG_RM_ReplaceableRm(block, opcode.getMode(), reg);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem, const U8& imm) {
+		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_shift_operands_r(BLOCK& block, const detail::OpcodeLarge& opcode, const Mem32<MODE>& mem, const U8& imm) {
 			mem.writeSegmPrefix(block);
 			write_Opcode<SIZE>(block, opcode.getOpcode());
 			auto replaceMem = mem.writeReplaceable(block, opcode.getMode());
@@ -520,7 +563,7 @@ namespace CppAsm::X86
 		}
 
 		template<class REG, class BLOCK>
-		static std::pair<ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_shift_operands(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg, const U8& imm) {
+		static std::pair<ReplaceableReg<REG>, ReplaceableImmediate<U8::type>> template_shift_operands_r(BLOCK& block, const detail::OpcodeLarge& opcode, const REG& reg, const U8& imm) {
 			write_Opcode<TypeMemSize<REG>::value>(block, opcode.getOpcode());
 			auto replaceReg = write_MOD_REG_RM_ReplaceableRm(block, opcode.getMode(), reg);
 			auto replaceImm = write_Immediate_Replaceable(block, imm);
@@ -1092,6 +1135,7 @@ namespace CppAsm::X86
 		template<LockPrefix L = NO_LOCK, MemSize SIZE, AddressMode MODE, class BLOCK>
 		static constexpr void template_bit_operation(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
+			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<SIZE, L>(block, opcode.getSecond().getOpcode());
 			mem.write(block, opcode.getSecond().getMode());
 			common::write_Immediate(block, imm);
@@ -1128,6 +1172,7 @@ namespace CppAsm::X86
 		template<LockPrefix L = NO_LOCK, MemSize SIZE, AddressMode MODE, class BLOCK>
 		static std::pair<ReplaceableMem32<MODE>, ReplaceableImmediate<U8::type>> template_bit_operation_r(BLOCK& block, const detail::OpcodeSet& opcode, const Mem32<MODE>& mem, U8 imm) {
 			static_assert(SIZE != BYTE_PTR, "i386: Invalid size of operand");
+			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<SIZE, L>(block, opcode.getSecond().getOpcode());
 			auto replaceMem = mem.writeReplaceable(block, opcode.getSecond().getMode());
 			auto replaceImm = write_Immediate_Replaceable(block, imm);
@@ -1669,7 +1714,7 @@ namespace CppAsm::X86
 		*/
 		template<class BLOCK>
 		static void Push(BLOCK& block, RegSeg sreg) {
-			constexpr static common::Opcode opcodes[] = { 0x06, 0x0E, 0x16, 0x1E, 0xA0, 0xA8 };
+			static constexpr common::Opcode opcodes[] = { 0x06, 0x0E, 0x16, 0x1E, 0xA0, 0xA8 };
 			if (sreg == FS || sreg == GS) {
 				common::write_Opcode_Extended_Prefix(block);
 			}
@@ -1742,7 +1787,7 @@ namespace CppAsm::X86
 		template<class BLOCK>
 		static void Pop(BLOCK& block, RegSeg sreg) {
 			// replace invalid pop cs by nop
-			constexpr static common::Opcode opcodes[] = { 0x07, 0x90, 0x17, 0x1F, 0xA1, 0xA9 };
+			static constexpr common::Opcode opcodes[] = { 0x07, 0x90, 0x17, 0x1F, 0xA1, 0xA9 };
 			if (sreg == FS || sreg == GS) {
 				common::write_Opcode_Extended_Prefix(block);
 			}
@@ -3064,41 +3109,79 @@ namespace CppAsm::X86
 		
 #pragma region Bit shift operations [DONE]
 		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
-		static auto Rol(BLOCK& block, const Mem32<MODE>& mem) {
+		static constexpr void Rol(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
 			static_assert(SH_REG == CL, "Rol: Invalid shift register");
-			return template_shift_operands<SIZE, SH_REG>(block, detail::opcode_ROL, mem);
+			template_shift_operands<SIZE, SH_REG>(block, detail::opcode_ROL, mem);
+		}
+
+		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>
+		static auto Rol_r(BLOCK& block, const Mem32<MODE>& mem) {
+			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
+			static_assert(SH_REG == CL, "Rol: Invalid shift register");
+			return template_shift_operands_r<SIZE, SH_REG>(block, detail::opcode_ROL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static auto Rol(BLOCK& block, const Mem32<MODE>& mem) {
+		static constexpr void Rol(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
-			return template_shift_operands<SIZE>(block, detail::opcode_ROL, mem);
+			template_shift_operands<SIZE>(block, detail::opcode_ROL, mem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
-		static auto Rol(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+		static auto Rol_r(BLOCK& block, const Mem32<MODE>& mem) {
 			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
-			return template_shift_operands<SIZE>(block, detail::opcode_ROL, mem, imm);
+			return template_shift_operands_r<SIZE>(block, detail::opcode_ROL, mem);
+		}
+
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static constexpr void Rol(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
+			template_shift_operands<SIZE>(block, detail::opcode_ROL, mem, imm);
+		}
+
+		template<MemSize SIZE, AddressMode MODE, class BLOCK>
+		static auto Rol_r(BLOCK& block, const Mem32<MODE>& mem, const U8& imm) {
+			static_assert(isGeneralMemSize(SIZE), "Rol: Invalid size modifier");
+			return template_shift_operands_r<SIZE>(block, detail::opcode_ROL, mem, imm);
 		}
 
 		template<class REG, class BLOCK>
-		static auto Rol(BLOCK& block, const REG& reg) {
+		static constexpr void Rol(BLOCK& block, const REG& reg) {
 			static_assert(IsRegType<REG>::value, "Rol: Parameter is not register");
-			return template_shift_operands<REG>(block, detail::opcode_ROL, reg);
+			template_shift_operands<REG>(block, detail::opcode_ROL, reg);
+		}
+
+		template<class REG, class BLOCK>
+		static auto Rol_r(BLOCK& block, const REG& reg) {
+			static_assert(IsRegType<REG>::value, "Rol: Parameter is not register");
+			return template_shift_operands_r<REG>(block, detail::opcode_ROL, reg);
 		}
 
 		template<Reg8 SH_REG, class REG, class BLOCK>
-		static auto Rol(BLOCK& block, const REG& reg) {
+		static constexpr void Rol(BLOCK& block, const REG& reg) {
 			static_assert(SH_REG == CL, "Rol: Invalid shift register");
 			static_assert(IsRegType<REG>::value, "Rol: Parameter is not register");
-			return template_shift_operands<REG, SH_REG>(block, detail::opcode_ROL, reg);
+			template_shift_operands<REG, SH_REG>(block, detail::opcode_ROL, reg);
+		}
+
+		template<Reg8 SH_REG, class REG, class BLOCK>
+		static auto Rol_r(BLOCK& block, const REG& reg) {
+			static_assert(SH_REG == CL, "Rol: Invalid shift register");
+			static_assert(IsRegType<REG>::value, "Rol: Parameter is not register");
+			return template_shift_operands_r<REG, SH_REG>(block, detail::opcode_ROL, reg);
 		}
 
 		template<class REG, class BLOCK>
-		static auto Rol(BLOCK& block, const REG& reg, const U8& imm) {
+		static constexpr void Rol(BLOCK& block, const REG& reg, const U8& imm) {
 			static_assert(IsRegType<REG>::value, "Rol: First parameter is not register");
-			return template_shift_operands<REG>(block, detail::opcode_ROL, reg, imm);
+			template_shift_operands<REG>(block, detail::opcode_ROL, reg, imm);
+		}
+
+		template<class REG, class BLOCK>
+		static auto Rol_r(BLOCK& block, const REG& reg, const U8& imm) {
+			static_assert(IsRegType<REG>::value, "Rol: First parameter is not register");
+			return template_shift_operands_r<REG>(block, detail::opcode_ROL, reg, imm);
 		}
 
 		template<MemSize SIZE, Reg8 SH_REG, AddressMode MODE, class BLOCK>

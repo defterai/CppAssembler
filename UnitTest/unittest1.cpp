@@ -12,7 +12,7 @@ namespace UnitTest
 	TEST_CLASS(UnitTest1)
 	{
 	private:
-		constexpr static Size CODE_BLOCK_SIZE = 1024 * 1024;
+		static constexpr Size CODE_BLOCK_SIZE = 1024 * 1024;
 
 		typedef X86::i386 testArch;
 

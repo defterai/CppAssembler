@@ -10,7 +10,7 @@ namespace UnitTest
 	TEST_CLASS(X86CompileTest) 
 	{
 	private:
-		constexpr static Size CODE_BLOCK_SIZE = 1024 * 1024;
+		static constexpr Size CODE_BLOCK_SIZE = 1024 * 1024;
 		typedef Win32::CodeBlock testCodeBlock;
 		typedef X86::i386 testArch;
 		typedef X86::i486 testArch4;
@@ -1783,6 +1783,37 @@ namespace UnitTest
 			// ROL r/m32, imm8
 			testArch::Rol(block, X86::EDX, U8(5));
 			testArch::Rol<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+		}
+
+		TEST_METHOD(TestRol_r) {
+			testCodeBlock block(CODE_BLOCK_SIZE);
+			// ROL r/m8, 1
+			testArch::Rol_r(block, X86::DL);
+			testArch::Rol_r<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROL r/m8, CL
+			testArch::Rol_r<X86::CL>(block, X86::DL);
+			testArch::Rol_r<X86::BYTE_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROL r/m8, imm8
+			testArch::Rol_r(block, X86::DL, U8(5));
+			testArch::Rol_r<X86::BYTE_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+			// ROL r/m16, 1
+			testArch::Rol_r(block, X86::DX);
+			testArch::Rol_r<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROL r/m16, CL
+			testArch::Rol_r<X86::CL>(block, X86::DX);
+			testArch::Rol_r<X86::WORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROL r/m16, imm8
+			testArch::Rol_r(block, X86::DX, U8(5));
+			testArch::Rol_r<X86::WORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
+			// ROL r/m32, 1
+			testArch::Rol_r(block, X86::EDX);
+			testArch::Rol_r<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROL r/m32, CL
+			testArch::Rol_r<X86::CL>(block, X86::EDX);
+			testArch::Rol_r<X86::DWORD_PTR, X86::CL>(block, X86::Mem32<X86::BASE>(X86::EDX));
+			// ROL r/m32, imm8
+			testArch::Rol_r(block, X86::EDX, U8(5));
+			testArch::Rol_r<X86::DWORD_PTR>(block, X86::Mem32<X86::BASE>(X86::EDX), U8(5));
 		}
 
 		TEST_METHOD(TestRcr) {

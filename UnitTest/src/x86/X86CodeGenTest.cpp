@@ -11,7 +11,7 @@ namespace UnitTest
 	TEST_CLASS(X86CodeGenTest) 
 	{
 	private:
-		constexpr static Size CODE_BLOCK_SIZE = 1024 * 1024;
+		static constexpr Size CODE_BLOCK_SIZE = 1024 * 1024;
 		typedef Win32::CodeBlock testCodeBlock;
 		typedef X86::i386 testArch;
 

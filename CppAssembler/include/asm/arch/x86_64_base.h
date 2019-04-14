@@ -8,7 +8,7 @@ namespace CppAsm::X86_64::detail
 {
 	typedef uint8_t Opcode;
 
-	constexpr static endian byteOrder = endian::little;
+	static constexpr endian byteOrder = endian::little;
 
 	constexpr auto calc_Jump_Offset(Addr addr, Addr jumpAddr, uint32_t instructionSize) {
 		return jumpAddr - (addr + instructionSize);
@@ -30,16 +30,16 @@ namespace CppAsm::X86_64::detail
 			DISP_ADDR_4BYTE = 0b10,
 			REG_ADDR = 0b11
 		};
-		constexpr static uint8_t MOD_BIT_OFFSET = 6;
-		constexpr static uint8_t REG_BIT_OFFSET = 3;
-		constexpr static uint8_t RM_BIT_OFFSET = 0;
+		static constexpr uint8_t MOD_BIT_OFFSET = 6;
+		static constexpr uint8_t REG_BIT_OFFSET = 3;
+		static constexpr uint8_t RM_BIT_OFFSET = 0;
 	private:
 		Type mValue;
 	public:
-		constexpr static Type generate(Mod mod, uint8_t reg, uint8_t rm) {
+		static constexpr Type generate(Mod mod, uint8_t reg, uint8_t rm) {
 			return (mod << MOD_BIT_OFFSET) | (reg << REG_BIT_OFFSET) | rm;
 		}
-		constexpr static Type addReg(Type value, uint8_t reg) {
+		static constexpr Type addReg(Type value, uint8_t reg) {
 			return value | (reg << REG_BIT_OFFSET);
 		}
 	public:
@@ -72,13 +72,13 @@ namespace CppAsm::X86_64::detail
 	class SIB {
 	public:
 		typedef uint8_t Type;
-		constexpr static uint8_t SCALE_BIT_OFFSET = 6;
-		constexpr static uint8_t INDEX_BIT_OFFSET = 3;
-		constexpr static uint8_t BASE_BIT_OFFSET = 0;
+		static constexpr uint8_t SCALE_BIT_OFFSET = 6;
+		static constexpr uint8_t INDEX_BIT_OFFSET = 3;
+		static constexpr uint8_t BASE_BIT_OFFSET = 0;
 	private:
 		Type mValue;
 
-		constexpr static Type buildSIB(uint8_t scale, uint8_t index, uint8_t base) {
+		static constexpr Type buildSIB(uint8_t scale, uint8_t index, uint8_t base) {
 			return (scale << 6) | (index << 3) | base;
 		}
 	public:
@@ -95,32 +95,32 @@ namespace CppAsm::X86_64::detail
 	};
 
 	template<class BLOCK>
-	constexpr static void write_Opcode(BLOCK& block, Opcode opcode) {
+	static constexpr void write_Opcode(BLOCK& block, Opcode opcode) {
 		block.pushRaw<byteOrder>(opcode);
 	}
 
 	template<class BLOCK>
-	constexpr static void write_Opcode_16bit_Prefix(BLOCK& block) {
+	static constexpr void write_Opcode_16bit_Prefix(BLOCK& block) {
 		block.pushRaw<byteOrder, uint8_t>(0x66);
 	}
 
 	template<class BLOCK>
-	constexpr static void write_Opcode_Extended_Prefix(BLOCK& block) {
+	static constexpr void write_Opcode_Extended_Prefix(BLOCK& block) {
 		block.pushRaw<byteOrder, uint8_t>(0x0F);
 	}
 
 	template<class BLOCK>
-	constexpr static void write_MOD_REG_RM(BLOCK& block, MOD_REG_RM::Mod mod, uint8_t reg, uint8_t rm) {
+	static constexpr void write_MOD_REG_RM(BLOCK& block, MOD_REG_RM::Mod mod, uint8_t reg, uint8_t rm) {
 		block.pushRaw<byteOrder>(MOD_REG_RM::generate(mod, reg, rm));
 	}
 
 	template<class IMM, class BLOCK>
-	constexpr static void write_Immediate(BLOCK& block, const IMM& imm) {
+	static constexpr void write_Immediate(BLOCK& block, const IMM& imm) {
 		block.pushRaw<byteOrder, IMM::type>(imm);
 	}
 
 	template<uint8_t R, class BLOCK>
-	constexpr static void write_Opcode_Rep(BLOCK& block, Opcode opcode) {
+	static constexpr void write_Opcode_Rep(BLOCK& block, Opcode opcode) {
 		/*constexpr*/ if (R) {
 			block.pushRaw<byteOrder, uint8_t>(R);
 		}
@@ -128,7 +128,7 @@ namespace CppAsm::X86_64::detail
 	}
 
 	template<uint8_t L, class BLOCK>
-	constexpr static void write_Lock_Prefix(BLOCK& block) {
+	static constexpr void write_Lock_Prefix(BLOCK& block) {
 		/*constexpr*/ if (L) {
 			block.pushRaw<byteOrder, uint8_t>(L);
 		}
