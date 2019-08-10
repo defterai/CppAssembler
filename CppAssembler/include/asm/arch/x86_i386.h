@@ -4600,6 +4600,12 @@ namespace CppAsm::X86
 			common::write_MOD_REG_RM(block, common::MOD_REG_RM::REG_ADDR, reg2, reg1);
 		}
 
+		template<class BLOCK>
+		static auto Arpl_r(BLOCK& block, Reg16 reg1, Reg16 reg2) {
+			common::write_Opcode(block, 0x63);
+			return write_MOD_REG_RM_ReplaceableRR(block, reg2, reg1);
+		}
+
 		/* Adjust RPL Field of Segment Selector 
 		 - ARPL [mem],reg 
 		*/
@@ -4608,6 +4614,13 @@ namespace CppAsm::X86
 			mem.writeSegmPrefix(block);
 			common::write_Opcode(block, 0x63);
 			mem.write(block, reg);
+		}
+
+		template<AddressMode MODE, class BLOCK>
+		static auto Arpl_r(BLOCK& block, const Mem32<MODE>& mem, Reg16 reg) {
+			mem.writeSegmPrefix(block);
+			common::write_Opcode(block, 0x63);
+			return mem.writeReplaceable(block, reg);
 		}
 
 		/* Clears Task-Switched Flag in CR0. */
