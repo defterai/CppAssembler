@@ -252,7 +252,7 @@ namespace CppAsm::X64
 			
 			template<class BLOCK>
 			void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw<byteOrder>(mSegReg);
+				block.template writeRaw<byteOrder>(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
@@ -284,7 +284,7 @@ namespace CppAsm::X64
 			}
 			template<class BLOCK>
 			void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw<byteOrder>(mSegReg);
+				block.template writeRaw<byteOrder>(mSegReg);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
@@ -322,13 +322,13 @@ namespace CppAsm::X64
 
 			template<class BLOCK>
 			void writeSmallestOffset(BLOCK& block) const {
-				block.writeRaw<byteOrder>(mOffset);
+				block.template writeRaw<byteOrder>(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
 			
 			template<class BLOCK>
 			void writeOffset(BLOCK& block) const {
-				block.pushRaw<byteOrder>(mOffset);
+				block.template pushRaw<byteOrder>(mOffset);
 			}
 		};
 
@@ -338,7 +338,7 @@ namespace CppAsm::X64
 			bool mRspBase;
 
 			static constexpr bool isRsp(Reg64 baseReg) {
-				return baseReg == ESP;
+				return baseReg == RSP;
 			}
 		public:
 			explicit constexpr Mem32_Base(Reg32 baseReg) : mBaseReg(baseReg), mRspBase(baseReg == ESP) {}
@@ -352,7 +352,7 @@ namespace CppAsm::X64
 
 			template<class BLOCK>
 			void writeEspPostfix(BLOCK& block) const {
-				block.writeRaw<byteOrder, uint8_t>(0x24);
+				block.template writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mRspBase ? sizeof(uint8_t) : 0);
 			}
 		};
@@ -377,7 +377,7 @@ namespace CppAsm::X64
 
 			template<class BLOCK>
 			void writeEspPostfix(BLOCK& block) const {
-				block.writeRaw<byteOrder, uint8_t>(0x24);
+				block.template writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mRspBase ? sizeof(uint8_t) : 0);
 			}
 		};
@@ -387,10 +387,10 @@ namespace CppAsm::X64
 			Reg64 mBaseReg;
 			Reg64 mIndexReg;
 		public:
-			explicit constexpr Mem64_SIB(Reg64 index) : mBaseReg(Reg64::RAX), mIndexReg(index), SIB(SCALE_1, removeExtRegBit(index), 0b101) {}
-			constexpr Mem64_SIB(IndexScale scale, Reg64 index) : mBaseReg(Reg64::RAX), mIndexReg(index), SIB(scale, removeExtRegBit(index), 0b101) {}
-			constexpr Mem64_SIB(Reg64 index, Reg64 base) : mBaseReg(base), mIndexReg(index), SIB(SCALE_1, removeExtRegBit(index), removeExtRegBit(base)) {}
-			constexpr Mem64_SIB(IndexScale scale, Reg64 index, Reg64 base) : mBaseReg(base), mIndexReg(index), SIB(scale, removeExtRegBit(index), removeExtRegBit(base)) {}
+			explicit constexpr Mem64_SIB(Reg64 index) : SIB(SCALE_1, removeExtRegBit(index), 0b101), mBaseReg(Reg64::RAX), mIndexReg(index) {}
+			constexpr Mem64_SIB(IndexScale scale, Reg64 index) : SIB(scale, removeExtRegBit(index), 0b101), mBaseReg(Reg64::RAX), mIndexReg(index) {}
+			constexpr Mem64_SIB(Reg64 index, Reg64 base) : SIB(SCALE_1, removeExtRegBit(index), removeExtRegBit(base)), mBaseReg(base), mIndexReg(index) {}
+			constexpr Mem64_SIB(IndexScale scale, Reg64 index, Reg64 base) : SIB(scale, removeExtRegBit(index), removeExtRegBit(base)), mBaseReg(base), mIndexReg(index) {}
 		
 			constexpr Reg64 getBaseReg() const {
 				return mBaseReg;
@@ -406,10 +406,10 @@ namespace CppAsm::X64
 			Reg32 mBaseReg;
 			Reg32 mIndexReg;
 		public:
-			explicit constexpr Mem32_SIB(Reg32 index) : mBaseReg(Reg32::EAX), mIndexReg(index), SIB(SCALE_1, removeExtRegBit(index), 0b101) {}
-			constexpr Mem32_SIB(IndexScale scale, Reg32 index) : mBaseReg(Reg32::EAX), mIndexReg(index), SIB(scale, removeExtRegBit(index), 0b101) {}
-			constexpr Mem32_SIB(Reg32 index, Reg32 base) : mBaseReg(base), mIndexReg(index), SIB(SCALE_1, removeExtRegBit(index), removeExtRegBit(base)) {}
-			constexpr Mem32_SIB(IndexScale scale, Reg32 index, Reg32 base) : mBaseReg(base), mIndexReg(index), SIB(scale, removeExtRegBit(index), removeExtRegBit(base)) {}
+			explicit constexpr Mem32_SIB(Reg32 index) : SIB(SCALE_1, removeExtRegBit(index), 0b101), mBaseReg(Reg32::EAX), mIndexReg(index)  {}
+			constexpr Mem32_SIB(IndexScale scale, Reg32 index) : SIB(scale, removeExtRegBit(index), 0b101), mBaseReg(Reg32::EAX), mIndexReg(index) {}
+			constexpr Mem32_SIB(Reg32 index, Reg32 base) : SIB(SCALE_1, removeExtRegBit(index), removeExtRegBit(base)), mBaseReg(base), mIndexReg(index) {}
+			constexpr Mem32_SIB(IndexScale scale, Reg32 index, Reg32 base) : SIB(scale, removeExtRegBit(index), removeExtRegBit(base)), mBaseReg(base), mIndexReg(index) {}
 
 			constexpr Reg32 getBaseReg() const {
 				return mBaseReg;
@@ -484,7 +484,7 @@ namespace CppAsm::X64
 		template<class BLOCK>
 		void write(BLOCK& block, uint8_t reg) const {
 			writeMOD_REG_RM(block, reg);
-			block.pushRaw<byteOrder, uint8_t>(0x25);
+			block.template pushRaw<byteOrder, uint8_t>(0x25);
 			writeOffset(block);
 		}
 	};
@@ -522,7 +522,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<byteOrder, uint8_t>(0x67);
+			block.template pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -566,7 +566,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<byteOrder, uint8_t>(0x67);
+			block.template pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -619,7 +619,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<byteOrder, uint8_t>(0x67);
+			block.template pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -665,7 +665,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<byteOrder, uint8_t>(0x67);
+			block.template pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>
@@ -711,7 +711,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		void writePrefix(BLOCK& block) const {
-			block.pushRaw<byteOrder, uint8_t>(0x67);
+			block.template pushRaw<byteOrder, uint8_t>(0x67);
 		}
 
 		template<class BLOCK>

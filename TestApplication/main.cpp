@@ -12,10 +12,18 @@
 #include "asm/arch/x86_CLFSH.h"
 #include "asm/arch/x86_CX8.h"
 
+#ifdef __linux__
+#ifdef __amd64__
+#include "asm/os/linux64.h"
+#else
+#include "asm/os/linux32.h"
+#endif
+#else
 #ifdef WIN32
 #include "asm/os/win32.h"
 #else // WIN32
-#include "asm/os/linux64.h"
+
+#endif
 #endif
 
 using namespace CppAsm;

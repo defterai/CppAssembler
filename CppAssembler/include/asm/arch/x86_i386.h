@@ -55,7 +55,7 @@ namespace CppAsm::X86
 		static ReplaceableImmediate<typename IMM::type> write_Immediate_Replaceable(BLOCK& block, const IMM& imm) {
 			Offset offset = block.getOffset();
 			common::write_Immediate(block, imm);
-			return ReplaceableImmediate<IMM::type>(offset);
+			return ReplaceableImmediate<typename IMM::type>(offset);
 		}
 
 		template<MemSize SIZE, class BLOCK>
@@ -261,12 +261,12 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, class T, class BLOCK>
 		static constexpr void write_Imm_Size_Extend(BLOCK& block, const Imm<T>& imm) {
-			block.pushRaw<byteOrder>(static_cast<detail::ImmSizeExtend<SIZE, T>::type>(imm));
+			block.template pushRaw<byteOrder>(static_cast<typename detail::ImmSizeExtend<SIZE, T>::type>(imm));
 		}
 
 		template<MemSize SIZE, class T, class BLOCK>
 		static constexpr void write_Imm_Size_Optimize(BLOCK& block, const Imm<T>& imm) {
-			block.pushRaw<byteOrder>(static_cast<detail::ImmSizeOptimize<SIZE, T>::type>(imm));
+			block.template pushRaw<byteOrder>(static_cast<typename detail::ImmSizeOptimize<SIZE, T>::type>(imm));
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
@@ -616,7 +616,7 @@ namespace CppAsm::X86
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode | 0x01);
 			auto replaceMem = mem.writeReplaceable(block, reg);
-			return std::make_pair(replaceMem, replaceMem.getOtherReg<REG>());
+			return std::make_pair(replaceMem, replaceMem.template getOtherReg<REG>());
 		}
 
 		template<Reg8 COUNT_REG = CL, class REG, class BLOCK>
@@ -636,7 +636,7 @@ namespace CppAsm::X86
 			write_Opcode_Only_Extended_Prefixs<SIZE>(block, opcode);
 			auto replaceMem = mem.writeReplaceable(block, reg);
 			auto replaceImm = write_Immediate_Replaceable(block, imm);
-			return std::make_tuple(replaceMem, replaceMem.getOtherReg<REG>(), replaceImm);
+			return std::make_tuple(replaceMem, replaceMem.template getOtherReg<REG>(), replaceImm);
 		}
 
 		template<class REG, class BLOCK>
@@ -720,7 +720,7 @@ namespace CppAsm::X86
 			src.writeSegmPrefix(block);
 			write_Opcode<BYTE_PTR>(block, opcode, MODE_RM);
 			auto replaceMem = src.writeReplaceable(block, dst);
-			return std::make_pair(replaceMem.getOtherReg<Reg8>(), replaceMem);
+			return std::make_pair(replaceMem.template getOtherReg<Reg8>(), replaceMem);
 		}
 
 		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
@@ -728,7 +728,7 @@ namespace CppAsm::X86
 			dst.writeSegmPrefix(block);
 			write_Opcode<BYTE_PTR, L>(block, opcode, MODE_MR);
 			auto replaceMem = dst.writeReplaceable(block, src);
-			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg8>());
+			return std::make_pair(replaceMem, replaceMem.template getOtherReg<Reg8>());
 		}
 
 		template<LockPrefix L = NO_LOCK, class BLOCK>
@@ -742,7 +742,7 @@ namespace CppAsm::X86
 			src.writeSegmPrefix(block);
 			write_Opcode<WORD_PTR>(block, opcode, MODE_RM);
 			auto replaceMem = src.writeReplaceable(block, dst);
-			return std::make_pair(replaceMem.getOtherReg<Reg16>(), replaceMem);
+			return std::make_pair(replaceMem.template getOtherReg<Reg16>(), replaceMem);
 		}
 
 		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
@@ -750,7 +750,7 @@ namespace CppAsm::X86
 			dst.writeSegmPrefix(block);
 			write_Opcode<WORD_PTR, L>(block, opcode, MODE_MR);
 			auto replaceMem = dst.writeReplaceable(block, src);
-			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg16>());
+			return std::make_pair(replaceMem, replaceMem.template getOtherReg<Reg16>());
 		}
 
 		template<LockPrefix L = NO_LOCK, class BLOCK>
@@ -764,7 +764,7 @@ namespace CppAsm::X86
 			src.writeSegmPrefix(block);
 			write_Opcode<DWORD_PTR>(block, opcode, MODE_RM);
 			auto replaceMem = src.writeReplaceable(block, dst);
-			return std::make_pair(replaceMem.getOtherReg<Reg32>(), replaceMem);
+			return std::make_pair(replaceMem.template getOtherReg<Reg32>(), replaceMem);
 		}
 
 		template<LockPrefix L = NO_LOCK, AddressMode MODE, class BLOCK>
@@ -772,7 +772,7 @@ namespace CppAsm::X86
 			dst.writeSegmPrefix(block);
 			write_Opcode<DWORD_PTR, L>(block, opcode, MODE_MR);
 			auto replaceMem = dst.writeReplaceable(block, src);
-			return std::make_pair(replaceMem, replaceMem.getOtherReg<Reg32>());
+			return std::make_pair(replaceMem, replaceMem.template getOtherReg<Reg32>());
 		}
 
 		template<class BLOCK>
@@ -1021,7 +1021,7 @@ namespace CppAsm::X86
 				common::write_Opcode(block, opcode);
 			}
 			auto replaceMem = mem.writeReplaceable(block, reg);
-			return std::make_pair(replaceMem.getOtherReg<Reg32>(), replaceMem);
+			return std::make_pair(replaceMem.template getOtherReg<Reg32>(), replaceMem);
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
@@ -1036,7 +1036,7 @@ namespace CppAsm::X86
 				common::write_Opcode(block, opcode);
 			}
 			auto replaceMem = mem.writeReplaceable(block, reg);
-			return std::make_pair(replaceMem.getOtherReg<Reg16>(), replaceMem);
+			return std::make_pair(replaceMem.template getOtherReg<Reg16>(), replaceMem);
 		}
 
 		template<class BLOCK>
@@ -1103,7 +1103,7 @@ namespace CppAsm::X86
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value>(block, opcode);
 			auto replaceMem = mem.writeReplaceable(block, reg);
-			return std::make_pair(replaceMem.getOtherReg<REG>(), replaceMem);
+			return std::make_pair(replaceMem.template getOtherReg<REG>(), replaceMem);
 		}
 
 		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
@@ -1156,7 +1156,7 @@ namespace CppAsm::X86
 			mem.writeSegmPrefix(block);
 			write_Opcode_Only_Extended_Prefixs<TypeMemSize<REG>::value, L>(block, opcode.getMain());
 			auto replaceMem = mem.writeReplaceable(block, reg);
-			return std::make_pair(replaceMem, replaceMem.getOtherReg<REG>());
+			return std::make_pair(replaceMem, replaceMem.template getOtherReg<REG>());
 		}
 
 		template<LockPrefix L = NO_LOCK, class REG, class BLOCK>
@@ -1263,7 +1263,7 @@ namespace CppAsm::X86
 		static constexpr void template_Call(BLOCK& block, const Addr& jumpAddress) {
 			static_assert(SIZE == DWORD_PTR, "Call: Invalid size modifier");
 			common::write_Opcode(block, 0xE8);
-			block.pushRaw<byteOrder>(common::calc_Jump_Offset(block.getCurrentPtr(), jumpAddress, sizeof(Addr)));
+			block.template pushRaw<byteOrder>(common::calc_Jump_Offset(block.getCurrentPtr(), jumpAddress, sizeof(Addr)));
 		}
 
 		template<MemSize SIZE, AddressMode MODE, class BLOCK>
@@ -2529,7 +2529,7 @@ namespace CppAsm::X86
 			write_Opcode_Imm_Optimized<TypeMemSize<REG>::value, TypeMemSize<Imm<T>>::value>(block, 0x69);
 			auto replaceableMem = mem.writeReplaceable(block, reg);
 			auto replaceableImm = write_Immediate_Replaceable(block, imm);
-			return std::make_tuple(replaceableMem.getOtherReg<REG>(), replaceableMem, replaceableImm);
+			return std::make_tuple(replaceableMem.template getOtherReg<REG>(), replaceableMem, replaceableImm);
 		}
 
 		/* Divide unsigned numbers
@@ -4235,7 +4235,7 @@ namespace CppAsm::X86
 		/* Jump if CX == 0 */
 		template<class BLOCK>
 		static FwdLabel<SHORT> Jcxz(BLOCK& block) {
-			block.pushRaw<byteOrder, uint8_t>(0x67);
+			block.template pushRaw<byteOrder, uint8_t>(0x67);
 			return Jecxz(block);
 		}
 

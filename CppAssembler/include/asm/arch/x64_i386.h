@@ -20,7 +20,7 @@ namespace CppAsm::X64
 
 		template<class BLOCK>
 		static void write_Operand_Segm_Prefix(BLOCK& block, RegSeg segm) {
-			block.pushRaw<byteOrder, uint8_t>(segm);
+			block.template pushRaw<byteOrder, uint8_t>(segm);
 		}
 
 		template<MemSize SIZE, class BLOCK>
@@ -34,7 +34,7 @@ namespace CppAsm::X64
 
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				if (extRegsMask) {
-					block.pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode(block, opcode | (rmMode << 1));
 			}
@@ -50,7 +50,7 @@ namespace CppAsm::X64
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				common::write_Opcode_16bit_Prefix(block);
 				if (extRegsMask) {
-					block.pushRaw<uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
 			}
@@ -64,7 +64,7 @@ namespace CppAsm::X64
 
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				if (extRegsMask) {
-					block.pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
 			}
@@ -73,24 +73,24 @@ namespace CppAsm::X64
 		template<class BLOCK>
 		struct OpcodeWriter<QWORD_PTR, BLOCK> {
 			static void write(BLOCK& block, common::Opcode opcode) {
-				block.pushRaw<byteOrder, uint8_t>(0x48);
+				block.template pushRaw<byteOrder, uint8_t>(0x48);
 				common::write_Opcode(block, opcode | 0b1);
 			}
 
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
-				block.pushRaw<byteOrder, uint8_t>(0x48 | extRegsMask);
+				block.template pushRaw<byteOrder, uint8_t>(0x48 | extRegsMask);
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
 			}
 		};
 
 		template<MemSize SIZE, class BLOCK>
 		static void write_Opcode(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<MemSize, BLOCK>::write(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::write(block, opcode);
 		}
 
 		template<MemSize SIZE, class BLOCK>
 		static void write_Opcode(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
-			OpcodeWriter<MemSize, BLOCK>::write(block, opcode, rmMode, extRegsMask);
+			OpcodeWriter<SIZE, BLOCK>::write(block, opcode, rmMode, extRegsMask);
 		}
 
 		/*template<MemSize SIZE>
@@ -152,7 +152,7 @@ namespace CppAsm::X64
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				common::write_Opcode_16bit_Prefix(block);
 				if (extRegsMask) {
-					block.pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | (rmMode << 1));
@@ -164,7 +164,7 @@ namespace CppAsm::X64
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				common::write_Opcode_16bit_Prefix(block);
 				if (extRegsMask) {
-					block.pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
@@ -175,7 +175,7 @@ namespace CppAsm::X64
 		struct ExtendedOpcodeWriter<DWORD_PTR, BYTE_PTR, BLOCK> {
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				if (extRegsMask) {
-					block.pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | (rmMode << 1));
@@ -186,7 +186,7 @@ namespace CppAsm::X64
 		struct ExtendedOpcodeWriter<DWORD_PTR, WORD_PTR, BLOCK> {
 			static void write(BLOCK& block, common::Opcode opcode, OpMode rmMode, uint8_t extRegsMask) {
 				if (extRegsMask) {
-					block.pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
+					block.template pushRaw<byteOrder, uint8_t>(0x40 | extRegsMask);
 				}
 				common::write_Opcode_Extended_Prefix(block);
 				common::write_Opcode(block, opcode | (rmMode << 1) | 0b1);
@@ -200,7 +200,7 @@ namespace CppAsm::X64
 
 		template<MemSize SIZE, class T, class BLOCK>
 		static void write_Imm_Size_Extend(BLOCK& block, const Imm<T>& imm) {
-			block.pushRaw<byteOrder>(static_cast<typename detail::ImmSizeExtend<SIZE, T>::type>(imm));
+			block.template pushRaw<byteOrder>(static_cast<typename detail::ImmSizeExtend<SIZE, T>::type>(imm));
 		}
 
 		template<class DST_REG, class SRC_REG, class BLOCK>

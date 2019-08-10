@@ -36,8 +36,9 @@ namespace CppAsm::Os
 	}
 
 	BaseBlock::BaseBlock(void* data, Size size) :
+		mDataCurr(static_cast<uint8_t*>(data)),
 		mDataStart(static_cast<uint8_t*>(data)),
-		mDataCurr(static_cast<uint8_t*>(data)), mSize(size)
+		mSize(size)
 	{}
 	
 	Addr BaseBlock::getStartPtr() const {

@@ -10,7 +10,7 @@
 
 namespace CppAsm::X86
 {
-	class i686 : public i586, public i387, public CMOV {
+	class i686 : public i586, /*public i387,*/ public CMOV {
 	public:
 		template<class BLOCK>
 		static constexpr void Fcomi(BLOCK& block, TopRegFPU, RegFPU reg) {

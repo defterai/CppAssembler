@@ -13,7 +13,6 @@ namespace CppAsm::Linux
 		CC_CDECL,
 		CC_STDCALL,
 		CC_FASTCALL,
-		CC_PASCAL
 	};
 
 	template<CallConv C>
@@ -41,16 +40,7 @@ namespace CppAsm::Linux
 	struct CallConvProps<CC_FASTCALL> {
 		template<class R, class... P>
 		struct FuncBuilder {
-			typedef R(__fastcall *funcType)(P...);
-		};
-		constexpr static bool clearParams = true;
-	};
-
-	template<>
-	struct CallConvProps<CC_PASCAL> {
-		template<class R, class... P>
-		struct FuncBuilder {
-			typedef R(pascal *funcType)(P...);
+			typedef R(__attribute__((fastcall)) *funcType)(P...);
 		};
 		constexpr static bool clearParams = true;
 	};
@@ -83,7 +73,7 @@ namespace CppAsm::Linux
 
 		template<CallConv CONV = CC_CDECL, class R = void, class... P>
 		R invokeAddr(Addr addr, P... args) {
-			typedef CallConvProps<CONV>::FuncBuilder<R, P...>::funcType funcType;
+			typedef typename CallConvProps<CONV>::template FuncBuilder<R, P...>::funcType funcType;
 			return funcTypeCast<funcType>(addr)(args...);
 		}
 
@@ -120,16 +110,6 @@ namespace CppAsm::Linux
 		template<class R = void, class... P>
 		R invokeFastcall(P... args) {
 			return invoke<CC_FASTCALL, R>(args...);
-		}
-
-		template<class R = void, class... P>
-		R invokeAddrPascal(Addr addr, P... args) {
-			return invokeAddr<CC_PASCAL, R>(addr, args...);
-		}
-
-		template<class R = void, class... P>
-		R invokePascal(P... args) {
-			return invoke<CC_PASCAL, R>(args...);
 		}
 	};
 }

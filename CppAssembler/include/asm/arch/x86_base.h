@@ -225,7 +225,7 @@ namespace CppAsm::X86
 			}
 			template<class BLOCK>
 			constexpr void writeSegmPrefix(BLOCK& block) const {
-				block.writeRaw<byteOrder>(segmRegPrefix[mSegReg]);
+				block.template writeRaw<byteOrder>(segmRegPrefix[mSegReg]);
 				block.skipBytes(mCustomSegReg ? sizeof(mSegReg) : 0);
 			}
 		};
@@ -263,7 +263,7 @@ namespace CppAsm::X86
 
 			template<class BLOCK>
 			constexpr void writeSmallestOffset(BLOCK& block) const {
-				block.writeRaw<byteOrder>(mOffset);
+				block.template writeRaw<byteOrder>(mOffset);
 				block.skipBytes(mOptimalBytes);
 			}
 
@@ -289,7 +289,7 @@ namespace CppAsm::X86
 
 			template<class BLOCK>
 			constexpr void writeEspPostfix(BLOCK& block) const {
-				block.writeRaw<byteOrder, uint8_t>(0x24);
+				block.template writeRaw<byteOrder, uint8_t>(0x24);
 				block.skipBytes(mEspBase ? sizeof(uint8_t) : 0);
 			}
 		};
@@ -697,13 +697,13 @@ namespace CppAsm::X86
 		template<class REG>
 		constexpr ReplaceableReg<REG> getBaseReg() const {
 			// +1 skip MOD_REG_RM byte
-			return ReplaceableReg<REG>(getCbOffset() + 1, common::Mem32_SIB::BASE_BIT_OFFSET);
+			return ReplaceableReg<REG>(getCbOffset() + 1, common::SIB::BASE_BIT_OFFSET);
 		}
 
 		template<class REG>
 		constexpr ReplaceableReg<REG> getIndexReg() const {
 			// +1 skip MOD_REG_RM byte
-			return ReplaceableReg<REG>(getCbOffset() + 1, common::Mem32_SIB::INDEX_BIT_OFFSET);
+			return ReplaceableReg<REG>(getCbOffset() + 1, common::SIB::INDEX_BIT_OFFSET);
 		}
 
 		constexpr ReplaceableIndexScale getIndexScale() const {
@@ -833,7 +833,7 @@ namespace CppAsm::X86
 			Offset labelOffset = getCbOffset();
 			auto jumpOffset = common::calc_Jump_Offset(block.getStartPtr() + labelOffset,
 				newAddr, offset_size);
-			block.writeRaw<byteOrder>(reinterpret_cast<offset_type>(jumpOffset), labelOffset);
+			block.template writeRaw<byteOrder>(reinterpret_cast<offset_type>(jumpOffset), labelOffset);
 			return true;
 		}
 
@@ -857,7 +857,7 @@ namespace CppAsm::X86
 			auto jumpOffset = common::calc_Jump_Offset(block.getStartPtr() + labelOffset,
 				newAddr, offset_size);
 			if (common::is_Byte_Offset(jumpOffset)) {
-				block.writeRaw<byteOrder>(static_cast<offset_type>(jumpOffset), labelOffset);
+				block.template writeRaw<byteOrder>(static_cast<offset_type>(jumpOffset), labelOffset);
 				return true;
 			}
 			return false;
