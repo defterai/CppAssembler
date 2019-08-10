@@ -780,6 +780,9 @@ namespace CppAsm::X64
 			common::write_Immediate(block, src);
 		}
 
-		
+		template<class BLOCK>
+		static constexpr void Ret(BLOCK& block) {
+			common::write_Opcode(block, 0xC3);
+		}
 	};
 }

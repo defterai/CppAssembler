@@ -6,44 +6,26 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
- 
-namespace CppAsm::Linux
+
+namespace CppAsm::Unix64
 {
 	enum CallConv {
 		CC_CDECL,
-		CC_STDCALL,
-		CC_FASTCALL,
 	};
-
+	
 	template<CallConv C>
 	struct CallConvProps;
-
+	
 	template<>
 	struct CallConvProps<CC_CDECL> {
 		template<class R, class... P>
 		struct FuncBuilder {
-			typedef R(__attribute__((cdecl)) *funcType)(P...);
+			typedef R( *funcType)(P...);
 		};
 		constexpr static bool clearParams = false;
 	};
-
-	template<>
-	struct CallConvProps<CC_STDCALL> {
-		template<class R, class... P>
-		struct FuncBuilder {
-			typedef R(__attribute__((stdcall)) *funcType)(P...);
-		};
-		constexpr static bool clearParams = true;
-	};
-
-	template<>
-	struct CallConvProps<CC_FASTCALL> {
-		template<class R, class... P>
-		struct FuncBuilder {
-			typedef R(__attribute__((fastcall)) *funcType)(P...);
-		};
-		constexpr static bool clearParams = true;
-	};
+	
+	using MeasureBlock = Os::MeasureBlock;
 	
 	class CodeBlock : public Os::CodeBlock {
 	private:
@@ -90,26 +72,6 @@ namespace CppAsm::Linux
 		template<class R = void, class... P>
 		R invokeCdecl(P... args) {
 			return invoke<CC_CDECL, R>(args...);
-		}
-
-		template<class R = void, class... P>
-		R invokeAddrStdcall(Addr addr, P... args) {
-			return invokeAddr<CC_STDCALL, R>(addr, args...);
-		}
-
-		template<class R = void, class... P>
-		R invokeStdcall(P... args) {
-			return invoke<CC_STDCALL, R>(args...);
-		}
-
-		template<class R = void, class... P>
-		R invokeAddrFastcall(Addr addr, P... args) {
-			return invokeAddr<CC_FASTCALL, R>(addr, args...);
-		}
-
-		template<class R = void, class... P>
-		R invokeFastcall(P... args) {
-			return invoke<CC_FASTCALL, R>(args...);
 		}
 	};
 }

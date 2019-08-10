@@ -51,6 +51,8 @@ namespace CppAsm::Win32
 		static constexpr bool clearParams = true;
 	};
 
+	using MeasureBlock = Os::MeasureBlock;
+
 	class CodeBlock : public Os::CodeBlock {
 	private:
 		template<class T>
@@ -124,8 +126,8 @@ namespace CppAsm::Win32
 		}
 	};
 
-	typedef X86::Mem32<X86::BASE_OFFSET> FunctionParam;
-	typedef X86::Mem32<X86::BASE_OFFSET> FunctionVar;
+	using FunctionParam = X86::Mem32<X86::BASE_OFFSET>;
+	using FunctionVar = X86::Mem32<X86::BASE_OFFSET>;
 
 	template<CallConv CONV = CC_CDECL, X86::Reg32 BASE_REG = X86::EBP>
 	class FunctionGen: public X86::i386 {

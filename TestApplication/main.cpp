@@ -12,37 +12,32 @@
 #include "asm/arch/x86_CLFSH.h"
 #include "asm/arch/x86_CX8.h"
 
-#ifdef __linux__
-#ifdef __amd64__
-#include "asm/os/linux64.h"
-#else
-#include "asm/os/linux32.h"
-#endif
-#else
-#ifdef WIN32
-#include "asm/os/win32.h"
-#else // WIN32
-
-#endif
-#endif
+#include "asm/os/host.h"
 
 using namespace CppAsm;
 
-#ifdef WIN32
+#if CPP_ASM_HOST_ARCH_BITS == 64
+	typedef Arch::CustomArch<X64::i386> GArch;
+	typedef GArch testArch;
+#else
 	typedef Arch::CustomArch<X86::i686, X86::SEP, X86::CLFSH> GArch;
 	typedef GArch testArch;
-	typedef Win32::CodeBlock testCodeBlock;
-#else // WIN32
-	typedef Arch::CustomArch<X64::i386> GArch;
-	typedef Linux::CodeBlock testCodeBlock;
-#endif 
+#endif
 
 int main()
 {
-	testCodeBlock block(1024);
+	Host::CodeBlock block(1024);
 
 	{
-#ifdef WIN32
+#if CPP_ASM_HOST_ARCH_BITS == 64
+		testArch::Xor(block, X64::RAX, X64::RAX);
+		testArch::Lea<X64::BASE_INDEX_OFFSET>(block, X64::RAX, X64::Mem64<X64::BASE_INDEX_OFFSET>(X64::RAX, X64::RAX, X64::SCALE_8, 5000));
+		testArch::Ret(block);
+		
+		Host::MeasureBlock measureBlock = block.subBlock<Host::MeasureBlock>(1024);
+		testArch::Movsxd(measureBlock, X64::RDX, X64::EDX);
+		
+#else
 		testArch::Mov(block, X86::DL, S8(50));
 
 		//testArch::Add<X86::BYTE_PTR, X86::LOCK>(block, X86::Mem32<X86::BASE>(X86::EDX), S8(50));
@@ -143,7 +138,7 @@ int main()
 		GArch::Rdmsr(block);
 		GArch::Wrmsr(block);
 		GArch::Rsm(block);
-#else
+/*#else
 		GArch::Lea(block, X64::EDX, X64::Mem64<X64::OFFSET>(0xFFFFFFFF));
 		//GArch::Movsx(block, X64::DX, X64::Mem64<X64::BASE>(X64::RSP));
 
@@ -199,8 +194,11 @@ int main()
 		GArch::Cmp<X64::BASE_INDEX_OFFSET>(block, X64::Mem64<X64::BASE_INDEX_OFFSET>(X64::R14, X64::R14, X64::SCALE_8, 5000), X64::AX);
 		GArch::Cmp<X64::BASE_INDEX_OFFSET>(block, X64::Mem64<X64::BASE_INDEX_OFFSET>(X64::R14, X64::R14, X64::SCALE_8, 5000), X64::AL);
 
+#endif*/
 #endif
-		block.invokeCdecl<int>();
+		
+		int result = block.invokeCdecl<int>();
+		std::cout << "Result: " << result << std::endl;
 	}
 
 	return 0;
