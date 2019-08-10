@@ -200,7 +200,7 @@ namespace CppAsm::X64
 
 		template<MemSize SIZE, class T, class BLOCK>
 		static void write_Imm_Size_Extend(BLOCK& block, const Imm<T>& imm) {
-			block.pushRaw<byteOrder>(static_cast<detail::ImmSizeExtend<SIZE, T>::type>(imm));
+			block.pushRaw<byteOrder>(static_cast<typename detail::ImmSizeExtend<SIZE, T>::type>(imm));
 		}
 
 		template<class DST_REG, class SRC_REG, class BLOCK>

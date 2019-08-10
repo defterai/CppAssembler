@@ -1,0 +1,10 @@
+cmake_minimum_required (VERSION 3.0)
+project (CppAssembler VERSION 0.2.0 DESCRIPTION "CppAssembler library")
+
+add_library(CppAssembler STATIC ${CMAKE_CURRENT_LIST_DIR}/source/os.cpp)
+
+target_compile_options(CppAssembler PRIVATE -std=c++14 -O3)
+target_include_directories(CppAssembler PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_include_directories(CppAssembler PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+
+

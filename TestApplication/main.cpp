@@ -1,30 +1,37 @@
 #include <iostream>
 
-#include "asm\arch.h"
-#include "asm\arch\x86_i386.h"
-#include "asm\arch\x86_i486.h"
-#include "asm\arch\x86_i586.h"
-#include "asm\arch\x86_i387.h"
-#include "asm\arch\x86_i686.h"
-#include "asm\arch\x64_i386.h"
-#include "asm\arch\x86_SEP.h"
-#include "asm\arch\x86_MSR.h"
-#include "asm\arch\x86_CLFSH.h"
-#include "asm\arch\x86_CX8.h"
-#include "asm\os\win32.h"
+#include "asm/arch.h"
+#include "asm/arch/x86_i386.h"
+#include "asm/arch/x86_i486.h"
+#include "asm/arch/x86_i586.h"
+#include "asm/arch/x86_i387.h"
+#include "asm/arch/x86_i686.h"
+#include "asm/arch/x64_i386.h"
+#include "asm/arch/x86_SEP.h"
+#include "asm/arch/x86_MSR.h"
+#include "asm/arch/x86_CLFSH.h"
+#include "asm/arch/x86_CX8.h"
+
+#ifdef WIN32
+#include "asm/os/win32.h"
+#else // WIN32
+#include "asm/os/linux64.h"
+#endif
 
 using namespace CppAsm;
 
 #ifdef WIN32
 	typedef Arch::CustomArch<X86::i686, X86::SEP, X86::CLFSH> GArch;
 	typedef GArch testArch;
+	typedef Win32::CodeBlock testCodeBlock;
 #else // WIN32
 	typedef Arch::CustomArch<X64::i386> GArch;
+	typedef Linux::CodeBlock testCodeBlock;
 #endif 
 
 int main()
 {
-	Win32::CodeBlock block(1024);
+	testCodeBlock block(1024);
 
 	{
 #ifdef WIN32
@@ -185,7 +192,7 @@ int main()
 		GArch::Cmp<X64::BASE_INDEX_OFFSET>(block, X64::Mem64<X64::BASE_INDEX_OFFSET>(X64::R14, X64::R14, X64::SCALE_8, 5000), X64::AL);
 
 #endif
-		block.invokeStdcall<int>();
+		block.invokeCdecl<int>();
 	}
 
 	return 0;
