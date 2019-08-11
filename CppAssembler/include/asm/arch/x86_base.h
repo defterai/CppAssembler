@@ -269,7 +269,7 @@ namespace CppAsm::X86
 
 			template<class BLOCK>
 			constexpr void writeOffset(BLOCK& block) const {
-				block.pushRaw<byteOrder>(mOffset);
+				block.template pushRaw<byteOrder>(mOffset);
 			}
 		};
 

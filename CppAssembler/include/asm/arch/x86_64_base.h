@@ -116,7 +116,7 @@ namespace CppAsm::X86_64::detail
 
 	template<class IMM, class BLOCK>
 	static constexpr void write_Immediate(BLOCK& block, const IMM& imm) {
-		block.template pushRaw<byteOrder, IMM::type>(imm);
+		block.template pushRaw<byteOrder, typename IMM::type>(imm);
 	}
 
 	template<uint8_t R, class BLOCK>

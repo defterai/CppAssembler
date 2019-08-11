@@ -7,4 +7,8 @@ target_compile_options(CppAssembler PRIVATE -std=c++14 -O3 -Wall -Wno-unknown-pr
 target_include_directories(CppAssembler PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(CppAssembler PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
-
+if(DEFINED ENV{BUILD_32BIT})
+    message(STATUS "Build 32 bit CppAssembler")
+    target_compile_options(CppAssembler PRIVATE -m32)
+    SET_TARGET_PROPERTIES(CppAssembler PROPERTIES LINK_FLAGS "-Wl,--build-id=none,-mi386linux")
+endif()

@@ -167,12 +167,12 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static constexpr void write_Opcode(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<SIZE, BLOCK>::write<L>(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::template write<L>(block, opcode);
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static constexpr void write_Opcode(BLOCK& block, common::Opcode opcode, OpMode rmMode) {
-			OpcodeWriter<SIZE, BLOCK>::write<L>(block, opcode, rmMode);
+			OpcodeWriter<SIZE, BLOCK>::template write<L>(block, opcode, rmMode);
 		}
 
 		template<class BLOCK>
@@ -182,12 +182,12 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static constexpr void write_Opcode_Only_Extended_Prefixs(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<SIZE, BLOCK>::writeOnlyExtendedPrefixs<L>(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::template writeOnlyExtendedPrefixs<L>(block, opcode);
 		}
 
 		template<MemSize SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static constexpr void write_Opcode_Extended(BLOCK& block, common::Opcode opcode) {
-			OpcodeWriter<SIZE, BLOCK>::writeExtended<L>(block, opcode);
+			OpcodeWriter<SIZE, BLOCK>::template writeExtended<L>(block, opcode);
 		}
 
 		template<MemSize SIZE, class BLOCK>
@@ -256,7 +256,7 @@ namespace CppAsm::X86
 
 		template<MemSize SIZE, MemSize OPT_SIZE, LockPrefix L = NO_LOCK, class BLOCK>
 		static constexpr void write_Opcode_Imm_Optimized(BLOCK& block, common::Opcode opcode) {
-			OpcodeImmOptimizedWriter<SIZE, OPT_SIZE, BLOCK>::write<L>(block, opcode);
+			OpcodeImmOptimizedWriter<SIZE, OPT_SIZE, BLOCK>::template write<L>(block, opcode);
 		}
 
 		template<MemSize SIZE, class T, class BLOCK>
