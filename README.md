@@ -27,3 +27,5 @@ x86 and x64 assembly code generation library for C++11
 ## Support compilers
 
 * Visual Studio 2015 (Update 3)
+* GCC version 7.4.0
+* Clang version 6.0.0

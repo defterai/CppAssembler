@@ -1226,7 +1226,7 @@ namespace CppAsm::X86
 
 			static FwdLabel<LONG> writeConditional(BLOCK& block, common::Opcode opcode) {
 				common::write_Opcode_Extended_Prefix(block);
-				common::write_Opcode(block, opcode & 0x0F | 0x80);
+				common::write_Opcode(block, (opcode & 0x0F) | 0x80);
 				Offset offset = block.getOffset();
 				block.skipBytes(FwdLabel<LONG>::offset_size);
 				return FwdLabel<LONG>(offset);

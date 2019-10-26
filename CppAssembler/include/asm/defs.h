@@ -5,6 +5,7 @@
 
 namespace CppAsm
 {
+	typedef uint8_t* MutableAddr;
 	typedef const uint8_t* Addr;
 	typedef std::size_t Offset;
 	typedef std::size_t Size;

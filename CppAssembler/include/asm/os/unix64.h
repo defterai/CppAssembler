@@ -31,7 +31,7 @@ namespace CppAsm::Unix64
 	private:
 		template<class T>
 		constexpr static T funcTypeCast(Addr addr) {
-			return reinterpret_cast<T>(addr);
+			return reinterpret_cast<T>(const_cast<MutableAddr>(addr));
 		}
 
 		static void* allocateCodeBlockMem(Size size) {
